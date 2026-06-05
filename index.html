@@ -4,6 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>李伟锋鱼塘饲料库存系统</title>
+
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <meta name="theme-color" content="#0f766e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="鱼塘饲料" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
   <style>
     * { box-sizing: border-box; }
     body {
@@ -31,29 +40,16 @@
     }
     .top-title h1 {
       margin: 0;
-      font-size: 31px;
-      letter-spacing: 1px;
+      font-size: clamp(25px, 7.1vw, 31px);
+      line-height: 1.2;
+      white-space: nowrap;
+      letter-spacing: -1px;
+      font-weight: 900;
     }
-    .top-title p {
-      margin: 8px 0 0;
-      font-size: 20px;
-      opacity: .96;
+    @media (max-width: 360px) {
+      .top-title h1 { font-size: 24px; letter-spacing: -1.5px; }
     }
-    .notice {
-      background: #fff7ed;
-      border: 2px solid #fed7aa;
-      color: #9a3412;
-      border-radius: 18px;
-      padding: 14px;
-      margin-bottom: 16px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-    .notice.connected {
-      background: #ecfdf5;
-      border-color: #86efac;
-      color: #166534;
-    }
+    .hidden { display: none !important; }
     .card {
       background: #fff;
       border-radius: 22px;
@@ -74,7 +70,7 @@
       font-size: 24px;
       font-weight: 900;
       color: #0f172a;
-      margin: 18px 0 10px;
+      margin: 20px 0 10px;
     }
     label {
       display: block;
@@ -98,24 +94,11 @@
       border-color: #0ea5e9;
       box-shadow: 0 0 0 4px rgba(14, 165, 233, .15);
     }
-    textarea {
-      resize: vertical;
-      min-height: 88px;
-    }
+    textarea { resize: vertical; min-height: 88px; }
     .form-row { margin-bottom: 16px; }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .grid-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 560px) {
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 560px) { .grid-2 { grid-template-columns: 1fr; } }
+
     .btn {
       width: 100%;
       border: none;
@@ -126,31 +109,26 @@
       cursor: pointer;
       margin-top: 8px;
     }
-    .btn-primary {
-      background: #0f766e;
-      color: #fff;
-      box-shadow: 0 8px 16px rgba(15, 118, 110, .25);
-    }
-    .btn-blue {
-      background: #0369a1;
-      color: #fff;
-      box-shadow: 0 8px 16px rgba(3, 105, 161, .22);
-    }
-    .btn-gray {
-      background: #e2e8f0;
-      color: #0f172a;
-    }
-    .btn-danger {
-      background: #fee2e2;
-      color: #991b1b;
-      min-height: 50px;
-      font-size: 20px;
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: #0f766e; color: #fff; box-shadow: 0 8px 16px rgba(15, 118, 110, .25); }
+    .btn-blue { background: #0369a1; color: #fff; box-shadow: 0 8px 16px rgba(3, 105, 161, .22); }
+    .btn-gray { background: #e2e8f0; color: #0f172a; }
+    .btn-undo {
+      background: #fff7ed;
+      color: #9a3412;
+      border: 2px solid #fdba74;
+      min-height: 52px;
+      font-size: 21px;
       margin-top: 10px;
     }
-    .btn:active { transform: scale(.98); }
+    .btn-warning {
+      background: #fff7ed;
+      color: #9a3412;
+      border: 2px solid #fdba74;
+    }
     .quick-bags {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       margin-top: 10px;
     }
@@ -163,9 +141,6 @@
       font-weight: 900;
       color: #0369a1;
       cursor: pointer;
-    }
-    @media (max-width: 380px) {
-      .quick-bags { grid-template-columns: repeat(2, 1fr); }
     }
     .info-box {
       background: #eff6ff;
@@ -187,11 +162,22 @@
       color: #be123c;
       margin-bottom: 16px;
     }
-    .summary-grid {
-      display: grid;
-      gap: 12px;
+    .small-text {
+      font-size: 18px;
+      color: #64748b;
+      margin-top: 8px;
+      font-weight: 700;
     }
-    .summary-item, .inventory-item, .log-item, .record-item {
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 560px) { .filters { grid-template-columns: 1fr; } }
+
+    .summary-grid { display: grid; gap: 12px; }
+    .summary-item, .inventory-item, .log-item, .record-item, .pretty-card, .setting-row, .history-card {
       border: 2px solid #e2e8f0;
       border-radius: 18px;
       padding: 14px;
@@ -204,54 +190,10 @@
       align-items: center;
       gap: 12px;
     }
-    .summary-name {
-      font-size: 24px;
-      font-weight: 900;
-    }
-    .summary-num {
-      font-size: 31px;
-      font-weight: 900;
-      color: #0f766e;
-      white-space: nowrap;
-    }
-    .inventory-item.low {
-      background: #fff1f2;
-      border-color: #fecdd3;
-    }
-    .inventory-head, .record-head, .log-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-    .inventory-title, .record-title, .log-title {
-      font-size: 25px;
-      font-weight: 900;
-      color: #0f172a;
-    }
-    .inventory-bags {
-      font-size: 32px;
-      font-weight: 900;
-      color: #0f766e;
-      white-space: nowrap;
-    }
-    .inventory-item.low .inventory-bags {
-      color: #dc2626;
-    }
-    .record-bags {
-      font-size: 31px;
-      font-weight: 900;
-      color: #dc2626;
-      white-space: nowrap;
-    }
-    .log-in { color: #0f766e; }
-    .log-out { color: #dc2626; }
-    .meta {
-      font-size: 20px;
-      color: #475569;
-      margin-top: 4px;
-    }
+    .summary-name { font-size: 24px; font-weight: 900; }
+    .summary-num { font-size: 31px; font-weight: 900; color: #0f766e; white-space: nowrap; }
+    .empty { text-align: center; padding: 24px 8px; font-size: 22px; color: #64748b; font-weight: 800; }
+    .meta { font-size: 20px; color: #475569; margin-top: 4px; }
     .note {
       margin-top: 9px;
       background: #f8fafc;
@@ -260,243 +202,48 @@
       font-size: 20px;
       color: #334155;
     }
-    .filters {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-    @media (max-width: 560px) {
-      .filters { grid-template-columns: 1fr; }
-    }
-    .empty {
-      text-align: center;
-      padding: 24px 8px;
-      font-size: 22px;
-      color: #64748b;
-      font-weight: 800;
-    }
-    .setting-row {
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 14px;
-      margin-bottom: 12px;
-    }
-    .setting-label {
-      font-size: 21px;
-      font-weight: 900;
-      color: #0f172a;
-      margin-bottom: 8px;
-    }
-    .hidden { display: none; }
-    .small-text {
-      font-size: 18px;
-      color: #64748b;
-      margin-top: 8px;
-      font-weight: 700;
-    }
-    .bottom-bar {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #fff;
-      border-top: 1px solid #e5e7eb;
-      padding: 9px 10px;
-      box-shadow: 0 -6px 18px rgba(15, 23, 42, .08);
-    }
-    .bottom-inner {
-      max-width: 760px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-    .nav-btn {
-      border: none;
-      border-radius: 16px;
-      min-height: 58px;
-      font-size: 19px;
-      font-weight: 900;
-      background: #e0f2fe;
-      color: #075985;
-      cursor: pointer;
-      padding: 4px;
-    }
-    .nav-btn.active {
-      background: #0f766e;
-      color: #fff;
-    }
 
-
-    .mini-dashboard {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-    .mini-card {
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 14px;
-      text-align: center;
-    }
-    .mini-label {
-      font-size: 18px;
-      font-weight: 900;
-      color: #64748b;
-      margin-bottom: 5px;
-    }
-    .mini-value {
-      font-size: 30px;
-      font-weight: 900;
-      color: #0f766e;
-    }
-    .range-box {
-      background: #f8fafc;
-      border: 2px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 14px;
-      margin-bottom: 14px;
-    }
-    .rank-badge {
-      display: inline-block;
-      min-width: 34px;
-      text-align: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #e0f2fe;
-      color: #0369a1;
-      font-size: 18px;
-      font-weight: 900;
-      margin-right: 8px;
-    }
-    .export-btn {
-      background: #fef3c7;
-      color: #92400e;
-      border: 2px solid #fcd34d;
-      min-height: 58px;
-      font-size: 22px;
-      margin-bottom: 12px;
-    }
-    @media (max-width: 480px) {
-      .mini-dashboard {
-        grid-template-columns: 1fr;
-      }
-    }
-
-
-
-    .minor-actions {
-      margin-top: 18px;
-      border: 2px dashed #cbd5e1;
-      border-radius: 22px;
-      background: #f8fafc;
-      padding: 0;
-      overflow: hidden;
-    }
-    .minor-actions summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 16px;
-      font-size: 22px;
-      font-weight: 900;
-      color: #475569;
-      background: #f1f5f9;
-    }
-    .minor-actions summary::-webkit-details-marker {
-      display: none;
-    }
-    .minor-actions summary::after {
-      content: "展开";
-      float: right;
-      font-size: 18px;
-      color: #0369a1;
-      background: #e0f2fe;
-      padding: 4px 10px;
-      border-radius: 999px;
-    }
-    .minor-actions[open] summary::after {
-      content: "收起";
-    }
-    .minor-content {
-      padding: 16px;
-    }
-    .minor-panel {
-      background: #ffffff;
-      border: 2px solid #e2e8f0;
-      border-radius: 20px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-    .minor-panel h3 {
-      margin: 0 0 12px;
-      font-size: 24px;
-      color: #0f172a;
-    }
-    .btn-small-action {
-      min-height: 56px;
-      font-size: 22px;
-      border-radius: 16px;
-      margin-top: 4px;
-    }
-    .btn-warning {
-      background: #fff7ed;
-      color: #9a3412;
-      border: 2px solid #fdba74;
-    }
-    .history-card {
-      background: #ffffff;
-      border: 2px solid #dbeafe;
-      border-radius: 20px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-    .history-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-    .history-title {
-      font-size: 24px;
-      font-weight: 900;
-      color: #0f172a;
-    }
-    .history-total {
-      font-size: 34px;
-      font-weight: 900;
-      color: #7c3aed;
-      white-space: nowrap;
-    }
-    .history-feed {
-      margin-top: 10px;
-      display: grid;
-      gap: 8px;
-    }
-    .history-feed-line {
-      background: #f8fafc;
-      border-radius: 12px;
-      padding: 8px 10px;
-      font-size: 20px;
-      font-weight: 800;
-      color: #334155;
+    .inventory-item.low { background: #fff1f2; border-color: #fecdd3; }
+    .inventory-head, .record-head, .log-head, .history-head {
       display: flex;
       justify-content: space-between;
       gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
     }
-    .cycle-pill {
+    .inventory-title, .record-title, .log-title, .history-title {
+      font-size: 25px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .inventory-bags { font-size: 32px; font-weight: 900; color: #0f766e; white-space: nowrap; }
+    .record-bags { font-size: 31px; font-weight: 900; color: #dc2626; white-space: nowrap; }
+    .log-in { color: #0f766e !important; }
+    .log-out { color: #dc2626 !important; }
+    .cancelled-card {
+      opacity: 0.62;
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+    }
+    .cancelled-badge {
       display: inline-block;
-      margin-top: 6px;
-      padding: 5px 12px;
+      margin-top: 10px;
+      padding: 6px 12px;
       border-radius: 999px;
-      background: #fef3c7;
-      color: #92400e;
+      background: #e2e8f0;
+      color: #475569;
       font-size: 18px;
       font-weight: 900;
+    }
+    .undo-tip {
+      background: #fffbeb;
+      border: 2px solid #fde68a;
+      border-radius: 16px;
+      color: #92400e;
+      font-size: 19px;
+      font-weight: 800;
+      padding: 12px;
+      margin-bottom: 12px;
     }
 
     .single-pond-hero {
@@ -514,11 +261,7 @@
       align-items: flex-start;
       margin-bottom: 12px;
     }
-    .single-pond-name {
-      font-size: 32px;
-      font-weight: 900;
-      color: #0f172a;
-    }
+    .single-pond-name { font-size: 32px; font-weight: 900; color: #0f172a; }
     .single-pond-species {
       display: inline-block;
       margin-top: 6px;
@@ -529,9 +272,16 @@
       font-size: 20px;
       font-weight: 900;
     }
-    .single-pond-species.empty {
-      background: #e2e8f0;
-      color: #64748b;
+    .single-pond-species.empty { background: #e2e8f0; color: #64748b; }
+    .cycle-pill {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 18px;
+      font-weight: 900;
     }
     .single-pond-bags {
       font-size: 48px;
@@ -554,67 +304,15 @@
       margin: 14px 0;
     }
     .visual-stat {
-      background: #ffffff;
+      background: #fff;
       border: 2px solid #e2e8f0;
       border-radius: 18px;
       padding: 14px;
       text-align: center;
     }
-    .visual-stat .label {
-      color: #64748b;
-      font-size: 18px;
-      font-weight: 900;
-      margin-bottom: 5px;
-    }
-    .visual-stat .value {
-      color: #0f766e;
-      font-size: 30px;
-      font-weight: 900;
-    }
-    .pretty-card {
-      background: #ffffff;
-      border: 2px solid #e2e8f0;
-      border-radius: 22px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
-    }
-    .pretty-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-    }
-    .pretty-title {
-      font-size: 25px;
-      font-weight: 900;
-      color: #0f172a;
-    }
-    .pretty-num {
-      font-size: 34px;
-      font-weight: 900;
-      color: #0f766e;
-      white-space: nowrap;
-    }
-    .progress-wrap {
-      height: 16px;
-      background: #e2e8f0;
-      border-radius: 999px;
-      overflow: hidden;
-      margin-top: 12px;
-    }
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #0f766e, #0ea5e9);
-      border-radius: 999px;
-      min-width: 3%;
-    }
-    .pond-quick-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
+    .visual-stat .label { color: #64748b; font-size: 18px; font-weight: 900; margin-bottom: 5px; }
+    .visual-stat .value { color: #0f766e; font-size: 30px; font-weight: 900; }
+    .pond-quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
     .pond-quick-card {
       border: 2px solid #dbeafe;
       background: #f8fafc;
@@ -623,92 +321,79 @@
       text-align: left;
       cursor: pointer;
     }
-    .pond-quick-card.active {
-      background: #ecfdf5;
-      border-color: #34d399;
-      box-shadow: 0 6px 16px rgba(15, 118, 110, 0.14);
-    }
-    .pond-quick-card.empty {
-      opacity: 0.58;
-      background: #f1f5f9;
-      border-color: #cbd5e1;
-    }
-    .pond-quick-name {
-      font-size: 23px;
-      font-weight: 900;
-      color: #0f172a;
-    }
-    .pond-quick-species {
-      font-size: 18px;
-      font-weight: 900;
-      color: #64748b;
-      margin-top: 4px;
-    }
-    .pond-quick-bags {
-      margin-top: 8px;
-      font-size: 28px;
-      color: #dc2626;
-      font-weight: 900;
-    }
+    .pond-quick-card.active { background: #ecfdf5; border-color: #34d399; box-shadow: 0 6px 16px rgba(15, 118, 110, 0.14); }
+    .pond-quick-card.empty { opacity: 0.58; background: #f1f5f9; border-color: #cbd5e1; }
+    .pond-quick-name { font-size: 23px; font-weight: 900; color: #0f172a; }
+    .pond-quick-species { font-size: 18px; font-weight: 900; color: #64748b; margin-top: 4px; }
+    .pond-quick-bags { margin-top: 8px; font-size: 28px; color: #dc2626; font-weight: 900; }
     @media (max-width: 480px) {
-      .single-pond-top {
-        flex-direction: column;
-      }
-      .single-pond-bags {
-        text-align: left;
-      }
-      .visual-stat-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-      .pond-quick-grid {
-        grid-template-columns: 1fr;
-      }
+      .single-pond-top { flex-direction: column; }
+      .single-pond-bags { text-align: left; }
+      .pond-quick-grid { grid-template-columns: 1fr; }
     }
 
-    .pond-stat-item {
+    .pretty-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+    .pretty-title { font-size: 25px; font-weight: 900; color: #0f172a; }
+    .pretty-num { font-size: 34px; font-weight: 900; color: #0f766e; white-space: nowrap; }
+    .progress-wrap { height: 16px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-top: 12px; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, #0f766e, #0ea5e9); border-radius: 999px; min-width: 3%; }
+
+    .range-box {
+      background: #f8fafc;
       border: 2px solid #e2e8f0;
-      border-radius: 20px;
-      padding: 15px;
-      background: #ffffff;
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .export-btn {
+      background: #fef3c7;
+      color: #92400e;
+      border: 2px solid #fcd34d;
+      min-height: 58px;
+      font-size: 22px;
       margin-bottom: 12px;
     }
-    .pond-stat-item.zero {
+
+    .minor-actions {
+      margin-top: 18px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 22px;
       background: #f8fafc;
-      color: #64748b;
+      padding: 0;
+      overflow: hidden;
     }
-    .pond-stat-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-    .pond-stat-name {
-      font-size: 26px;
+    .minor-actions summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px;
+      font-size: 22px;
       font-weight: 900;
-      color: #0f172a;
-    }
-    .pond-stat-species {
-      font-size: 20px;
-      font-weight: 800;
       color: #475569;
-      margin-top: 3px;
+      background: #f1f5f9;
     }
-    .pond-stat-bags {
-      font-size: 36px;
-      font-weight: 900;
-      color: #dc2626;
-      white-space: nowrap;
+    .minor-actions summary::-webkit-details-marker { display: none; }
+    .minor-actions summary::after {
+      content: "展开";
+      float: right;
+      font-size: 18px;
+      color: #0369a1;
+      background: #e0f2fe;
+      padding: 4px 10px;
+      border-radius: 999px;
     }
-    .pond-stat-item.zero .pond-stat-bags {
-      color: #94a3b8;
+    .minor-actions[open] summary::after { content: "收起"; }
+    .minor-content { padding: 16px; }
+    .minor-panel {
+      background: #fff;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 14px;
     }
-    .pond-feed-breakdown {
-      margin-top: 10px;
-      display: grid;
-      gap: 8px;
-    }
-    .pond-feed-line {
+    .minor-panel h3 { margin: 0 0 12px; font-size: 24px; color: #0f172a; }
+    .history-total { font-size: 34px; font-weight: 900; color: #7c3aed; white-space: nowrap; }
+    .history-feed { margin-top: 10px; display: grid; gap: 8px; }
+    .history-feed-line {
       background: #f8fafc;
       border-radius: 12px;
       padding: 8px 10px;
@@ -719,34 +404,21 @@
       justify-content: space-between;
       gap: 10px;
     }
-    .big-total-box {
-      background: #fff1f2;
-      border: 2px solid #fecdd3;
-      color: #be123c;
-      border-radius: 20px;
-      padding: 16px;
-      font-size: 28px;
-      font-weight: 900;
-      margin-bottom: 14px;
-      text-align: center;
-    }
 
-    .pill {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #e0f2fe;
-      color: #0369a1;
-      font-size: 18px;
-      font-weight: 900;
-      margin-top: 6px;
-    }
-  
-    /* 手机底部导航优化：5个按钮一排，不换行 */
+    .setting-row { margin-bottom: 12px; background: #f8fafc; }
+    .setting-label { font-size: 21px; font-weight: 900; color: #0f172a; margin-bottom: 8px; }
+
     .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
       padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+      box-shadow: 0 -6px 18px rgba(15, 23, 42, .08);
+      z-index: 10;
     }
-
     .bottom-inner {
       max-width: 760px;
       margin: 0 auto;
@@ -755,8 +427,8 @@
       gap: 6px;
       align-items: center;
     }
-
     .nav-btn {
+      border: none;
       min-width: 0;
       min-height: 52px;
       border-radius: 15px;
@@ -766,35 +438,16 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: clip;
+      font-weight: 900;
+      background: #e0f2fe;
+      color: #075985;
+      cursor: pointer;
     }
-
+    .nav-btn.active { background: #0f766e; color: #fff; }
     @media (max-width: 380px) {
-      .nav-btn {
-        font-size: 18px;
-        min-height: 50px;
-        border-radius: 14px;
-      }
-      .bottom-inner {
-        gap: 5px;
-      }
+      .nav-btn { font-size: 18px; min-height: 50px; border-radius: 14px; }
+      .bottom-inner { gap: 5px; }
     }
-
-  
-    /* 顶部标题优化：手机上不换行 */
-    .top-title h1 {
-      font-size: clamp(25px, 7.1vw, 31px);
-      line-height: 1.2;
-      white-space: nowrap;
-      letter-spacing: -1px;
-    }
-
-    @media (max-width: 360px) {
-      .top-title h1 {
-        font-size: 24px;
-        letter-spacing: -1.5px;
-      }
-    }
-
   </style>
 </head>
 
@@ -804,9 +457,8 @@
       <h1>李伟锋鱼塘饲料库存系统</h1>
     </div>
 
-    <div id="syncNotice" class="notice hidden"></div>
+    <div id="syncNotice" class="hidden"></div>
 
-    <!-- 喂料登记 -->
     <section id="pageFeed" class="card">
       <h2>🐟 喂料登记</h2>
 
@@ -820,14 +472,13 @@
         <select id="pondSelect" onchange="updatePondInfo()"></select>
       </div>
 
-      <div id="pondInfo" class="info-box">鱼种：待填写</div>
+      <div id="pondInfo" class="info-box">鱼种：空置</div>
 
       <div class="grid-2">
         <div class="form-row">
           <label for="feedWarehouse">从哪个仓库扣料</label>
-          <select id="feedWarehouse" onchange="renderFeedSuggestions()"></select>
+          <select id="feedWarehouse" onchange="updateCurrentStockBox()"></select>
         </div>
-
         <div class="form-row">
           <label for="feedPerson">负责人</label>
           <select id="feedPerson">
@@ -846,8 +497,6 @@
           <option value="__custom__">其他饲料，手动填写</option>
         </select>
         <input id="feedNameCustom" class="hidden" placeholder="请输入其他饲料名称" oninput="updateCurrentStockBox()" style="margin-top:10px;" />
-        <datalist id="feedNameList"></datalist>
-        <div class="small-text">提示：饲料名称要和入库时一致，库存才会自动对应。</div>
       </div>
 
       <div id="currentStockBox" class="info-box">当前库存：请选择仓库和饲料</div>
@@ -869,10 +518,8 @@
       </div>
 
       <button class="btn btn-primary" onclick="saveFeedRecord()">保存喂料并扣库存</button>
-      <div class="small-text">保存后：喂料明细增加一条，同时对应仓库库存减少。</div>
     </section>
 
-    <!-- 入库登记 -->
     <section id="pageStockIn" class="card hidden">
       <h2>🏠 仓库入库</h2>
 
@@ -886,7 +533,6 @@
           <label for="stockWarehouse">入到哪个仓库</label>
           <select id="stockWarehouse"></select>
         </div>
-
         <div class="form-row">
           <label for="stockPerson">负责人</label>
           <select id="stockPerson">
@@ -926,7 +572,6 @@
       <button class="btn btn-blue" onclick="saveStockIn()">保存入库并加库存</button>
     </section>
 
-    <!-- 库存 -->
     <section id="pageInventory" class="card hidden">
       <h2>📦 当前库存</h2>
 
@@ -952,6 +597,8 @@
       <div id="inventoryList" class="summary-grid"></div>
 
       <div class="sub-title">库存流水</div>
+      <div class="undo-tip">登记错了，可以在下面点“撤销这条”。撤销会自动反向修正库存和鱼塘汇总。</div>
+
       <div class="filters">
         <div>
           <label for="logDateFilter">日期</label>
@@ -969,8 +616,6 @@
       <div id="stockLogList" class="summary-grid"></div>
     </section>
 
-
-    <!-- 单个鱼塘汇总 -->
     <section id="pagePondStats" class="card hidden">
       <h2>📊 单塘汇总</h2>
 
@@ -978,7 +623,7 @@
         <div class="form-row">
           <label for="singlePondSelect">选择鱼塘</label>
           <select id="singlePondSelect" onchange="renderAll()"></select>
-          <div class="small-text">有鱼的鱼塘会自动排在前面；没设置鱼种的默认显示为空置。</div>
+          <div class="small-text">有鱼的鱼塘自动排在前面，没设置鱼种默认显示为空置。</div>
         </div>
 
         <div class="form-row">
@@ -1026,6 +671,7 @@
       <div id="dailySummaryList"></div>
 
       <div class="sub-title">喂料明细</div>
+      <div class="undo-tip">这里也可以撤销单条喂料或前期补录。</div>
       <div id="pondStatsDetailList" class="summary-grid"></div>
 
       <details class="minor-actions">
@@ -1061,7 +707,7 @@
               <label for="backfillNote">补录说明</label>
               <textarea id="backfillNote" placeholder="例如：开始使用系统前，估算已经喂了这些料"></textarea>
             </div>
-            <button class="btn btn-blue btn-small-action" onclick="saveBackfillRecord()">保存补录，不扣库存</button>
+            <button class="btn btn-blue" onclick="saveBackfillRecord()">保存补录，不扣库存</button>
           </div>
 
           <div class="minor-panel">
@@ -1077,7 +723,7 @@
               <label for="cycleSaleNote">备注</label>
               <textarea id="cycleSaleNote" placeholder="例如：已卖鱼，准备清塘 / 下一批重新放苗"></textarea>
             </div>
-            <button class="btn btn-warning btn-small-action" onclick="finishCurrentCycle()">卖鱼归档，并重新开始记录</button>
+            <button class="btn btn-warning" onclick="finishCurrentCycle()">卖鱼归档，并重新开始记录</button>
           </div>
 
           <div class="minor-panel">
@@ -1088,7 +734,6 @@
       </details>
     </section>
 
-    <!-- 设置 -->
     <section id="pageSettings" class="card hidden">
       <h2>⚙️ 基础设置</h2>
 
@@ -1119,14 +764,6 @@
   </div>
 
   <script type="module">
-    /*
-      Firebase 实时同步设置：
-      1. 去 Firebase 创建项目
-      2. 创建 Realtime Database
-      3. 把 firebaseConfig 替换成你的配置
-      4. 把 USE_FIREBASE 改成 true
-    */
-
     const USE_FIREBASE = true;
 
     const firebaseConfig = {
@@ -1139,35 +776,18 @@
       appId: "1:463268145457:web:51287c11eef1829010e810"
     };
 
-    const DEFAULT_PONDS = [
-      { id: "pond1", name: "1号塘", species: "空置" },
-      { id: "pond2", name: "2号塘", species: "空置" },
-      { id: "pond3", name: "3号塘", species: "空置" },
-      { id: "pond4", name: "4号塘", species: "空置" },
-      { id: "pond5", name: "5号塘", species: "空置" },
-      { id: "pond6", name: "6号塘", species: "空置" },
-      { id: "pond7", name: "7号塘", species: "空置" },
-      { id: "pond8", name: "8号塘", species: "空置" },
-      { id: "pond9", name: "9号塘", species: "空置" },
-      { id: "pond10", name: "10号塘", species: "空置" },
-      { id: "pond11", name: "11号塘", species: "空置" }
-    ];
+    const DEFAULT_PONDS = Array.from({ length: 11 }, (_, i) => ({
+      id: "pond" + (i + 1),
+      name: (i + 1) + "号塘",
+      species: "空置"
+    }));
 
-    const DEFAULT_WAREHOUSES = [
-      { id: "wh1", name: "1号仓库" },
-      { id: "wh2", name: "2号仓库" },
-      { id: "wh3", name: "3号仓库" },
-      { id: "wh4", name: "4号仓库" },
-      { id: "wh5", name: "5号仓库" },
-      { id: "wh6", name: "6号仓库" },
-      { id: "wh7", name: "7号仓库" },
-      { id: "wh8", name: "8号仓库" },
-      { id: "wh9", name: "9号仓库" },
-      { id: "wh10", name: "10号仓库" }
-    ];
+    const DEFAULT_WAREHOUSES = Array.from({ length: 10 }, (_, i) => ({
+      id: "wh" + (i + 1),
+      name: (i + 1) + "号仓库"
+    }));
 
     const COMMON_FEED_NAMES = ["生鱼料", "鳗鱼料", "加州鲈料"];
-    const RESPONSIBLE_PERSONS = ["李伟锋", "关淑芬"];
 
     let ponds = structuredClone(DEFAULT_PONDS);
     let warehouses = structuredClone(DEFAULT_WAREHOUSES);
@@ -1190,7 +810,6 @@
       const dd = String(d.getDate()).padStart(2, "0");
       return `${yyyy}-${mm}-${dd}`;
     }
-
 
     function addDays(date, days) {
       const d = new Date(date);
@@ -1225,39 +844,26 @@
       const mode = $("pondStatsRange").value;
       const now = new Date();
 
-      if (mode === "currentCycle") {
-        return { start: "", end: "", label: "当前这塘鱼", currentCycle: true };
-      }
-
+      if (mode === "currentCycle") return { start: "", end: "", label: "当前这塘鱼", currentCycle: true };
       if (mode === "today") {
         const t = todayStr();
         return { start: t, end: t, label: "今天" };
       }
-
       if (mode === "yesterday") {
         const y = dateToStr(addDays(now, -1));
         return { start: y, end: y, label: "昨天" };
       }
-
-      if (mode === "last7") {
-        return { start: dateToStr(addDays(now, -6)), end: todayStr(), label: "近7天" };
-      }
-
-      if (mode === "thisMonth") {
-        return { start: dateToStr(getMonthStart(now)), end: dateToStr(getMonthEnd(now)), label: "本月" };
-      }
-
+      if (mode === "last7") return { start: dateToStr(addDays(now, -6)), end: todayStr(), label: "近7天" };
+      if (mode === "thisMonth") return { start: dateToStr(getMonthStart(now)), end: dateToStr(getMonthEnd(now)), label: "本月" };
       if (mode === "lastMonth") {
         const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         return { start: dateToStr(getMonthStart(lastMonth)), end: dateToStr(getMonthEnd(lastMonth)), label: "上月" };
       }
-
       if (mode === "custom") {
         const start = $("pondStatsStartDate").value;
         const end = $("pondStatsEndDate").value;
         return { start, end, label: `${start || "开始"} 至 ${end || "结束"}` };
       }
-
       return { start: "", end: "", label: "全部记录" };
     }
 
@@ -1267,18 +873,6 @@
       if (range.end && date > range.end) return false;
       return true;
     }
-
-    window.handleStatsRangeChange = function() {
-      const mode = $("pondStatsRange").value;
-      $("customRangeBox").classList.toggle("hidden", mode !== "custom");
-      const range = getStatsRange();
-      if (mode !== "custom" && range.start && range.end) {
-        $("pondStatsStartDate").value = range.start;
-        $("pondStatsEndDate").value = range.end;
-      }
-      renderAll();
-    };
-
 
     function activeWarehouses() {
       return warehouses.filter(w => String(w.name || "").trim());
@@ -1308,10 +902,9 @@
     }
 
     function recordInPondRange(record, pond, range) {
+      if (record?.cancelled) return false;
       if (!recordBelongsToPond(record, pond)) return false;
-      if (range && range.currentCycle) {
-        return Number(record.createdAt || 0) >= getCycleStartAt(pond.id);
-      }
+      if (range && range.currentCycle) return Number(record.createdAt || 0) >= getCycleStartAt(pond.id);
       return inStatsRange(record.date, range);
     }
 
@@ -1345,15 +938,9 @@
 
     function uniqueFeedNames() {
       const names = new Set(COMMON_FEED_NAMES);
-      Object.values(stockTotals).forEach(item => {
-        if (item.feedName) names.add(item.feedName);
-      });
-      stockLogs.forEach(item => {
-        if (item.feedName) names.add(item.feedName);
-      });
-      feedRecords.forEach(item => {
-        if (item.feedName) names.add(item.feedName);
-      });
+      Object.values(stockTotals).forEach(item => { if (item.feedName) names.add(item.feedName); });
+      stockLogs.forEach(item => { if (item.feedName) names.add(item.feedName); });
+      feedRecords.forEach(item => { if (item.feedName) names.add(item.feedName); });
       names.add("前期累计饲料");
       return Array.from(names).sort((a, b) => a.localeCompare(b, "zh-CN"));
     }
@@ -1361,9 +948,7 @@
     function getFeedInputValue(selectId, customId) {
       const select = $(selectId);
       if (!select) return "";
-      if (select.value === "__custom__") {
-        return ($(customId)?.value || "").trim();
-      }
+      if (select.value === "__custom__") return ($(customId)?.value || "").trim();
       return select.value.trim();
     }
 
@@ -1373,9 +958,7 @@
       if (!select || !custom) return;
       const isCustom = select.value === "__custom__";
       custom.classList.toggle("hidden", !isCustom);
-      if (isCustom) {
-        setTimeout(() => custom.focus(), 50);
-      }
+      if (isCustom) setTimeout(() => custom.focus(), 50);
     };
 
     function escapeHtml(str) {
@@ -1393,9 +976,7 @@
     }
 
     function nowTime(createdAt) {
-      return createdAt
-        ? new Date(createdAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })
-        : "";
+      return createdAt ? new Date(createdAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }) : "";
     }
 
     function setDefaultDates() {
@@ -1450,12 +1031,12 @@
       }
 
       try {
-        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
-        const { getDatabase, ref, push, set, onValue, runTransaction, remove } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js");
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js");
+        const { getDatabase, ref, push, set, onValue, runTransaction, update } = await import("https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js");
 
         const app = initializeApp(firebaseConfig);
         db = getDatabase(app);
-        firebaseApi = { ref, push, set, onValue, runTransaction, remove };
+        firebaseApi = { ref, push, set, onValue, runTransaction, update };
 
         onValue(ref(db, "settings/ponds"), (snapshot) => {
           const data = snapshot.val();
@@ -1488,8 +1069,6 @@
         onValue(ref(db, "stockTotals"), (snapshot) => {
           stockTotals = snapshot.val() || {};
           firebaseReady = true;
-          $("syncNotice").textContent = "实时同步已开启。两个人打开同一个网址，都能看到最新喂料、库存和养殖周期。";
-          $("syncNotice").classList.add("connected");
           renderAll();
         });
 
@@ -1507,63 +1086,10 @@
         });
       } catch (error) {
         console.error(error);
-        $("syncNotice").textContent = "Firebase 连接失败，当前自动切换为本地模式。请检查 Firebase 配置。";
+        alert("Firebase 连接失败，当前切换为本地模式。请检查数据库规则或网址。");
         localLoad();
       }
     }
-
-    window.showPage = function(page) {
-      const pages = ["feed", "stockIn", "inventory", "pondStats", "settings"];
-      pages.forEach(p => {
-        const show = p === page;
-        $("page" + p[0].toUpperCase() + p.slice(1)).classList.toggle("hidden", !show);
-        $("tab" + p[0].toUpperCase() + p.slice(1)).classList.toggle("active", show);
-      });
-      renderAll();
-    };
-
-    window.setFeedBags = function(value) {
-      $("feedBags").value = value;
-      updateCurrentStockBox();
-    };
-
-    window.setStockBags = function(value) {
-      $("stockBags").value = value;
-    };
-
-    window.updatePondInfo = function() {
-      const pond = pondById($("pondSelect").value);
-      $("pondInfo").textContent = `${pond.name}　鱼种：${pond.species || "空置"}`;
-    };
-
-    window.renderFeedSuggestions = function() {
-      renderDatalist();
-      updateCurrentStockBox();
-    };
-
-    window.updateCurrentStockBox = function() {
-      const warehouseId = $("feedWarehouse").value;
-      const feedName = getFeedInputValue("feedName", "feedNameCustom");
-      const box = $("currentStockBox");
-
-      if (!warehouseId || !feedName) {
-        box.textContent = "当前库存：请选择仓库和饲料";
-        box.className = "info-box";
-        return;
-      }
-
-      const stock = getStock(warehouseId, feedName);
-      const willUse = Number($("feedBags").value || 0);
-      const remain = stock - willUse;
-
-      if (willUse > 0) {
-        box.textContent = `当前库存：${formatNumber(stock)} 包，保存后剩余：${formatNumber(remain)} 包`;
-      } else {
-        box.textContent = `当前库存：${formatNumber(stock)} 包`;
-      }
-
-      box.className = remain < 0 ? "warn-box" : "info-box";
-    };
 
     async function firebaseUpdateStock(warehouseId, feedName, deltaBags) {
       const feedKey = safeFeedKey(feedName);
@@ -1583,6 +1109,63 @@
       });
     }
 
+    window.showPage = function(page) {
+      const pages = ["feed", "stockIn", "inventory", "pondStats", "settings"];
+      const pageIds = { feed: "pageFeed", stockIn: "pageStockIn", inventory: "pageInventory", pondStats: "pagePondStats", settings: "pageSettings" };
+      const tabIds = { feed: "tabFeed", stockIn: "tabStockIn", inventory: "tabInventory", pondStats: "tabPondStats", settings: "tabSettings" };
+      pages.forEach(p => {
+        $(pageIds[p]).classList.toggle("hidden", p !== page);
+        $(tabIds[p]).classList.toggle("active", p === page);
+      });
+      renderAll();
+    };
+
+    window.setFeedBags = function(value) {
+      $("feedBags").value = value;
+      updateCurrentStockBox();
+    };
+
+    window.setStockBags = function(value) {
+      $("stockBags").value = value;
+    };
+
+    window.updatePondInfo = function() {
+      const pond = pondById($("pondSelect").value);
+      $("pondInfo").textContent = `${pond.name}　鱼种：${pond.species || "空置"}`;
+    };
+
+    window.updateCurrentStockBox = function() {
+      const warehouseId = $("feedWarehouse").value;
+      const feedName = getFeedInputValue("feedName", "feedNameCustom");
+      const box = $("currentStockBox");
+
+      if (!warehouseId || !feedName) {
+        box.textContent = "当前库存：请选择仓库和饲料";
+        box.className = "info-box";
+        return;
+      }
+
+      const stock = getStock(warehouseId, feedName);
+      const willUse = Number($("feedBags").value || 0);
+      const remain = stock - willUse;
+
+      box.textContent = willUse > 0
+        ? `当前库存：${formatNumber(stock)} 包，保存后剩余：${formatNumber(remain)} 包`
+        : `当前库存：${formatNumber(stock)} 包`;
+      box.className = remain < 0 ? "warn-box" : "info-box";
+    };
+
+    window.handleStatsRangeChange = function() {
+      const mode = $("pondStatsRange").value;
+      $("customRangeBox").classList.toggle("hidden", mode !== "custom");
+      const range = getStatsRange();
+      if (mode !== "custom" && range.start && range.end) {
+        $("pondStatsStartDate").value = range.start;
+        $("pondStatsEndDate").value = range.end;
+      }
+      renderAll();
+    };
+
     window.saveStockIn = async function() {
       const date = $("stockDate").value;
       const warehouseId = $("stockWarehouse").value;
@@ -1593,10 +1176,12 @@
 
       if (!date) return alert("请选择日期");
       if (!warehouseId) return alert("请选择仓库");
-      if (!feedName) return alert("请输入饲料名称");
+      if (!feedName) return alert("请选择饲料名称");
       if (!bags || bags <= 0) return alert("请输入入库包数");
 
+      const undoGroupId = "stock_in_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
       const log = {
+        undoGroupId,
         date,
         type: "in",
         warehouseId,
@@ -1640,7 +1225,7 @@
       if (!date) return alert("请选择日期");
       if (!pond) return alert("请选择鱼塘");
       if (!warehouseId) return alert("请选择扣料仓库");
-      if (!feedName) return alert("请输入饲料名称");
+      if (!feedName) return alert("请选择饲料名称");
       if (!bags || bags <= 0) return alert("请输入喂料包数");
 
       const currentStock = getStock(warehouseId, feedName);
@@ -1650,8 +1235,10 @@
       }
 
       const createdAt = Date.now();
+      const undoGroupId = "feed_" + createdAt + "_" + Math.random().toString(36).slice(2, 8);
 
       const record = {
+        undoGroupId,
         date,
         pondId: pond.id,
         pondName: pond.name,
@@ -1666,6 +1253,7 @@
       };
 
       const log = {
+        undoGroupId,
         date,
         type: "out",
         warehouseId,
@@ -1701,399 +1289,6 @@
       showPage("inventory");
     };
 
-    window.deleteFeedRecord = async function(id) {
-      alert("为了防止库存对不上，第二版暂不允许直接删除喂料记录。后续可以增加“冲正/撤销”功能。");
-    };
-
-    window.saveSettings = async function() {
-      const newPonds = DEFAULT_PONDS.map((p, i) => ({
-        id: p.id,
-        name: $(`pondName_${i}`).value.trim() || p.name,
-        species: $(`pondSpecies_${i}`).value.trim() || "空置"
-      }));
-
-      const newWarehouses = DEFAULT_WAREHOUSES.map((w, i) => ({
-        id: w.id,
-        name: $(`warehouseName_${i}`).value.trim()
-      }));
-
-      ponds = newPonds;
-      warehouses = newWarehouses;
-
-      if (USE_FIREBASE && firebaseReady) {
-        const pondsObj = Object.fromEntries(ponds.map(p => [p.id, p]));
-        const warehousesObj = Object.fromEntries(warehouses.map(w => [w.id, w]));
-        await firebaseApi.set(firebaseApi.ref(db, "settings/ponds"), pondsObj);
-        await firebaseApi.set(firebaseApi.ref(db, "settings/warehouses"), warehousesObj);
-      } else {
-        localSaveAll();
-        renderAll();
-      }
-
-      alert("设置已保存");
-      showPage("feed");
-    };
-
-    window.resetSettings = function() {
-      if (!confirm("确定恢复默认鱼塘和仓库设置吗？库存和流水不会删除。")) return;
-      ponds = structuredClone(DEFAULT_PONDS);
-      warehouses = structuredClone(DEFAULT_WAREHOUSES);
-      localSaveAll();
-      renderAll();
-      alert("已恢复默认设置");
-    };
-
-    window.renderAll = function() {
-      renderSelects();
-      renderDatalist();
-      renderPondSettings();
-      renderWarehouseSettings();
-      renderInventory();
-      renderStockLogs();
-      renderPondStats();
-      renderCycleHistory();
-      updatePondInfo();
-      updateCurrentStockBox();
-    };
-
-    function renderSelects() {
-      const displayPonds = sortedPondsForDisplay();
-      const pondOptions = displayPonds.map(p => {
-        const emptyText = isPondOccupied(p) ? "" : "【空置】";
-        return `<option value="${p.id}">${escapeHtml(p.name)} - ${escapeHtml(p.species || "空置")}${emptyText}</option>`;
-      }).join("");
-
-      const oldPond = $("pondSelect").value;
-      $("pondSelect").innerHTML = pondOptions;
-      if (oldPond && ponds.some(p => p.id === oldPond)) {
-        $("pondSelect").value = oldPond;
-      } else if (displayPonds[0]) {
-        $("pondSelect").value = displayPonds[0].id;
-      }
-
-      if ($("singlePondSelect")) {
-        const oldSinglePond = $("singlePondSelect").value;
-        $("singlePondSelect").innerHTML = pondOptions;
-        if (oldSinglePond && ponds.some(p => p.id === oldSinglePond)) {
-          $("singlePondSelect").value = oldSinglePond;
-        } else if (displayPonds[0]) {
-          $("singlePondSelect").value = displayPonds[0].id;
-        }
-      }
-
-      const whOptions = activeWarehouses().map(w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`).join("");
-      const oldFeedWh = $("feedWarehouse").value;
-      const oldStockWh = $("stockWarehouse").value;
-      $("feedWarehouse").innerHTML = whOptions;
-      $("stockWarehouse").innerHTML = whOptions;
-      if (oldFeedWh && activeWarehouses().some(w => w.id === oldFeedWh)) $("feedWarehouse").value = oldFeedWh;
-      if (oldStockWh && activeWarehouses().some(w => w.id === oldStockWh)) $("stockWarehouse").value = oldStockWh;
-
-      const oldInvWh = $("inventoryWarehouseFilter").value;
-      $("inventoryWarehouseFilter").innerHTML = `<option value="全部">全部仓库</option>` + whOptions;
-      if (oldInvWh && (oldInvWh === "全部" || activeWarehouses().some(w => w.id === oldInvWh))) {
-        $("inventoryWarehouseFilter").value = oldInvWh;
-      }
-    }
-
-    function renderDatalist() {
-      $("feedNameList").innerHTML = uniqueFeedNames()
-        .map(name => `<option value="${escapeHtml(name)}"></option>`)
-        .join("");
-    }
-
-    function renderPondSettings() {
-      $("pondSettings").innerHTML = ponds.map((p, i) => `
-        <div class="setting-row">
-          <div class="setting-label">第 ${i + 1} 个鱼塘</div>
-          <div class="grid-2">
-            <div>
-              <label for="pondName_${i}">鱼塘名称</label>
-              <input id="pondName_${i}" value="${escapeHtml(p.name)}" />
-            </div>
-            <div>
-              <label for="pondSpecies_${i}">鱼种</label>
-              <input id="pondSpecies_${i}" value="${escapeHtml(p.species || "")}" placeholder="不填=空置，例如：草鱼" />
-            </div>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function renderWarehouseSettings() {
-      $("warehouseSettings").innerHTML = DEFAULT_WAREHOUSES.map((w, i) => {
-        const current = warehouses.find(x => x.id === w.id) || w;
-        return `
-          <div class="setting-row">
-            <label for="warehouseName_${i}">仓库 ${i + 1}</label>
-            <input id="warehouseName_${i}" value="${escapeHtml(current.name || "")}" placeholder="例如：${i + 1}号仓库" />
-          </div>
-        `;
-      }).join("");
-    }
-
-    function renderInventory() {
-      const inventoryList = $("inventoryList");
-      const feedTotalList = $("feedTotalList");
-      const whFilter = $("inventoryWarehouseFilter").value || "全部";
-      const feedFilter = $("inventoryFeedFilter").value.trim();
-
-      const items = Object.values(stockTotals)
-        .filter(item => !whFilter || whFilter === "全部" || item.warehouseId === whFilter)
-        .filter(item => !feedFilter || String(item.feedName || "").includes(feedFilter))
-        .sort((a, b) => {
-          const wa = warehouseName(a.warehouseId);
-          const wb = warehouseName(b.warehouseId);
-          return wa.localeCompare(wb, "zh-CN") || String(a.feedName || "").localeCompare(String(b.feedName || ""), "zh-CN");
-        });
-
-      const totalByFeed = {};
-      Object.values(stockTotals).forEach(item => {
-        if (feedFilter && !String(item.feedName || "").includes(feedFilter)) return;
-        const name = item.feedName || "未命名饲料";
-        totalByFeed[name] = (totalByFeed[name] || 0) + Number(item.bags || 0);
-      });
-
-      const feedTotals = Object.entries(totalByFeed).sort((a, b) => a[0].localeCompare(b[0], "zh-CN"));
-      feedTotalList.innerHTML = feedTotals.length
-        ? feedTotals.map(([name, bags]) => `
-          <div class="summary-item">
-            <div class="summary-name">${escapeHtml(name)}</div>
-            <div class="summary-num">${formatNumber(bags)} 包</div>
-          </div>
-        `).join("")
-        : `<div class="empty">暂无总库存</div>`;
-
-      const lowItems = Object.values(stockTotals).filter(item => Number(item.bags || 0) <= 10);
-      if (lowItems.length) {
-        $("inventoryWarning").classList.remove("hidden");
-        $("inventoryWarning").textContent = `库存提醒：有 ${lowItems.length} 项库存小于或等于 10 包，请注意补货。`;
-      } else {
-        $("inventoryWarning").classList.add("hidden");
-      }
-
-      inventoryList.innerHTML = items.length
-        ? items.map(item => {
-          const low = Number(item.bags || 0) <= 10;
-          return `
-            <div class="inventory-item ${low ? "low" : ""}">
-              <div class="inventory-head">
-                <div>
-                  <div class="inventory-title">${escapeHtml(item.feedName || "未命名饲料")}</div>
-                  <div class="meta">${escapeHtml(warehouseName(item.warehouseId))}</div>
-                </div>
-                <div class="inventory-bags">${formatNumber(item.bags)} 包</div>
-              </div>
-              ${low ? `<div class="pill">库存偏低</div>` : ""}
-              <div class="meta">更新时间：${item.updatedAt ? new Date(item.updatedAt).toLocaleString("zh-CN") : "—"}</div>
-            </div>
-          `;
-        }).join("")
-        : `<div class="empty">暂无库存，请先登记入库</div>`;
-    }
-
-
-    function renderPondStats() {
-      const hero = $("singlePondHero");
-      const quickGrid = $("pondQuickGrid");
-      const detailList = $("pondStatsDetailList");
-      const feedTypeSummaryList = $("feedTypeSummaryList");
-      const dailySummaryList = $("dailySummaryList");
-
-      if (!hero || !quickGrid) return;
-
-      const displayPonds = sortedPondsForDisplay();
-      const selectedId = $("singlePondSelect").value || (displayPonds[0]?.id || "");
-      const selectedPond = pondById(selectedId);
-      const range = getStatsRange();
-      const feedFilter = $("pondStatsFeedFilter").value.trim();
-
-      const rangeRecords = feedRecords
-        .filter(r => !feedFilter || String(r.feedName || "").includes(feedFilter));
-
-      const selectedRecords = rangeRecords.filter(r => recordInPondRange(r, selectedPond, range));
-
-      let totalBags = 0;
-      const feedTotals = {};
-      const dailyTotals = {};
-
-      selectedRecords.forEach(r => {
-        const bags = Number(r.bags || 0);
-        const feedName = r.feedName || "普通饲料";
-        totalBags += bags;
-        feedTotals[feedName] = (feedTotals[feedName] || 0) + bags;
-        dailyTotals[r.date || "未填日期"] = (dailyTotals[r.date || "未填日期"] || 0) + bags;
-      });
-
-      const rangeDays = range.start && range.end ? daysBetweenInclusive(range.start, range.end) : Math.max(1, new Set(selectedRecords.map(r => r.date)).size || 1);
-      const maxFeed = Math.max(1, ...Object.values(feedTotals).map(Number));
-      const maxDay = Math.max(1, ...Object.values(dailyTotals).map(Number));
-
-      const speciesEmpty = !isPondOccupied(selectedPond);
-
-      hero.innerHTML = `
-        <div class="single-pond-top">
-          <div>
-            <div class="single-pond-name">${escapeHtml(selectedPond.name)}</div>
-            <div class="single-pond-species ${speciesEmpty ? "empty" : ""}">鱼种：${escapeHtml(selectedPond.species || "空置")}</div>
-            <div class="cycle-pill">本轮开始：${formatDateTimeMs(getCycleStartAt(selectedPond.id))}</div>
-          </div>
-          <div class="single-pond-bags">${formatNumber(totalBags)} 包<span>${escapeHtml(range.label)}总用料</span></div>
-        </div>
-        <div class="visual-stat-grid">
-          <div class="visual-stat">
-            <div class="label">喂料次数</div>
-            <div class="value">${selectedRecords.length} 次</div>
-          </div>
-          <div class="visual-stat">
-            <div class="label">日均用料</div>
-            <div class="value">${formatNumber(totalBags / rangeDays)} 包</div>
-          </div>
-          <div class="visual-stat">
-            <div class="label">饲料品种</div>
-            <div class="value">${Object.keys(feedTotals).length} 种</div>
-          </div>
-          <div class="visual-stat">
-            <div class="label">当前状态</div>
-            <div class="value">${speciesEmpty ? "空置" : "有鱼"}</div>
-          </div>
-        </div>
-      `;
-
-      const pondTotalsForQuick = {};
-      displayPonds.forEach(p => pondTotalsForQuick[p.id] = 0);
-      rangeRecords.forEach(r => {
-        const p = displayPonds.find(x => recordBelongsToPond(r, x));
-        if (p && recordInPondRange(r, p, range)) {
-          pondTotalsForQuick[p.id] += Number(r.bags || 0);
-        }
-      });
-
-      quickGrid.innerHTML = displayPonds.map(p => {
-        const isActive = p.id === selectedId;
-        const isEmpty = !isPondOccupied(p);
-        const bags = pondTotalsForQuick[p.id] || 0;
-        return `
-          <button type="button" class="pond-quick-card ${isActive ? "active" : ""} ${isEmpty ? "empty" : ""}" onclick="selectSinglePond('${p.id}')">
-            <div class="pond-quick-name">${escapeHtml(p.name)}</div>
-            <div class="pond-quick-species">鱼种：${escapeHtml(p.species || "空置")}</div>
-            <div class="pond-quick-bags">${formatNumber(bags)} 包</div>
-          </button>
-        `;
-      }).join("");
-
-      const feedEntries = Object.entries(feedTotals).sort((a, b) => Number(b[1]) - Number(a[1]));
-      feedTypeSummaryList.innerHTML = feedEntries.length
-        ? feedEntries.map(([name, bags]) => {
-          const pct = Math.round(Number(bags) / maxFeed * 100);
-          return `
-            <div class="pretty-card">
-              <div class="pretty-row">
-                <div class="pretty-title">${escapeHtml(name)}</div>
-                <div class="pretty-num">${formatNumber(bags)} 包</div>
-              </div>
-              <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
-            </div>
-          `;
-        }).join("")
-        : `<div class="empty">这个鱼塘在所选时间段暂无饲料用量</div>`;
-
-      const dayEntries = Object.entries(dailyTotals).sort((a, b) => String(b[0]).localeCompare(String(a[0])));
-      dailySummaryList.innerHTML = dayEntries.length
-        ? dayEntries.map(([date, bags]) => {
-          const pct = Math.round(Number(bags) / maxDay * 100);
-          return `
-            <div class="pretty-card">
-              <div class="pretty-row">
-                <div class="pretty-title">${escapeHtml(date)}</div>
-                <div class="pretty-num">${formatNumber(bags)} 包</div>
-              </div>
-              <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
-            </div>
-          `;
-        }).join("")
-        : `<div class="empty">这个鱼塘在所选时间段暂无按日记录</div>`;
-
-      const details = selectedRecords
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
-        .slice(0, 200);
-
-      detailList.innerHTML = details.length
-        ? details.map(r => `
-          <div class="record-item">
-            <div class="record-head">
-              <div>
-                <div class="record-title">${escapeHtml(r.date || "")}　${nowTime(r.createdAt)}</div>
-                <div class="meta">饲料：${escapeHtml(r.feedName || "普通饲料")}</div>
-                <div class="meta">仓库：${escapeHtml(r.warehouseName || warehouseName(r.warehouseId))}</div>
-                <div class="meta">记录人：${escapeHtml(r.person || "")}</div>
-              </div>
-              <div class="record-bags">${formatNumber(r.bags)} 包</div>
-            </div>
-            ${r.note ? `<div class="note">备注：${escapeHtml(r.note)}</div>` : ""}
-          </div>
-        `).join("")
-        : `<div class="empty">这个鱼塘在所选时间段暂无喂料明细</div>`;
-    }
-
-    window.selectSinglePond = function(pondId) {
-      $("singlePondSelect").value = pondId;
-      renderAll();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    window.exportStatsCSV = function() {
-      const range = getStatsRange();
-      const feedFilter = $("pondStatsFeedFilter").value.trim();
-      const selectedId = $("singlePondSelect").value || "";
-      const selectedPond = pondById(selectedId);
-
-      const rows = [
-        ["统计鱼塘", selectedPond.name],
-        ["鱼种", selectedPond.species || "空置"],
-        ["统计范围", range.label],
-        ["开始日期", range.start || "全部"],
-        ["结束日期", range.end || "全部"],
-        []
-      ];
-
-      const records = feedRecords
-        .filter(r => !feedFilter || String(r.feedName || "").includes(feedFilter))
-        .filter(r => recordInPondRange(r, selectedPond, range))
-        .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
-
-      const total = records.reduce((sum, r) => sum + Number(r.bags || 0), 0);
-      rows.push(["总包数", formatNumber(total)]);
-      rows.push(["喂料次数", records.length]);
-      rows.push([]);
-      rows.push(["日期", "鱼塘", "鱼种", "饲料", "包数", "仓库", "记录人", "备注"]);
-
-      records.forEach(r => {
-        rows.push([
-          r.date || "",
-          r.pondName || selectedPond.name,
-          r.species || selectedPond.species || "空置",
-          r.feedName || "",
-          formatNumber(r.bags),
-          r.warehouseName || warehouseName(r.warehouseId),
-          r.person || "",
-          r.note || ""
-        ]);
-      });
-
-      const csv = rows.map(row => row.map(cell => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(",")).join("\n");
-      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${selectedPond.name}_喂料汇总_${range.label}_${todayStr()}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    };
-
-
     window.saveBackfillRecord = async function() {
       const selectedId = $("singlePondSelect").value || "";
       const pond = pondById(selectedId);
@@ -2106,7 +1301,9 @@
       if (!date) return alert("请选择补录日期");
       if (!bags || bags <= 0) return alert("请输入前期已喂多少包");
 
+      const undoGroupId = "backfill_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
       const record = {
+        undoGroupId,
         date,
         pondId: pond.id,
         pondName: pond.name,
@@ -2149,8 +1346,7 @@
       if (!pond) return alert("请先选择鱼塘");
 
       const startAt = getCycleStartAt(pond.id);
-      const records = feedRecords.filter(r => recordBelongsToPond(r, pond) && Number(r.createdAt || 0) >= startAt);
-
+      const records = feedRecords.filter(r => !r.cancelled && recordBelongsToPond(r, pond) && Number(r.createdAt || 0) >= startAt);
       const totalBags = records.reduce((sum, r) => sum + Number(r.bags || 0), 0);
       const feedTotals = {};
       records.forEach(r => {
@@ -2188,7 +1384,6 @@
       };
 
       const updatedPonds = ponds.map(p => p.id === pond.id ? { ...p, species: "空置" } : p);
-      const updatedCycleStarts = { ...cycleStarts, [pond.id]: now + 1 };
 
       if (USE_FIREBASE && firebaseReady) {
         await firebaseApi.push(firebaseApi.ref(db, "cycleHistories"), history);
@@ -2197,7 +1392,7 @@
       } else {
         history.id = "local_cycle_" + now;
         cycleHistories.unshift(history);
-        cycleStarts = updatedCycleStarts;
+        cycleStarts = { ...cycleStarts, [pond.id]: now + 1 };
         ponds = updatedPonds;
         localSaveAll();
         renderAll();
@@ -2207,6 +1402,498 @@
       alert("已归档历史记录，这口塘已重新开始统计，鱼种已设为空置");
       showPage("pondStats");
     };
+
+    function sameBags(a, b) {
+      return Number(a || 0) === Number(b || 0);
+    }
+
+    function findMatchingStockLogForFeedRecord(record) {
+      return stockLogs.find(log => {
+        if (!log || log.cancelled || log.type !== "out") return false;
+        if (record.undoGroupId && log.undoGroupId && record.undoGroupId === log.undoGroupId) return true;
+        return Number(log.createdAt || 0) === Number(record.createdAt || 0)
+          && String(log.pondId || "") === String(record.pondId || "")
+          && String(log.feedName || "") === String(record.feedName || "")
+          && sameBags(log.bags, record.bags);
+      });
+    }
+
+    function findMatchingFeedRecordForStockLog(log) {
+      return feedRecords.find(record => {
+        if (!record || record.cancelled) return false;
+        if (log.undoGroupId && record.undoGroupId && log.undoGroupId === record.undoGroupId) return true;
+        return Number(record.createdAt || 0) === Number(log.createdAt || 0)
+          && String(record.pondId || "") === String(log.pondId || "")
+          && String(record.feedName || "") === String(log.feedName || "")
+          && sameBags(record.bags, log.bags);
+      });
+    }
+
+    async function markCancelled(collectionName, item, reason) {
+      if (!item || item.cancelled) return;
+
+      const fields = {
+        cancelled: true,
+        cancelledAt: Date.now(),
+        cancelReason: reason || "手动撤销"
+      };
+
+      if (USE_FIREBASE && firebaseReady && item.id && !String(item.id).startsWith("local_")) {
+        await firebaseApi.update(firebaseApi.ref(db, `${collectionName}/${item.id}`), fields);
+      } else {
+        Object.assign(item, fields);
+      }
+    }
+
+    async function applyStockDelta(warehouseId, feedName, deltaBags) {
+      if (!warehouseId || warehouseId === "backfill" || !feedName || !deltaBags) return;
+      if (USE_FIREBASE && firebaseReady) {
+        await firebaseUpdateStock(warehouseId, feedName, deltaBags);
+      } else {
+        localAddStock(warehouseId, feedName, deltaBags);
+      }
+    }
+
+    window.undoStockLog = async function(id) {
+      const log = stockLogs.find(item => item.id === id);
+      if (!log) return alert("没有找到这条记录");
+      if (log.cancelled) return alert("这条记录已经撤销过了");
+
+      const isIn = log.type === "in";
+      const isOut = log.type === "out";
+      if (!isIn && !isOut) return alert("这条记录暂不支持撤销");
+
+      const message = isIn
+        ? `确定撤销这条入库吗？\n\n仓库：${log.warehouseName || warehouseName(log.warehouseId)}\n饲料：${log.feedName}\n数量：${formatNumber(log.bags)} 包\n\n撤销后库存会减少 ${formatNumber(log.bags)} 包。`
+        : `确定撤销这条喂料扣库吗？\n\n鱼塘：${log.pondName || ""}\n饲料：${log.feedName}\n数量：${formatNumber(log.bags)} 包\n\n撤销后鱼塘汇总会减少，仓库库存会加回 ${formatNumber(log.bags)} 包。`;
+
+      if (!confirm(message)) return;
+
+      const delta = isIn ? -Number(log.bags || 0) : Number(log.bags || 0);
+      const matchingRecord = isOut ? findMatchingFeedRecordForStockLog(log) : null;
+
+      await markCancelled("stockLogs", log, "从库存流水撤销");
+      if (matchingRecord) await markCancelled("feedRecords", matchingRecord, "对应库存流水已撤销");
+      await applyStockDelta(log.warehouseId, log.feedName, delta);
+
+      if (!(USE_FIREBASE && firebaseReady)) {
+        localSaveAll();
+        renderAll();
+      }
+
+      alert("已撤销，库存和汇总已自动修正");
+    };
+
+    window.undoFeedRecord = async function(id) {
+      const record = feedRecords.find(item => item.id === id);
+      if (!record) return alert("没有找到这条记录");
+      if (record.cancelled) return alert("这条记录已经撤销过了");
+
+      const affectsStock = record.warehouseId && record.warehouseId !== "backfill" && record.stockAffect !== false;
+      const stockText = affectsStock ? `\n\n撤销后仓库库存会加回 ${formatNumber(record.bags)} 包。` : "\n\n这条是前期补录，不影响仓库库存。";
+      const ok = confirm(
+        `确定撤销这条记录吗？\n\n鱼塘：${record.pondName || ""}\n饲料：${record.feedName || ""}\n数量：${formatNumber(record.bags)} 包${stockText}`
+      );
+      if (!ok) return;
+
+      const matchingLog = affectsStock ? findMatchingStockLogForFeedRecord(record) : null;
+
+      await markCancelled("feedRecords", record, "从鱼塘明细撤销");
+      if (matchingLog) await markCancelled("stockLogs", matchingLog, "对应喂料记录已撤销");
+      if (affectsStock) await applyStockDelta(record.warehouseId, record.feedName, Number(record.bags || 0));
+
+      if (!(USE_FIREBASE && firebaseReady)) {
+        localSaveAll();
+        renderAll();
+      }
+
+      alert("已撤销，汇总和库存已自动修正");
+    };
+
+    window.saveSettings = async function() {
+      const newPonds = DEFAULT_PONDS.map((p, i) => ({
+        id: p.id,
+        name: $(`pondName_${i}`).value.trim() || p.name,
+        species: $(`pondSpecies_${i}`).value.trim() || "空置"
+      }));
+
+      const newWarehouses = DEFAULT_WAREHOUSES.map((w, i) => ({
+        id: w.id,
+        name: $(`warehouseName_${i}`).value.trim()
+      }));
+
+      ponds = newPonds;
+      warehouses = newWarehouses;
+
+      if (USE_FIREBASE && firebaseReady) {
+        await firebaseApi.set(firebaseApi.ref(db, "settings/ponds"), Object.fromEntries(ponds.map(p => [p.id, p])));
+        await firebaseApi.set(firebaseApi.ref(db, "settings/warehouses"), Object.fromEntries(warehouses.map(w => [w.id, w])));
+      } else {
+        localSaveAll();
+        renderAll();
+      }
+
+      alert("设置已保存");
+      showPage("feed");
+    };
+
+    window.resetSettings = function() {
+      if (!confirm("确定恢复默认鱼塘和仓库设置吗？库存和流水不会删除。")) return;
+      ponds = structuredClone(DEFAULT_PONDS);
+      warehouses = structuredClone(DEFAULT_WAREHOUSES);
+      localSaveAll();
+      renderAll();
+      alert("已恢复默认设置");
+    };
+
+    window.exportStatsCSV = function() {
+      const range = getStatsRange();
+      const feedFilter = $("pondStatsFeedFilter").value.trim();
+      const selectedId = $("singlePondSelect").value || "";
+      const selectedPond = pondById(selectedId);
+
+      const rows = [
+        ["统计鱼塘", selectedPond.name],
+        ["鱼种", selectedPond.species || "空置"],
+        ["统计范围", range.label],
+        ["开始日期", range.start || "全部"],
+        ["结束日期", range.end || "全部"],
+        []
+      ];
+
+      const records = feedRecords
+        .filter(r => !r.cancelled)
+        .filter(r => !feedFilter || String(r.feedName || "").includes(feedFilter))
+        .filter(r => recordInPondRange(r, selectedPond, range))
+        .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
+
+      const total = records.reduce((sum, r) => sum + Number(r.bags || 0), 0);
+      rows.push(["总包数", formatNumber(total)]);
+      rows.push(["喂料次数", records.length]);
+      rows.push([]);
+      rows.push(["日期", "鱼塘", "鱼种", "饲料", "包数", "仓库", "记录人", "备注"]);
+
+      records.forEach(r => {
+        rows.push([
+          r.date || "",
+          r.pondName || selectedPond.name,
+          r.species || selectedPond.species || "空置",
+          r.feedName || "",
+          formatNumber(r.bags),
+          r.warehouseName || warehouseName(r.warehouseId),
+          r.person || "",
+          r.note || ""
+        ]);
+      });
+
+      const csv = rows.map(row => row.map(cell => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(",")).join("\n");
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${selectedPond.name}_喂料汇总_${range.label}_${todayStr()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    window.selectSinglePond = function(pondId) {
+      $("singlePondSelect").value = pondId;
+      renderAll();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    window.renderAll = function() {
+      renderSelects();
+      renderPondSettings();
+      renderWarehouseSettings();
+      renderInventory();
+      renderStockLogs();
+      renderPondStats();
+      renderCycleHistory();
+      updatePondInfo();
+      updateCurrentStockBox();
+    };
+
+    function renderSelects() {
+      const displayPonds = sortedPondsForDisplay();
+      const pondOptions = displayPonds.map(p => {
+        const emptyText = isPondOccupied(p) ? "" : "【空置】";
+        return `<option value="${p.id}">${escapeHtml(p.name)} - ${escapeHtml(p.species || "空置")} ${emptyText}</option>`;
+      }).join("");
+
+      const oldPond = $("pondSelect").value;
+      $("pondSelect").innerHTML = pondOptions;
+      if (oldPond && ponds.some(p => p.id === oldPond)) $("pondSelect").value = oldPond;
+      else if (displayPonds[0]) $("pondSelect").value = displayPonds[0].id;
+
+      const oldSingle = $("singlePondSelect").value;
+      $("singlePondSelect").innerHTML = pondOptions;
+      if (oldSingle && ponds.some(p => p.id === oldSingle)) $("singlePondSelect").value = oldSingle;
+      else if (displayPonds[0]) $("singlePondSelect").value = displayPonds[0].id;
+
+      const whOptions = activeWarehouses().map(w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`).join("");
+
+      const oldFeedWh = $("feedWarehouse").value;
+      const oldStockWh = $("stockWarehouse").value;
+      $("feedWarehouse").innerHTML = whOptions;
+      $("stockWarehouse").innerHTML = whOptions;
+      if (oldFeedWh && activeWarehouses().some(w => w.id === oldFeedWh)) $("feedWarehouse").value = oldFeedWh;
+      if (oldStockWh && activeWarehouses().some(w => w.id === oldStockWh)) $("stockWarehouse").value = oldStockWh;
+
+      const oldInvWh = $("inventoryWarehouseFilter").value;
+      $("inventoryWarehouseFilter").innerHTML = `<option value="全部">全部仓库</option>` + whOptions;
+      if (oldInvWh && (oldInvWh === "全部" || activeWarehouses().some(w => w.id === oldInvWh))) $("inventoryWarehouseFilter").value = oldInvWh;
+    }
+
+    function renderPondSettings() {
+      $("pondSettings").innerHTML = DEFAULT_PONDS.map((p, i) => {
+        const current = ponds.find(x => x.id === p.id) || p;
+        return `
+          <div class="setting-row">
+            <div class="setting-label">第 ${i + 1} 个鱼塘</div>
+            <div class="grid-2">
+              <div>
+                <label for="pondName_${i}">鱼塘名称</label>
+                <input id="pondName_${i}" value="${escapeHtml(current.name)}" />
+              </div>
+              <div>
+                <label for="pondSpecies_${i}">鱼种</label>
+                <input id="pondSpecies_${i}" value="${escapeHtml(current.species || "")}" placeholder="不填=空置，例如：草鱼" />
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderWarehouseSettings() {
+      $("warehouseSettings").innerHTML = DEFAULT_WAREHOUSES.map((w, i) => {
+        const current = warehouses.find(x => x.id === w.id) || w;
+        return `
+          <div class="setting-row">
+            <label for="warehouseName_${i}">仓库 ${i + 1}</label>
+            <input id="warehouseName_${i}" value="${escapeHtml(current.name || "")}" placeholder="例如：${i + 1}号仓库" />
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderInventory() {
+      const inventoryList = $("inventoryList");
+      const feedTotalList = $("feedTotalList");
+      const whFilter = $("inventoryWarehouseFilter").value || "全部";
+      const feedFilter = $("inventoryFeedFilter").value.trim();
+
+      const items = Object.values(stockTotals)
+        .filter(item => !whFilter || whFilter === "全部" || item.warehouseId === whFilter)
+        .filter(item => !feedFilter || String(item.feedName || "").includes(feedFilter))
+        .sort((a, b) => warehouseName(a.warehouseId).localeCompare(warehouseName(b.warehouseId), "zh-CN") || String(a.feedName || "").localeCompare(String(b.feedName || ""), "zh-CN"));
+
+      const totalByFeed = {};
+      Object.values(stockTotals).forEach(item => {
+        if (feedFilter && !String(item.feedName || "").includes(feedFilter)) return;
+        const name = item.feedName || "未命名饲料";
+        totalByFeed[name] = (totalByFeed[name] || 0) + Number(item.bags || 0);
+      });
+
+      const feedTotals = Object.entries(totalByFeed).sort((a, b) => a[0].localeCompare(b[0], "zh-CN"));
+      feedTotalList.innerHTML = feedTotals.length
+        ? feedTotals.map(([name, bags]) => `
+          <div class="summary-item">
+            <div class="summary-name">${escapeHtml(name)}</div>
+            <div class="summary-num">${formatNumber(bags)} 包</div>
+          </div>
+        `).join("")
+        : `<div class="empty">暂无总库存</div>`;
+
+      const lowItems = Object.values(stockTotals).filter(item => Number(item.bags || 0) <= 10);
+      if (lowItems.length) {
+        $("inventoryWarning").classList.remove("hidden");
+        $("inventoryWarning").textContent = `库存提醒：有 ${lowItems.length} 项库存小于或等于 10 包，请注意补货。`;
+      } else {
+        $("inventoryWarning").classList.add("hidden");
+      }
+
+      inventoryList.innerHTML = items.length
+        ? items.map(item => {
+          const low = Number(item.bags || 0) <= 10;
+          return `
+            <div class="inventory-item ${low ? "low" : ""}">
+              <div class="inventory-head">
+                <div>
+                  <div class="inventory-title">${escapeHtml(item.feedName || "未命名饲料")}</div>
+                  <div class="meta">${escapeHtml(warehouseName(item.warehouseId))}</div>
+                </div>
+                <div class="inventory-bags">${formatNumber(item.bags)} 包</div>
+              </div>
+              ${low ? `<div class="cancelled-badge">库存偏低</div>` : ""}
+              <div class="meta">更新时间：${item.updatedAt ? new Date(item.updatedAt).toLocaleString("zh-CN") : "—"}</div>
+            </div>
+          `;
+        }).join("")
+        : `<div class="empty">暂无库存，请先登记入库</div>`;
+    }
+
+    function renderStockLogs() {
+      const list = $("stockLogList");
+      const date = $("logDateFilter").value;
+      const type = $("logTypeFilter").value;
+
+      const filtered = stockLogs
+        .filter(log => !date || log.date === date)
+        .filter(log => type === "全部" || log.type === type)
+        .slice(0, 100);
+
+      list.innerHTML = filtered.length
+        ? filtered.map(log => {
+          const isIn = log.type === "in";
+          const isCancelled = !!log.cancelled;
+          const title = isIn ? "入库" : "喂料扣库";
+          const symbol = isIn ? "+" : "-";
+          return `
+            <div class="log-item ${isCancelled ? "cancelled-card" : ""}">
+              <div class="log-head">
+                <div>
+                  <div class="log-title ${isIn ? "log-in" : "log-out"}">${isCancelled ? "已撤销 - " : ""}${title}</div>
+                  <div class="meta">${escapeHtml(log.date)}　${nowTime(log.createdAt)}</div>
+                </div>
+                <div class="inventory-bags ${isIn ? "log-in" : "log-out"}">${symbol}${formatNumber(log.bags)} 包</div>
+              </div>
+              <div class="meta">仓库：${escapeHtml(log.warehouseName || warehouseName(log.warehouseId))}</div>
+              <div class="meta">饲料：${escapeHtml(log.feedName || "")}</div>
+              ${!isIn ? `<div class="meta">鱼塘：${escapeHtml(log.pondName || "")}　鱼种：${escapeHtml(log.species || "")}</div>` : ""}
+              <div class="meta">负责人：${escapeHtml(log.person || "")}</div>
+              ${log.note ? `<div class="note">备注：${escapeHtml(log.note)}</div>` : ""}
+              ${isCancelled ? `<div class="cancelled-badge">已撤销：${escapeHtml(log.cancelReason || "手动撤销")}</div>` : `<button class="btn btn-undo" onclick="undoStockLog('${log.id}')">撤销这条</button>`}
+            </div>
+          `;
+        }).join("")
+        : `<div class="empty">暂无库存流水</div>`;
+    }
+
+    function renderPondStats() {
+      const hero = $("singlePondHero");
+      const quickGrid = $("pondQuickGrid");
+      const detailList = $("pondStatsDetailList");
+      const feedTypeSummaryList = $("feedTypeSummaryList");
+      const dailySummaryList = $("dailySummaryList");
+
+      const displayPonds = sortedPondsForDisplay();
+      const selectedId = $("singlePondSelect").value || (displayPonds[0]?.id || "");
+      const selectedPond = pondById(selectedId);
+      const range = getStatsRange();
+      const feedFilter = $("pondStatsFeedFilter").value.trim();
+
+      const rangeRecords = feedRecords
+        .filter(r => !r.cancelled)
+        .filter(r => !feedFilter || String(r.feedName || "").includes(feedFilter));
+
+      const selectedRecords = rangeRecords.filter(r => recordInPondRange(r, selectedPond, range));
+
+      let totalBags = 0;
+      const feedTotals = {};
+      const dailyTotals = {};
+
+      selectedRecords.forEach(r => {
+        const bags = Number(r.bags || 0);
+        const feedName = r.feedName || "普通饲料";
+        totalBags += bags;
+        feedTotals[feedName] = (feedTotals[feedName] || 0) + bags;
+        dailyTotals[r.date || "未填日期"] = (dailyTotals[r.date || "未填日期"] || 0) + bags;
+      });
+
+      const rangeDays = range.start && range.end ? daysBetweenInclusive(range.start, range.end) : Math.max(1, new Set(selectedRecords.map(r => r.date)).size || 1);
+      const maxFeed = Math.max(1, ...Object.values(feedTotals).map(Number));
+      const maxDay = Math.max(1, ...Object.values(dailyTotals).map(Number));
+      const speciesEmpty = !isPondOccupied(selectedPond);
+
+      hero.innerHTML = `
+        <div class="single-pond-top">
+          <div>
+            <div class="single-pond-name">${escapeHtml(selectedPond.name)}</div>
+            <div class="single-pond-species ${speciesEmpty ? "empty" : ""}">鱼种：${escapeHtml(selectedPond.species || "空置")}</div>
+            <div class="cycle-pill">本轮开始：${formatDateTimeMs(getCycleStartAt(selectedPond.id))}</div>
+          </div>
+          <div class="single-pond-bags">${formatNumber(totalBags)} 包<span>${escapeHtml(range.label)}总用料</span></div>
+        </div>
+        <div class="visual-stat-grid">
+          <div class="visual-stat"><div class="label">喂料次数</div><div class="value">${selectedRecords.length} 次</div></div>
+          <div class="visual-stat"><div class="label">日均用料</div><div class="value">${formatNumber(totalBags / rangeDays)} 包</div></div>
+          <div class="visual-stat"><div class="label">饲料品种</div><div class="value">${Object.keys(feedTotals).length} 种</div></div>
+          <div class="visual-stat"><div class="label">当前状态</div><div class="value">${speciesEmpty ? "空置" : "有鱼"}</div></div>
+        </div>
+      `;
+
+      const pondTotalsForQuick = {};
+      displayPonds.forEach(p => pondTotalsForQuick[p.id] = 0);
+      rangeRecords.forEach(r => {
+        const p = displayPonds.find(x => recordBelongsToPond(r, x));
+        if (p && recordInPondRange(r, p, range)) pondTotalsForQuick[p.id] += Number(r.bags || 0);
+      });
+
+      quickGrid.innerHTML = displayPonds.map(p => {
+        const isActive = p.id === selectedId;
+        const isEmpty = !isPondOccupied(p);
+        const bags = pondTotalsForQuick[p.id] || 0;
+        return `
+          <button type="button" class="pond-quick-card ${isActive ? "active" : ""} ${isEmpty ? "empty" : ""}" onclick="selectSinglePond('${p.id}')">
+            <div class="pond-quick-name">${escapeHtml(p.name)}</div>
+            <div class="pond-quick-species">鱼种：${escapeHtml(p.species || "空置")}</div>
+            <div class="pond-quick-bags">${formatNumber(bags)} 包</div>
+          </button>
+        `;
+      }).join("");
+
+      const feedEntries = Object.entries(feedTotals).sort((a, b) => Number(b[1]) - Number(a[1]));
+      feedTypeSummaryList.innerHTML = feedEntries.length
+        ? feedEntries.map(([name, bags]) => {
+          const pct = Math.round(Number(bags) / maxFeed * 100);
+          return `
+            <div class="pretty-card">
+              <div class="pretty-row"><div class="pretty-title">${escapeHtml(name)}</div><div class="pretty-num">${formatNumber(bags)} 包</div></div>
+              <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+            </div>
+          `;
+        }).join("")
+        : `<div class="empty">这个鱼塘在所选时间段暂无饲料用量</div>`;
+
+      const dayEntries = Object.entries(dailyTotals).sort((a, b) => String(b[0]).localeCompare(String(a[0])));
+      dailySummaryList.innerHTML = dayEntries.length
+        ? dayEntries.map(([date, bags]) => {
+          const pct = Math.round(Number(bags) / maxDay * 100);
+          return `
+            <div class="pretty-card">
+              <div class="pretty-row"><div class="pretty-title">${escapeHtml(date)}</div><div class="pretty-num">${formatNumber(bags)} 包</div></div>
+              <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+            </div>
+          `;
+        }).join("")
+        : `<div class="empty">这个鱼塘在所选时间段暂无按日记录</div>`;
+
+      const details = selectedRecords
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        .slice(0, 200);
+
+      detailList.innerHTML = details.length
+        ? details.map(r => `
+          <div class="record-item">
+            <div class="record-head">
+              <div>
+                <div class="record-title">${escapeHtml(r.date || "")}　${nowTime(r.createdAt)}</div>
+                <div class="meta">饲料：${escapeHtml(r.feedName || "普通饲料")}</div>
+                <div class="meta">仓库：${escapeHtml(r.warehouseName || warehouseName(r.warehouseId))}</div>
+                <div class="meta">负责人：${escapeHtml(r.person || "")}</div>
+              </div>
+              <div class="record-bags">${formatNumber(r.bags)} 包</div>
+            </div>
+            ${r.note ? `<div class="note">备注：${escapeHtml(r.note)}</div>` : ""}
+            <button class="btn btn-undo" onclick="undoFeedRecord('${r.id}')">撤销这条记录</button>
+          </div>
+        `).join("")
+        : `<div class="empty">这个鱼塘在所选时间段暂无喂料明细</div>`;
+    }
 
     function renderCycleHistory() {
       const box = $("cycleHistoryList");
@@ -2251,48 +1938,17 @@
       }).join("");
     }
 
-    function renderStockLogs() {
-      const list = $("stockLogList");
-      const date = $("logDateFilter").value;
-      const type = $("logTypeFilter").value;
-
-      const filtered = stockLogs
-        .filter(log => !date || log.date === date)
-        .filter(log => type === "全部" || log.type === type)
-        .slice(0, 80);
-
-      list.innerHTML = filtered.length
-        ? filtered.map(log => {
-          const isIn = log.type === "in";
-          const title = isIn ? "入库" : "喂料扣库";
-          const symbol = isIn ? "+" : "-";
-          return `
-            <div class="log-item">
-              <div class="log-head">
-                <div>
-                  <div class="log-title ${isIn ? "log-in" : "log-out"}">${title}</div>
-                  <div class="meta">${escapeHtml(log.date)}　${nowTime(log.createdAt)}</div>
-                </div>
-                <div class="inventory-bags ${isIn ? "log-in" : "log-out"}">${symbol}${formatNumber(log.bags)} 包</div>
-              </div>
-              <div class="meta">仓库：${escapeHtml(log.warehouseName || warehouseName(log.warehouseId))}</div>
-              <div class="meta">饲料：${escapeHtml(log.feedName || "")}</div>
-              ${!isIn ? `<div class="meta">鱼塘：${escapeHtml(log.pondName || "")}　鱼种：${escapeHtml(log.species || "")}</div>` : ""}
-              <div class="meta">登记人：${escapeHtml(log.person || "")}</div>
-              ${log.note ? `<div class="note">备注：${escapeHtml(log.note)}</div>` : ""}
-            </div>
-          `;
-        }).join("")
-        : `<div class="empty">暂无库存流水</div>`;
-    }
-
-    $("feedName").addEventListener("change", updateCurrentStockBox);
-    $("feedNameCustom").addEventListener("input", updateCurrentStockBox);
-    $("feedWarehouse").addEventListener("change", updateCurrentStockBox);
-
     setDefaultDates();
     handleStatsRangeChange();
     initFirebase();
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("./sw.js").catch(function (error) {
+          console.log("Service Worker 注册失败：", error);
+        });
+      });
+    }
   </script>
 </body>
 </html>
