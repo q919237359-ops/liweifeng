@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>李伟锋鱼塘饲料库存系统</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background: #f3f7fb;
+      color: #172033;
+      font-size: 22px;
+      line-height: 1.5;
+    }
+    .app {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 14px;
+      padding-bottom: 105px;
+    }
+    .top-title {
+      background: linear-gradient(135deg, #0f766e, #0284c7);
+      color: #fff;
+      border-radius: 22px;
+      padding: 22px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 20px rgba(15, 118, 110, 0.22);
+    }
+    .top-title h1 {
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: 1px;
+    }
+    .top-title p {
+      margin: 8px 0 0;
+      font-size: 20px;
+      opacity: .96;
+    }
+    .notice {
+      background: #fff7ed;
+      border: 2px solid #fed7aa;
+      color: #9a3412;
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .notice.connected {
+      background: #ecfdf5;
+      border-color: #86efac;
+      color: #166534;
+    }
+    .card {
+      background: #fff;
+      border-radius: 22px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+      border: 1px solid #e5e7eb;
+    }
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 28px;
+      color: #0f766e;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sub-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 18px 0 10px;
+    }
+    label {
+      display: block;
+      font-weight: 900;
+      font-size: 22px;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+    input, select, textarea {
+      width: 100%;
+      min-height: 58px;
+      border: 2px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: 24px;
+      background: #fff;
+      color: #111827;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, .15);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 88px;
+    }
+    .form-row { margin-bottom: 16px; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 560px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      min-height: 66px;
+      font-size: 26px;
+      font-weight: 900;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-primary {
+      background: #0f766e;
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(15, 118, 110, .25);
+    }
+    .btn-blue {
+      background: #0369a1;
+      color: #fff;
+      box-shadow: 0 8px 16px rgba(3, 105, 161, .22);
+    }
+    .btn-gray {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    .btn-danger {
+      background: #fee2e2;
+      color: #991b1b;
+      min-height: 50px;
+      font-size: 20px;
+      margin-top: 10px;
+    }
+    .btn:active { transform: scale(.98); }
+    .quick-bags {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .quick-bags button {
+      min-height: 52px;
+      border-radius: 14px;
+      border: 2px solid #bae6fd;
+      background: #f0f9ff;
+      font-size: 22px;
+      font-weight: 900;
+      color: #0369a1;
+      cursor: pointer;
+    }
+    @media (max-width: 380px) {
+      .quick-bags { grid-template-columns: repeat(2, 1fr); }
+    }
+    .info-box {
+      background: #eff6ff;
+      border: 2px solid #bfdbfe;
+      border-radius: 18px;
+      padding: 14px;
+      font-size: 22px;
+      font-weight: 900;
+      color: #1d4ed8;
+      margin-bottom: 16px;
+    }
+    .warn-box {
+      background: #fff1f2;
+      border: 2px solid #fecdd3;
+      border-radius: 18px;
+      padding: 14px;
+      font-size: 22px;
+      font-weight: 900;
+      color: #be123c;
+      margin-bottom: 16px;
+    }
+    .summary-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .summary-item, .inventory-item, .log-item, .record-item {
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 14px;
+      background: #fff;
+    }
+    .summary-item {
+      background: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .summary-name {
+      font-size: 24px;
+      font-weight: 900;
+    }
+    .summary-num {
+      font-size: 31px;
+      font-weight: 900;
+      color: #0f766e;
+      white-space: nowrap;
+    }
+    .inventory-item.low {
+      background: #fff1f2;
+      border-color: #fecdd3;
+    }
+    .inventory-head, .record-head, .log-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .inventory-title, .record-title, .log-title {
+      font-size: 25px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .inventory-bags {
+      font-size: 32px;
+      font-weight: 900;
+      color: #0f766e;
+      white-space: nowrap;
+    }
+    .inventory-item.low .inventory-bags {
+      color: #dc2626;
+    }
+    .record-bags {
+      font-size: 31px;
+      font-weight: 900;
+      color: #dc2626;
+      white-space: nowrap;
+    }
+    .log-in { color: #0f766e; }
+    .log-out { color: #dc2626; }
+    .meta {
+      font-size: 20px;
+      color: #475569;
+      margin-top: 4px;
+    }
+    .note {
+      margin-top: 9px;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 20px;
+      color: #334155;
+    }
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 560px) {
+      .filters { grid-template-columns: 1fr; }
+    }
+    .empty {
+      text-align: center;
+      padding: 24px 8px;
+      font-size: 22px;
+      color: #64748b;
+      font-weight: 800;
+    }
+    .setting-row {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .setting-label {
+      font-size: 21px;
+      font-weight: 900;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .hidden { display: none; }
+    .small-text {
+      font-size: 18px;
+      color: #64748b;
+      margin-top: 8px;
+      font-weight: 700;
+    }
+    .bottom-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #fff;
+      border-top: 1px solid #e5e7eb;
+      padding: 9px 10px;
+      box-shadow: 0 -6px 18px rgba(15, 23, 42, .08);
+    }
+    .bottom-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .nav-btn {
+      border: none;
+      border-radius: 16px;
+      min-height: 58px;
+      font-size: 19px;
+      font-weight: 900;
+      background: #e0f2fe;
+      color: #075985;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-btn.active {
+      background: #0f766e;
+      color: #fff;
+    }
+
+
+    .mini-dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .mini-card {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+    }
+    .mini-label {
+      font-size: 18px;
+      font-weight: 900;
+      color: #64748b;
+      margin-bottom: 5px;
+    }
+    .mini-value {
+      font-size: 30px;
+      font-weight: 900;
+      color: #0f766e;
+    }
+    .range-box {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .rank-badge {
+      display: inline-block;
+      min-width: 34px;
+      text-align: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 18px;
+      font-weight: 900;
+      margin-right: 8px;
+    }
+    .export-btn {
+      background: #fef3c7;
+      color: #92400e;
+      border: 2px solid #fcd34d;
+      min-height: 58px;
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 480px) {
+      .mini-dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+
+    .minor-actions {
+      margin-top: 18px;
+      border: 2px dashed #cbd5e1;
+      border-radius: 22px;
+      background: #f8fafc;
+      padding: 0;
+      overflow: hidden;
+    }
+    .minor-actions summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 16px;
+      font-size: 22px;
+      font-weight: 900;
+      color: #475569;
+      background: #f1f5f9;
+    }
+    .minor-actions summary::-webkit-details-marker {
+      display: none;
+    }
+    .minor-actions summary::after {
+      content: "展开";
+      float: right;
+      font-size: 18px;
+      color: #0369a1;
+      background: #e0f2fe;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .minor-actions[open] summary::after {
+      content: "收起";
+    }
+    .minor-content {
+      padding: 16px;
+    }
+    .minor-panel {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .minor-panel h3 {
+      margin: 0 0 12px;
+      font-size: 24px;
+      color: #0f172a;
+    }
+    .btn-small-action {
+      min-height: 56px;
+      font-size: 22px;
+      border-radius: 16px;
+      margin-top: 4px;
+    }
+    .btn-warning {
+      background: #fff7ed;
+      color: #9a3412;
+      border: 2px solid #fdba74;
+    }
+    .history-card {
+      background: #ffffff;
+      border: 2px solid #dbeafe;
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .history-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .history-total {
+      font-size: 34px;
+      font-weight: 900;
+      color: #7c3aed;
+      white-space: nowrap;
+    }
+    .history-feed {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .history-feed-line {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #334155;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .cycle-pill {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .single-pond-hero {
+      background: linear-gradient(135deg, #ecfdf5, #eff6ff);
+      border: 2px solid #bae6fd;
+      border-radius: 24px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 16px rgba(15, 118, 110, 0.10);
+    }
+    .single-pond-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .single-pond-name {
+      font-size: 32px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .single-pond-species {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 20px;
+      font-weight: 900;
+    }
+    .single-pond-species.empty {
+      background: #e2e8f0;
+      color: #64748b;
+    }
+    .single-pond-bags {
+      font-size: 48px;
+      line-height: 1;
+      font-weight: 900;
+      color: #dc2626;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .single-pond-bags span {
+      display: block;
+      font-size: 22px;
+      color: #64748b;
+      margin-top: 6px;
+    }
+    .visual-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .visual-stat {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+    }
+    .visual-stat .label {
+      color: #64748b;
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+    .visual-stat .value {
+      color: #0f766e;
+      font-size: 30px;
+      font-weight: 900;
+    }
+    .pretty-card {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 22px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+    }
+    .pretty-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .pretty-title {
+      font-size: 25px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .pretty-num {
+      font-size: 34px;
+      font-weight: 900;
+      color: #0f766e;
+      white-space: nowrap;
+    }
+    .progress-wrap {
+      height: 16px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #0f766e, #0ea5e9);
+      border-radius: 999px;
+      min-width: 3%;
+    }
+    .pond-quick-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .pond-quick-card {
+      border: 2px solid #dbeafe;
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .pond-quick-card.active {
+      background: #ecfdf5;
+      border-color: #34d399;
+      box-shadow: 0 6px 16px rgba(15, 118, 110, 0.14);
+    }
+    .pond-quick-card.empty {
+      opacity: 0.58;
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+    .pond-quick-name {
+      font-size: 23px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .pond-quick-species {
+      font-size: 18px;
+      font-weight: 900;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .pond-quick-bags {
+      margin-top: 8px;
+      font-size: 28px;
+      color: #dc2626;
+      font-weight: 900;
+    }
+    @media (max-width: 480px) {
+      .single-pond-top {
+        flex-direction: column;
+      }
+      .single-pond-bags {
+        text-align: left;
+      }
+      .visual-stat-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .pond-quick-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pond-stat-item {
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 15px;
+      background: #ffffff;
+      margin-bottom: 12px;
+    }
+    .pond-stat-item.zero {
+      background: #f8fafc;
+      color: #64748b;
+    }
+    .pond-stat-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .pond-stat-name {
+      font-size: 26px;
+      font-weight: 900;
+      color: #0f172a;
+    }
+    .pond-stat-species {
+      font-size: 20px;
+      font-weight: 800;
+      color: #475569;
+      margin-top: 3px;
+    }
+    .pond-stat-bags {
+      font-size: 36px;
+      font-weight: 900;
+      color: #dc2626;
+      white-space: nowrap;
+    }
+    .pond-stat-item.zero .pond-stat-bags {
+      color: #94a3b8;
+    }
+    .pond-feed-breakdown {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+    }
+    .pond-feed-line {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #334155;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .big-total-box {
+      background: #fff1f2;
+      border: 2px solid #fecdd3;
+      color: #be123c;
+      border-radius: 20px;
+      padding: 16px;
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 18px;
+      font-weight: 900;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="top-title">
+      <h1>李伟锋鱼塘饲料库存系统</h1>
+      <p>常用饲料 · 固定负责人 · 单塘周期 · 历史记录</p>
+    </div>
+
+    <div id="syncNotice" class="notice hidden"></div>
+
+    <!-- 喂料登记 -->
+    <section id="pageFeed" class="card">
+      <h2>🐟 喂料登记</h2>
+
+      <div class="form-row">
+        <label for="feedDate">日期</label>
+        <input type="date" id="feedDate" />
+      </div>
+
+      <div class="form-row">
+        <label for="pondSelect">鱼塘</label>
+        <select id="pondSelect" onchange="updatePondInfo()"></select>
+      </div>
+
+      <div id="pondInfo" class="info-box">鱼种：待填写</div>
+
+      <div class="grid-2">
+        <div class="form-row">
+          <label for="feedWarehouse">从哪个仓库扣料</label>
+          <select id="feedWarehouse" onchange="renderFeedSuggestions()"></select>
+        </div>
+
+        <div class="form-row">
+          <label for="feedPerson">负责人</label>
+          <select id="feedPerson">
+            <option value="李伟锋">李伟锋</option>
+            <option value="关淑芬">关淑芬</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="feedName">饲料名称</label>
+        <select id="feedName" onchange="handleFeedNameChange('feedName', 'feedNameCustom'); updateCurrentStockBox();">
+          <option value="生鱼料">生鱼料</option>
+          <option value="鳗鱼料">鳗鱼料</option>
+          <option value="加州鲈料">加州鲈料</option>
+          <option value="__custom__">其他饲料，手动填写</option>
+        </select>
+        <input id="feedNameCustom" class="hidden" placeholder="请输入其他饲料名称" oninput="updateCurrentStockBox()" style="margin-top:10px;" />
+        <datalist id="feedNameList"></datalist>
+        <div class="small-text">提示：饲料名称要和入库时一致，库存才会自动对应。</div>
+      </div>
+
+      <div id="currentStockBox" class="info-box">当前库存：请选择仓库和饲料</div>
+
+      <div class="form-row">
+        <label for="feedBags">喂了多少包</label>
+        <input id="feedBags" type="number" inputmode="decimal" min="0" step="0.5" placeholder="例如：10" oninput="updateCurrentStockBox()" />
+        <div class="quick-bags">
+          <button type="button" onclick="setFeedBags(1)">1包</button>
+          <button type="button" onclick="setFeedBags(2)">2包</button>
+          <button type="button" onclick="setFeedBags(5)">5包</button>
+          <button type="button" onclick="setFeedBags(10)">10包</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="feedNote">备注</label>
+        <textarea id="feedNote" placeholder="可不填，例如：上午喂 / 下雨少喂"></textarea>
+      </div>
+
+      <button class="btn btn-primary" onclick="saveFeedRecord()">保存喂料并扣库存</button>
+      <div class="small-text">保存后：喂料明细增加一条，同时对应仓库库存减少。</div>
+    </section>
+
+    <!-- 入库登记 -->
+    <section id="pageStockIn" class="card hidden">
+      <h2>🏠 仓库入库</h2>
+
+      <div class="form-row">
+        <label for="stockDate">日期</label>
+        <input type="date" id="stockDate" />
+      </div>
+
+      <div class="grid-2">
+        <div class="form-row">
+          <label for="stockWarehouse">入到哪个仓库</label>
+          <select id="stockWarehouse"></select>
+        </div>
+
+        <div class="form-row">
+          <label for="stockPerson">负责人</label>
+          <select id="stockPerson">
+            <option value="李伟锋">李伟锋</option>
+            <option value="关淑芬">关淑芬</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="stockFeedName">饲料名称</label>
+        <select id="stockFeedName" onchange="handleFeedNameChange('stockFeedName', 'stockFeedNameCustom');">
+          <option value="生鱼料">生鱼料</option>
+          <option value="鳗鱼料">鳗鱼料</option>
+          <option value="加州鲈料">加州鲈料</option>
+          <option value="__custom__">其他饲料，手动填写</option>
+        </select>
+        <input id="stockFeedNameCustom" class="hidden" placeholder="请输入其他饲料名称" style="margin-top:10px;" />
+      </div>
+
+      <div class="form-row">
+        <label for="stockBags">入库多少包</label>
+        <input id="stockBags" type="number" inputmode="decimal" min="0" step="0.5" placeholder="例如：100" />
+        <div class="quick-bags">
+          <button type="button" onclick="setStockBags(10)">10包</button>
+          <button type="button" onclick="setStockBags(50)">50包</button>
+          <button type="button" onclick="setStockBags(100)">100包</button>
+          <button type="button" onclick="setStockBags(200)">200包</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="stockNote">备注</label>
+        <textarea id="stockNote" placeholder="可不填，例如：新到货 / 供应商 / 车牌号"></textarea>
+      </div>
+
+      <button class="btn btn-blue" onclick="saveStockIn()">保存入库并加库存</button>
+    </section>
+
+    <!-- 库存 -->
+    <section id="pageInventory" class="card hidden">
+      <h2>📦 当前库存</h2>
+
+      <div id="inventoryWarning" class="warn-box hidden"></div>
+
+      <div class="filters">
+        <div>
+          <label for="inventoryWarehouseFilter">仓库筛选</label>
+          <select id="inventoryWarehouseFilter" onchange="renderAll()">
+            <option value="全部">全部仓库</option>
+          </select>
+        </div>
+        <div>
+          <label for="inventoryFeedFilter">饲料筛选</label>
+          <input id="inventoryFeedFilter" placeholder="输入饲料名" oninput="renderAll()" />
+        </div>
+      </div>
+
+      <div class="sub-title">各饲料总库存</div>
+      <div id="feedTotalList" class="summary-grid"></div>
+
+      <div class="sub-title">分仓库库存</div>
+      <div id="inventoryList" class="summary-grid"></div>
+
+      <div class="sub-title">库存流水</div>
+      <div class="filters">
+        <div>
+          <label for="logDateFilter">日期</label>
+          <input type="date" id="logDateFilter" onchange="renderAll()" />
+        </div>
+        <div>
+          <label for="logTypeFilter">类型</label>
+          <select id="logTypeFilter" onchange="renderAll()">
+            <option value="全部">全部</option>
+            <option value="in">只看入库</option>
+            <option value="out">只看喂料扣库</option>
+          </select>
+        </div>
+      </div>
+      <div id="stockLogList" class="summary-grid"></div>
+    </section>
+
+
+    <!-- 单个鱼塘汇总 -->
+    <section id="pagePondStats" class="card hidden">
+      <h2>📊 单塘汇总</h2>
+
+      <div class="range-box">
+        <div class="form-row">
+          <label for="singlePondSelect">选择鱼塘</label>
+          <select id="singlePondSelect" onchange="renderAll()"></select>
+          <div class="small-text">有鱼的鱼塘会自动排在前面；没设置鱼种的默认显示为空置。</div>
+        </div>
+
+        <div class="form-row">
+          <label for="pondStatsRange">统计范围</label>
+          <select id="pondStatsRange" onchange="handleStatsRangeChange()">
+            <option value="currentCycle">当前这塘鱼</option>
+            <option value="today">今天</option>
+            <option value="yesterday">昨天</option>
+            <option value="last7">近7天</option>
+            <option value="thisMonth">本月</option>
+            <option value="lastMonth">上月</option>
+            <option value="all">全部记录</option>
+            <option value="custom">自定义时间段</option>
+          </select>
+        </div>
+
+        <div id="customRangeBox" class="grid-2 hidden">
+          <div class="form-row">
+            <label for="pondStatsStartDate">开始日期</label>
+            <input type="date" id="pondStatsStartDate" onchange="renderAll()" />
+          </div>
+          <div class="form-row">
+            <label for="pondStatsEndDate">结束日期</label>
+            <input type="date" id="pondStatsEndDate" onchange="renderAll()" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="pondStatsFeedFilter">饲料筛选</label>
+          <input id="pondStatsFeedFilter" placeholder="不填=全部饲料" oninput="renderAll()" />
+        </div>
+
+        <button class="btn export-btn" onclick="exportStatsCSV()">导出这个鱼塘汇总 CSV</button>
+      </div>
+
+      <div id="singlePondHero" class="single-pond-hero"></div>
+
+      <div class="sub-title">快速切换鱼塘</div>
+      <div id="pondQuickGrid" class="pond-quick-grid"></div>
+
+      <div class="sub-title">饲料用量构成</div>
+      <div id="feedTypeSummaryList"></div>
+
+      <div class="sub-title">按日期查看</div>
+      <div id="dailySummaryList"></div>
+
+      <div class="sub-title">喂料明细</div>
+      <div id="pondStatsDetailList" class="summary-grid"></div>
+
+      <details class="minor-actions">
+        <summary>不常用操作：前期补录 / 卖鱼归档 / 历史记录</summary>
+        <div class="minor-content">
+          <div class="minor-panel">
+            <h3>补录前期累计用料</h3>
+            <div class="small-text" style="margin-bottom: 10px;">
+              适合这塘鱼已经养了一段时间才开始用系统。补录只计入这个鱼塘用料，不扣现在仓库库存。
+            </div>
+            <div class="grid-2">
+              <div class="form-row">
+                <label for="backfillDate">补录日期</label>
+                <input type="date" id="backfillDate" />
+              </div>
+              <div class="form-row">
+                <label for="backfillBags">前期已喂多少包</label>
+                <input id="backfillBags" type="number" inputmode="decimal" min="0" step="0.5" placeholder="例如：300" />
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="backfillFeedName">饲料名称</label>
+              <select id="backfillFeedName" onchange="handleFeedNameChange('backfillFeedName', 'backfillFeedNameCustom');">
+                <option value="生鱼料">生鱼料</option>
+                <option value="鳗鱼料">鳗鱼料</option>
+                <option value="加州鲈料">加州鲈料</option>
+                <option value="前期累计饲料">前期累计饲料</option>
+                <option value="__custom__">其他饲料，手动填写</option>
+              </select>
+              <input id="backfillFeedNameCustom" class="hidden" placeholder="请输入其他饲料名称" style="margin-top:10px;" />
+            </div>
+            <div class="form-row">
+              <label for="backfillNote">补录说明</label>
+              <textarea id="backfillNote" placeholder="例如：开始使用系统前，估算已经喂了这些料"></textarea>
+            </div>
+            <button class="btn btn-blue btn-small-action" onclick="saveBackfillRecord()">保存补录，不扣库存</button>
+          </div>
+
+          <div class="minor-panel">
+            <h3>卖鱼后归档，重新开始</h3>
+            <div class="small-text" style="margin-bottom: 10px;">
+              点这个会把当前这塘鱼的用料汇总存入历史记录，然后这口塘重新开始统计，并把鱼种设为空置。
+            </div>
+            <div class="form-row">
+              <label for="cycleSaleDate">卖鱼日期</label>
+              <input type="date" id="cycleSaleDate" />
+            </div>
+            <div class="form-row">
+              <label for="cycleSaleNote">备注</label>
+              <textarea id="cycleSaleNote" placeholder="例如：已卖鱼，准备清塘 / 下一批重新放苗"></textarea>
+            </div>
+            <button class="btn btn-warning btn-small-action" onclick="finishCurrentCycle()">卖鱼归档，并重新开始记录</button>
+          </div>
+
+          <div class="minor-panel">
+            <h3>历史养殖记录</h3>
+            <div id="cycleHistoryList"></div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 设置 -->
+    <section id="pageSettings" class="card hidden">
+      <h2>⚙️ 基础设置</h2>
+
+      <div class="info-box">
+        这里设置 11 个鱼塘的鱼种，以及仓库名称。鱼种不填会自动显示为空置；展示时有鱼的鱼塘会排在前面。
+      </div>
+
+      <div class="sub-title">鱼塘鱼种设置</div>
+      <div id="pondSettings"></div>
+
+      <div class="sub-title">仓库设置</div>
+      <div class="small-text" style="margin-bottom: 10px;">默认 3 个仓库；需要更多可以填写第 4、第 5 个，空白则不显示。</div>
+      <div id="warehouseSettings"></div>
+
+      <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+      <button class="btn btn-gray" onclick="resetSettings()">恢复默认设置</button>
+    </section>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="bottom-inner">
+      <button id="tabFeed" class="nav-btn active" onclick="showPage('feed')">喂料</button>
+      <button id="tabStockIn" class="nav-btn" onclick="showPage('stockIn')">入库</button>
+      <button id="tabInventory" class="nav-btn" onclick="showPage('inventory')">库存</button>
+      <button id="tabPondStats" class="nav-btn" onclick="showPage('pondStats')">鱼塘</button>
+      <button id="tabSettings" class="nav-btn" onclick="showPage('settings')">设置</button>
+    </div>
+  </div>
+
+  <script type="module">
+    /*
+      Firebase 实时同步设置：
+      1. 去 Firebase 创建项目
+      2. 创建 Realtime Database
+      3. 把 firebaseConfig 替换成你的配置
+      4. 把 USE_FIREBASE 改成 true
+    */
+
+    const USE_FIREBASE = true;
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJeTuuBP_1h1Igfz4W_03a38avmrssqjM",
+      authDomain: "lwfsl-a0c62.firebaseapp.com",
+      databaseURL: "https://lwfsl-a0c62-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "lwfsl-a0c62",
+      storageBucket: "lwfsl-a0c62.firebasestorage.app",
+      messagingSenderId: "463268145457",
+      appId: "1:463268145457:web:51287c11eef1829010e810"
+    };
+
+    const DEFAULT_PONDS = [
+      { id: "pond1", name: "1号塘", species: "空置" },
+      { id: "pond2", name: "2号塘", species: "空置" },
+      { id: "pond3", name: "3号塘", species: "空置" },
+      { id: "pond4", name: "4号塘", species: "空置" },
+      { id: "pond5", name: "5号塘", species: "空置" },
+      { id: "pond6", name: "6号塘", species: "空置" },
+      { id: "pond7", name: "7号塘", species: "空置" },
+      { id: "pond8", name: "8号塘", species: "空置" },
+      { id: "pond9", name: "9号塘", species: "空置" },
+      { id: "pond10", name: "10号塘", species: "空置" },
+      { id: "pond11", name: "11号塘", species: "空置" }
+    ];
+
+    const DEFAULT_WAREHOUSES = [
+      { id: "wh1", name: "1号仓库" },
+      { id: "wh2", name: "2号仓库" },
+      { id: "wh3", name: "3号仓库" },
+      { id: "wh4", name: "" },
+      { id: "wh5", name: "" }
+    ];
+
+    const COMMON_FEED_NAMES = ["生鱼料", "鳗鱼料", "加州鲈料"];
+    const RESPONSIBLE_PERSONS = ["李伟锋", "关淑芬"];
+
+    let ponds = structuredClone(DEFAULT_PONDS);
+    let warehouses = structuredClone(DEFAULT_WAREHOUSES);
+    let feedRecords = [];
+    let stockLogs = [];
+    let stockTotals = {};
+    let cycleStarts = {};
+    let cycleHistories = [];
+
+    let firebaseReady = false;
+    let db = null;
+    let firebaseApi = {};
+
+    const $ = (id) => document.getElementById(id);
+
+    function todayStr() {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+
+    function addDays(date, days) {
+      const d = new Date(date);
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function dateToStr(date) {
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getMonthStart(date) {
+      return new Date(date.getFullYear(), date.getMonth(), 1);
+    }
+
+    function getMonthEnd(date) {
+      return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    }
+
+    function daysBetweenInclusive(start, end) {
+      if (!start || !end) return 1;
+      const s = new Date(start + "T00:00:00");
+      const e = new Date(end + "T00:00:00");
+      const diff = Math.round((e - s) / 86400000) + 1;
+      return diff > 0 ? diff : 1;
+    }
+
+    function getStatsRange() {
+      const mode = $("pondStatsRange").value;
+      const now = new Date();
+
+      if (mode === "currentCycle") {
+        return { start: "", end: "", label: "当前这塘鱼", currentCycle: true };
+      }
+
+      if (mode === "today") {
+        const t = todayStr();
+        return { start: t, end: t, label: "今天" };
+      }
+
+      if (mode === "yesterday") {
+        const y = dateToStr(addDays(now, -1));
+        return { start: y, end: y, label: "昨天" };
+      }
+
+      if (mode === "last7") {
+        return { start: dateToStr(addDays(now, -6)), end: todayStr(), label: "近7天" };
+      }
+
+      if (mode === "thisMonth") {
+        return { start: dateToStr(getMonthStart(now)), end: dateToStr(getMonthEnd(now)), label: "本月" };
+      }
+
+      if (mode === "lastMonth") {
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        return { start: dateToStr(getMonthStart(lastMonth)), end: dateToStr(getMonthEnd(lastMonth)), label: "上月" };
+      }
+
+      if (mode === "custom") {
+        const start = $("pondStatsStartDate").value;
+        const end = $("pondStatsEndDate").value;
+        return { start, end, label: `${start || "开始"} 至 ${end || "结束"}` };
+      }
+
+      return { start: "", end: "", label: "全部记录" };
+    }
+
+    function inStatsRange(date, range) {
+      if (!date) return false;
+      if (range.start && date < range.start) return false;
+      if (range.end && date > range.end) return false;
+      return true;
+    }
+
+    window.handleStatsRangeChange = function() {
+      const mode = $("pondStatsRange").value;
+      $("customRangeBox").classList.toggle("hidden", mode !== "custom");
+      const range = getStatsRange();
+      if (mode !== "custom" && range.start && range.end) {
+        $("pondStatsStartDate").value = range.start;
+        $("pondStatsEndDate").value = range.end;
+      }
+      renderAll();
+    };
+
+
+    function activeWarehouses() {
+      return warehouses.filter(w => String(w.name || "").trim());
+    }
+
+    function isPondOccupied(pond) {
+      const species = String(pond?.species || "").trim();
+      return species && species !== "空置";
+    }
+
+    function sortedPondsForDisplay() {
+      return [...ponds].sort((a, b) => {
+        const ao = isPondOccupied(a) ? 0 : 1;
+        const bo = isPondOccupied(b) ? 0 : 1;
+        if (ao !== bo) return ao - bo;
+        return String(a.name || "").localeCompare(String(b.name || ""), "zh-CN", { numeric: true });
+      });
+    }
+
+    function getCycleStartAt(pondId) {
+      return Number(cycleStarts?.[pondId] || 0);
+    }
+
+    function recordBelongsToPond(record, pond) {
+      if (!record || !pond) return false;
+      return record.pondId === pond.id || record.pondName === pond.name;
+    }
+
+    function recordInPondRange(record, pond, range) {
+      if (!recordBelongsToPond(record, pond)) return false;
+      if (range && range.currentCycle) {
+        return Number(record.createdAt || 0) >= getCycleStartAt(pond.id);
+      }
+      return inStatsRange(record.date, range);
+    }
+
+    function formatDateTimeMs(ms) {
+      if (!ms) return "系统开始";
+      return new Date(ms).toLocaleString("zh-CN");
+    }
+
+    function warehouseName(id) {
+      const w = warehouses.find(x => x.id === id);
+      return w ? w.name : id;
+    }
+
+    function pondById(id) {
+      return ponds.find(p => p.id === id) || ponds[0];
+    }
+
+    function safeFeedKey(feedName) {
+      return encodeURIComponent(String(feedName || "").trim()).replaceAll(".", "%2E");
+    }
+
+    function stockKey(warehouseId, feedNameOrKey, isAlreadyKey = false) {
+      const key = isAlreadyKey ? feedNameOrKey : safeFeedKey(feedNameOrKey);
+      return `${warehouseId}__${key}`;
+    }
+
+    function getStock(warehouseId, feedName) {
+      const key = stockKey(warehouseId, feedName);
+      return Number(stockTotals[key]?.bags || 0);
+    }
+
+    function uniqueFeedNames() {
+      const names = new Set(COMMON_FEED_NAMES);
+      Object.values(stockTotals).forEach(item => {
+        if (item.feedName) names.add(item.feedName);
+      });
+      stockLogs.forEach(item => {
+        if (item.feedName) names.add(item.feedName);
+      });
+      feedRecords.forEach(item => {
+        if (item.feedName) names.add(item.feedName);
+      });
+      names.add("前期累计饲料");
+      return Array.from(names).sort((a, b) => a.localeCompare(b, "zh-CN"));
+    }
+
+    function getFeedInputValue(selectId, customId) {
+      const select = $(selectId);
+      if (!select) return "";
+      if (select.value === "__custom__") {
+        return ($(customId)?.value || "").trim();
+      }
+      return select.value.trim();
+    }
+
+    window.handleFeedNameChange = function(selectId, customId) {
+      const select = $(selectId);
+      const custom = $(customId);
+      if (!select || !custom) return;
+      const isCustom = select.value === "__custom__";
+      custom.classList.toggle("hidden", !isCustom);
+      if (isCustom) {
+        setTimeout(() => custom.focus(), 50);
+      }
+    };
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatNumber(num) {
+      const n = Number(num || 0);
+      return Number.isInteger(n) ? String(n) : n.toFixed(1);
+    }
+
+    function nowTime(createdAt) {
+      return createdAt
+        ? new Date(createdAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })
+        : "";
+    }
+
+    function setDefaultDates() {
+      $("feedDate").value = todayStr();
+      $("stockDate").value = todayStr();
+      $("logDateFilter").value = todayStr();
+      $("pondStatsStartDate").value = todayStr();
+      $("pondStatsEndDate").value = todayStr();
+      $("backfillDate").value = todayStr();
+      $("cycleSaleDate").value = todayStr();
+    }
+
+    function localLoad() {
+      ponds = JSON.parse(localStorage.getItem("fishPonds_v2") || "null") || structuredClone(DEFAULT_PONDS);
+      warehouses = JSON.parse(localStorage.getItem("warehouses_v2") || "null") || structuredClone(DEFAULT_WAREHOUSES);
+      feedRecords = JSON.parse(localStorage.getItem("feedRecords_v2") || "[]");
+      stockLogs = JSON.parse(localStorage.getItem("stockLogs_v2") || "[]");
+      stockTotals = JSON.parse(localStorage.getItem("stockTotals_v2") || "{}");
+      cycleStarts = JSON.parse(localStorage.getItem("cycleStarts_v6") || "{}");
+      cycleHistories = JSON.parse(localStorage.getItem("cycleHistories_v6") || "[]");
+      renderAll();
+    }
+
+    function localSaveAll() {
+      localStorage.setItem("fishPonds_v2", JSON.stringify(ponds));
+      localStorage.setItem("warehouses_v2", JSON.stringify(warehouses));
+      localStorage.setItem("feedRecords_v2", JSON.stringify(feedRecords));
+      localStorage.setItem("stockLogs_v2", JSON.stringify(stockLogs));
+      localStorage.setItem("stockTotals_v2", JSON.stringify(stockTotals));
+      localStorage.setItem("cycleStarts_v6", JSON.stringify(cycleStarts));
+      localStorage.setItem("cycleHistories_v6", JSON.stringify(cycleHistories));
+    }
+
+    function localAddStock(warehouseId, feedName, deltaBags) {
+      const feedKey = safeFeedKey(feedName);
+      const key = stockKey(warehouseId, feedKey, true);
+      const current = Number(stockTotals[key]?.bags || 0);
+      stockTotals[key] = {
+        warehouseId,
+        warehouseName: warehouseName(warehouseId),
+        feedKey,
+        feedName,
+        bags: current + Number(deltaBags),
+        updatedAt: Date.now()
+      };
+    }
+
+    async function initFirebase() {
+      if (!USE_FIREBASE) {
+        localLoad();
+        return;
+      }
+
+      try {
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
+        const { getDatabase, ref, push, set, onValue, runTransaction, remove } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js");
+
+        const app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        firebaseApi = { ref, push, set, onValue, runTransaction, remove };
+
+        onValue(ref(db, "settings/ponds"), (snapshot) => {
+          const data = snapshot.val();
+          ponds = data ? Object.values(data) : structuredClone(DEFAULT_PONDS);
+          renderAll();
+        });
+
+        onValue(ref(db, "settings/warehouses"), (snapshot) => {
+          const data = snapshot.val();
+          warehouses = data ? Object.values(data) : structuredClone(DEFAULT_WAREHOUSES);
+          renderAll();
+        });
+
+        onValue(ref(db, "feedRecords"), (snapshot) => {
+          const data = snapshot.val() || {};
+          feedRecords = Object.entries(data)
+            .map(([id, value]) => ({ id, ...value }))
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          renderAll();
+        });
+
+        onValue(ref(db, "stockLogs"), (snapshot) => {
+          const data = snapshot.val() || {};
+          stockLogs = Object.entries(data)
+            .map(([id, value]) => ({ id, ...value }))
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          renderAll();
+        });
+
+        onValue(ref(db, "stockTotals"), (snapshot) => {
+          stockTotals = snapshot.val() || {};
+          firebaseReady = true;
+          $("syncNotice").textContent = "实时同步已开启。两个人打开同一个网址，都能看到最新喂料、库存和养殖周期。";
+          $("syncNotice").classList.add("connected");
+          renderAll();
+        });
+
+        onValue(ref(db, "cycleStarts"), (snapshot) => {
+          cycleStarts = snapshot.val() || {};
+          renderAll();
+        });
+
+        onValue(ref(db, "cycleHistories"), (snapshot) => {
+          const data = snapshot.val() || {};
+          cycleHistories = Object.entries(data)
+            .map(([id, value]) => ({ id, ...value }))
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          renderAll();
+        });
+      } catch (error) {
+        console.error(error);
+        $("syncNotice").textContent = "Firebase 连接失败，当前自动切换为本地模式。请检查 Firebase 配置。";
+        localLoad();
+      }
+    }
+
+    window.showPage = function(page) {
+      const pages = ["feed", "stockIn", "inventory", "pondStats", "settings"];
+      pages.forEach(p => {
+        const show = p === page;
+        $("page" + p[0].toUpperCase() + p.slice(1)).classList.toggle("hidden", !show);
+        $("tab" + p[0].toUpperCase() + p.slice(1)).classList.toggle("active", show);
+      });
+      renderAll();
+    };
+
+    window.setFeedBags = function(value) {
+      $("feedBags").value = value;
+      updateCurrentStockBox();
+    };
+
+    window.setStockBags = function(value) {
+      $("stockBags").value = value;
+    };
+
+    window.updatePondInfo = function() {
+      const pond = pondById($("pondSelect").value);
+      $("pondInfo").textContent = `${pond.name}　鱼种：${pond.species || "空置"}`;
+    };
+
+    window.renderFeedSuggestions = function() {
+      renderDatalist();
+      updateCurrentStockBox();
+    };
+
+    window.updateCurrentStockBox = function() {
+      const warehouseId = $("feedWarehouse").value;
+      const feedName = getFeedInputValue("feedName", "feedNameCustom");
+      const box = $("currentStockBox");
+
+      if (!warehouseId || !feedName) {
+        box.textContent = "当前库存：请选择仓库和饲料";
+        box.className = "info-box";
+        return;
+      }
+
+      const stock = getStock(warehouseId, feedName);
+      const willUse = Number($("feedBags").value || 0);
+      const remain = stock - willUse;
+
+      if (willUse > 0) {
+        box.textContent = `当前库存：${formatNumber(stock)} 包，保存后剩余：${formatNumber(remain)} 包`;
+      } else {
+        box.textContent = `当前库存：${formatNumber(stock)} 包`;
+      }
+
+      box.className = remain < 0 ? "warn-box" : "info-box";
+    };
+
+    async function firebaseUpdateStock(warehouseId, feedName, deltaBags) {
+      const feedKey = safeFeedKey(feedName);
+      const key = stockKey(warehouseId, feedKey, true);
+      const itemRef = firebaseApi.ref(db, "stockTotals/" + key);
+
+      await firebaseApi.runTransaction(itemRef, (current) => {
+        const currentBags = Number(current?.bags || 0);
+        return {
+          warehouseId,
+          warehouseName: warehouseName(warehouseId),
+          feedKey,
+          feedName,
+          bags: currentBags + Number(deltaBags),
+          updatedAt: Date.now()
+        };
+      });
+    }
+
+    window.saveStockIn = async function() {
+      const date = $("stockDate").value;
+      const warehouseId = $("stockWarehouse").value;
+      const feedName = getFeedInputValue("stockFeedName", "stockFeedNameCustom");
+      const bags = Number($("stockBags").value);
+      const person = $("stockPerson").value.trim();
+      const note = $("stockNote").value.trim();
+
+      if (!date) return alert("请选择日期");
+      if (!warehouseId) return alert("请选择仓库");
+      if (!feedName) return alert("请输入饲料名称");
+      if (!bags || bags <= 0) return alert("请输入入库包数");
+
+      const log = {
+        date,
+        type: "in",
+        warehouseId,
+        warehouseName: warehouseName(warehouseId),
+        feedName,
+        bags,
+        person,
+        note,
+        createdAt: Date.now()
+      };
+
+      if (USE_FIREBASE && firebaseReady) {
+        await firebaseApi.push(firebaseApi.ref(db, "stockLogs"), log);
+        await firebaseUpdateStock(warehouseId, feedName, bags);
+      } else {
+        log.id = "local_" + Date.now();
+        stockLogs.unshift(log);
+        localAddStock(warehouseId, feedName, bags);
+        localSaveAll();
+        renderAll();
+      }
+
+      $("stockBags").value = "";
+      $("stockNote").value = "";
+      $("stockFeedName").value = "生鱼料";
+      $("stockFeedNameCustom").value = "";
+      $("stockFeedNameCustom").classList.add("hidden");
+      alert("入库已保存，库存已增加");
+      showPage("inventory");
+    };
+
+    window.saveFeedRecord = async function() {
+      const date = $("feedDate").value;
+      const pond = pondById($("pondSelect").value);
+      const warehouseId = $("feedWarehouse").value;
+      const feedName = getFeedInputValue("feedName", "feedNameCustom");
+      const bags = Number($("feedBags").value);
+      const person = $("feedPerson").value.trim();
+      const note = $("feedNote").value.trim();
+
+      if (!date) return alert("请选择日期");
+      if (!pond) return alert("请选择鱼塘");
+      if (!warehouseId) return alert("请选择扣料仓库");
+      if (!feedName) return alert("请输入饲料名称");
+      if (!bags || bags <= 0) return alert("请输入喂料包数");
+
+      const currentStock = getStock(warehouseId, feedName);
+      if (currentStock - bags < 0) {
+        const ok = confirm(`库存可能不够：当前只有 ${formatNumber(currentStock)} 包，本次要喂 ${formatNumber(bags)} 包。\n是否仍然保存？`);
+        if (!ok) return;
+      }
+
+      const createdAt = Date.now();
+
+      const record = {
+        date,
+        pondId: pond.id,
+        pondName: pond.name,
+        species: pond.species || "空置",
+        warehouseId,
+        warehouseName: warehouseName(warehouseId),
+        feedName,
+        bags,
+        person,
+        note,
+        createdAt
+      };
+
+      const log = {
+        date,
+        type: "out",
+        warehouseId,
+        warehouseName: warehouseName(warehouseId),
+        feedName,
+        bags,
+        pondId: pond.id,
+        pondName: pond.name,
+        species: pond.species || "空置",
+        person,
+        note: note || "喂料扣库",
+        createdAt
+      };
+
+      if (USE_FIREBASE && firebaseReady) {
+        await firebaseApi.push(firebaseApi.ref(db, "feedRecords"), record);
+        await firebaseApi.push(firebaseApi.ref(db, "stockLogs"), log);
+        await firebaseUpdateStock(warehouseId, feedName, -bags);
+      } else {
+        record.id = "local_feed_" + createdAt;
+        log.id = "local_log_" + createdAt;
+        feedRecords.unshift(record);
+        stockLogs.unshift(log);
+        localAddStock(warehouseId, feedName, -bags);
+        localSaveAll();
+        renderAll();
+      }
+
+      $("feedBags").value = "";
+      $("feedNote").value = "";
+      updateCurrentStockBox();
+      alert("喂料已保存，库存已扣减");
+      showPage("inventory");
+    };
+
+    window.deleteFeedRecord = async function(id) {
+      alert("为了防止库存对不上，第二版暂不允许直接删除喂料记录。后续可以增加“冲正/撤销”功能。");
+    };
+
+    window.saveSettings = async function() {
+      const newPonds = DEFAULT_PONDS.map((p, i) => ({
+        id: p.id,
+        name: $(`pondName_${i}`).value.trim() || p.name,
+        species: $(`pondSpecies_${i}`).value.trim() || "空置"
+      }));
+
+      const newWarehouses = DEFAULT_WAREHOUSES.map((w, i) => ({
+        id: w.id,
+        name: $(`warehouseName_${i}`).value.trim()
+      }));
+
+      ponds = newPonds;
+      warehouses = newWarehouses;
+
+      if (USE_FIREBASE && firebaseReady) {
+        const pondsObj = Object.fromEntries(ponds.map(p => [p.id, p]));
+        const warehousesObj = Object.fromEntries(warehouses.map(w => [w.id, w]));
+        await firebaseApi.set(firebaseApi.ref(db, "settings/ponds"), pondsObj);
+        await firebaseApi.set(firebaseApi.ref(db, "settings/warehouses"), warehousesObj);
+      } else {
+        localSaveAll();
+        renderAll();
+      }
+
+      alert("设置已保存");
+      showPage("feed");
+    };
+
+    window.resetSettings = function() {
+      if (!confirm("确定恢复默认鱼塘和仓库设置吗？库存和流水不会删除。")) return;
+      ponds = structuredClone(DEFAULT_PONDS);
+      warehouses = structuredClone(DEFAULT_WAREHOUSES);
+      localSaveAll();
+      renderAll();
+      alert("已恢复默认设置");
+    };
+
+    window.renderAll = function() {
+      renderSelects();
+      renderDatalist();
+      renderPondSettings();
+      renderWarehouseSettings();
+      renderInventory();
+      renderStockLogs();
+      renderPondStats();
+      renderCycleHistory();
+      updatePondInfo();
+      updateCurrentStockBox();
+    };
+
+    function renderSelects() {
+      const displayPonds = sortedPondsForDisplay();
+      const pondOptions = displayPonds.map(p => {
+        const emptyText = isPondOccupied(p) ? "" : "【空置】";
+        return `<option value="${p.id}">${escapeHtml(p.name)} - ${escapeHtml(p.species || "空置")}${emptyText}</option>`;
+      }).join("");
+
+      const oldPond = $("pondSelect").value;
+      $("pondSelect").innerHTML = pondOptions;
+      if (oldPond && ponds.some(p => p.id === oldPond)) {
+        $("pondSelect").value = oldPond;
+      } else if (displayPonds[0]) {
+        $("pondSelect").value = displayPonds[0].id;
+      }
+
+      if ($("singlePondSelect")) {
+        const oldSinglePond = $("singlePondSelect").value;
+        $("singlePondSelect").innerHTML = pondOptions;
+        if (oldSinglePond && ponds.some(p => p.id === oldSinglePond)) {
+          $("singlePondSelect").value = oldSinglePond;
+        } else if (displayPonds[0]) {
+          $("singlePondSelect").value = displayPonds[0].id;
+        }
+      }
+
+      const whOptions = activeWarehouses().map(w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`).join("");
+      const oldFeedWh = $("feedWarehouse").value;
+      const oldStockWh = $("stockWarehouse").value;
+      $("feedWarehouse").innerHTML = whOptions;
+      $("stockWarehouse").innerHTML = whOptions;
+      if (oldFeedWh && activeWarehouses().some(w => w.id === oldFeedWh)) $("feedWarehouse").value = oldFeedWh;
+      if (oldStockWh && activeWarehouses().some(w => w.id === oldStockWh)) $("stockWarehouse").value = oldStockWh;
+
+      const oldInvWh = $("inventoryWarehouseFilter").value;
+      $("inventoryWarehouseFilter").innerHTML = `<option value="全部">全部仓库</option>` + whOptions;
+      if (oldInvWh && (oldInvWh === "全部" || activeWarehouses().some(w => w.id === oldInvWh))) {
+        $("inventoryWarehouseFilter").value = oldInvWh;
+      }
+    }
+
+    function renderDatalist() {
+      $("feedNameList").innerHTML = uniqueFeedNames()
+        .map(name => `<option value="${escapeHtml(name)}"></option>`)
+        .join("");
+    }
+
+    function renderPondSettings() {
+      $("pondSettings").innerHTML = ponds.map((p, i) => `
+        <div class="setting-row">
+          <div class="setting-label">第 ${i + 1} 个鱼塘</div>
+          <div class="grid-2">
+            <div>
+              <label for="pondName_${i}">鱼塘名称</label>
+              <input id="pondName_${i}" value="${escapeHtml(p.name)}" />
+            </div>
+            <div>
+              <label for="pondSpecies_${i}">鱼种</label>
+              <input id="pondSpecies_${i}" value="${escapeHtml(p.species || "")}" placeholder="不填=空置，例如：草鱼" />
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderWarehouseSettings() {
+      $("warehouseSettings").innerHTML = DEFAULT_WAREHOUSES.map((w, i) => {
+        const current = warehouses.find(x => x.id === w.id) || w;
+        return `
+          <div class="setting-row">
+            <label for="warehouseName_${i}">仓库 ${i + 1}</label>
+            <input id="warehouseName_${i}" value="${escapeHtml(current.name || "")}" placeholder="例如：${i + 1}号仓库" />
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderInventory() {
+      const inventoryList = $("inventoryList");
+      const feedTotalList = $("feedTotalList");
+      const whFilter = $("inventoryWarehouseFilter").value || "全部";
+      const feedFilter = $("inventoryFeedFilter").value.trim();
+
+      const items = Object.values(stockTotals)
+        .filter(item => !whFilter || whFilter === "全部" || item.warehouseId === whFilter)
+        .filter(item => !feedFilter || String(item.feedName || "").includes(feedFilter))
+        .sort((a, b) => {
+          const wa = warehouseName(a.warehouseId);
+          const wb = warehouseName(b.warehouseId);
+          return wa.localeCompare(wb, "zh-CN") || String(a.feedName || "").localeCompare(String(b.feedName || ""), "zh-CN");
+        });
+
+      const totalByFeed = {};
+      Object.values(stockTotals).forEach(item => {
+        if (feedFilter && !String(item.feedName || "").includes(feedFilter)) return;
+        const name = item.feedName || "未命名饲料";
+        totalByFeed[name] = (totalByFeed[name] || 0) + Number(item.bags || 0);
+      });
+
+      const feedTotals = Object.entries(totalByFeed).sort((a, b) => a[0].localeCompare(b[0], "zh-CN"));
+      feedTotalList.innerHTML = feedTotals.length
+        ? feedTotals.map(([name, bags]) => `
+          <div class="summary-item">
+            <div class="summary-name">${escapeHtml(name)}</div>
+            <div class="summary-num">${formatNumber(bags)} 包</div>
+          </div>
+        `).join("")
+        : `<div class="empty">暂无总库存</div>`;
+
+      const lowItems = Object.values(stockTotals).filter(item => Number(item.bags || 0) <= 10);
+      if (lowItems.length) {
+        $("inventoryWarning").classList.remove("hidden");
+        $("inventoryWarning").textContent = `库存提醒：有 ${lowItems.length} 项库存小于或等于 10 包，请注意补货。`;
+      } else {
+        $("inventoryWarning").classList.add("hidden");
+      }
+
+      inventoryList.innerHTML = items.length
+        ? items.map(item => {
+          const low = Number(item.bags || 0) <= 10;
+          return `
+            <div class="inventory-item ${low ? "low" : ""}">
+              <div class="inventory-head">
+                <div>
+                  <div class="inventory-title">${escapeHtml(item.feedName || "未命名饲料")}</div>
+                  <div class="meta">${escapeHtml(warehouseName(item.warehouseId))}</div>
+                </div>
+                <div class="inventory-bags">${formatNumber(item.bags)} 包</div>
+              </div>
+              ${low ? `<div class="pill">库存偏低</div>` : ""}
+              <div class="meta">更新时间：${item.updatedAt ? new Date(item.updatedAt).toLocaleString("zh-CN") : "—"}</div>
+            </div>
+          `;
+        }).join("")
+        : `<div class="empty">暂无库存，请先登记入库</div>`;
+    }
+
+
+    function renderPondStats() {
+      const hero = $("singlePondHero");
+      const quickGrid = $("pondQuickGrid");
+      const detailList = $("pondStatsDetailList");
+      const feedTypeSummaryList = $("feedTypeSummaryList");
+      const dailySummaryList = $("dailySummaryList");
+
+      if (!hero || !quickGrid) return;
+
+      const displayPonds = sortedPondsForDisplay();
+      const selectedId = $("singlePondSelect").value || (displayPonds[0]?.id || "");
+      const selectedPond = pondById(selectedId);
+      const range = getStatsRange();
+      const feedFilter = $("pondStatsFeedFilter").value.trim();
+
+      const rangeRecords = feedRecords
+        .filter(r => !feedFilter || String(r.feedName || "").includes(feedFilter));
+
+      const selectedRecords = rangeRecords.filter(r => recordInPondRange(r, selectedPond, range));
+
+      let totalBags = 0;
+      const feedTotals = {};
+      const dailyTotals = {};
+
+      selectedRecords.forEach(r => {
+        const bags = Number(r.bags || 0);
+        const feedName = r.feedName || "普通饲料";
+        totalBags += bags;
+        feedTotals[feedName] = (feedTotals[feedName] || 0) + bags;
+        dailyTotals[r.date || "未填日期"] = (dailyTotals[r.date || "未填日期"] || 0) + bags;
+      });
+
+      const rangeDays = range.start && range.end ? daysBetweenInclusive(range.start, range.end) : Math.max(1, new Set(selectedRecords.map(r => r.date)).size || 1);
+      const maxFeed = Math.max(1, ...Object.values(feedTotals).map(Number));
+      const maxDay = Math.max(1, ...Object.values(dailyTotals).map(Number));
+
+      const speciesEmpty = !isPondOccupied(selectedPond);
+
+      hero.innerHTML = `
+        <div class="single-pond-top">
+          <div>
+            <div class="single-pond-name">${escapeHtml(selectedPond.name)}</div>
+            <div class="single-pond-species ${speciesEmpty ? "empty" : ""}">鱼种：${escapeHtml(selectedPond.species || "空置")}</div>
+            <div class="cycle-pill">本轮开始：${formatDateTimeMs(getCycleStartAt(selectedPond.id))}</div>
+          </div>
+          <div class="single-pond-bags">${formatNumber(totalBags)} 包<span>${escapeHtml(range.label)}总用料</span></div>
+        </div>
+        <div class="visual-stat-grid">
+          <div class="visual-stat">
+            <div class="label">喂料次数</div>
+            <div class="value">${selectedRecords.length} 次</div>
+          </div>
+          <div class="visual-stat">
+            <div class="label">日均用料</div>
+            <div class="value">${formatNumber(totalBags / rangeDays)} 包</div>
+          </div>
+          <div class="visual-stat">
+            <div class="label">饲料品种</div>
+            <div class="value">${Object.keys(feedTotals).length} 种</div>
+          </div>
+          <div class="visual-stat">
+            <div class="label">当前状态</div>
+            <div class="value">${speciesEmpty ? "空置" : "有鱼"}</div>
+          </div>
+        </div>
+      `;
+
+      const pondTotalsForQuick = {};
+      displayPonds.forEach(p => pondTotalsForQuick[p.id] = 0);
+      rangeRecords.forEach(r => {
+        const p = displayPonds.find(x => recordBelongsToPond(r, x));
+        if (p && recordInPondRange(r, p, range)) {
+          pondTotalsForQuick[p.id] += Number(r.bags || 0);
+        }
+      });
+
+      quickGrid.innerHTML = displayPonds.map(p => {
+        const isActive = p.id === selectedId;
+        const isEmpty = !isPondOccupied(p);
+        const bags = pondTotalsForQuick[p.id] || 0;
+        return `
+          <button type="button" class="pond-quick-card ${isActive ? "active" : ""} ${isEmpty ? "empty" : ""}" onclick="selectSinglePond('${p.id}')">
+            <div class="pond-quick-name">${escapeHtml(p.name)}</div>
+            <div class="pond-quick-species">鱼种：${escapeHtml(p.species || "空置")}</div>
+            <div class="pond-quick-bags">${formatNumber(bags)} 包</div>
+          </button>
+        `;
+      }).join("");
+
+      const feedEntries = Object.entries(feedTotals).sort((a, b) => Number(b[1]) - Number(a[1]));
+      feedTypeSummaryList.innerHTML = feedEntries.length
+        ? feedEntries.map(([name, bags]) => {
+          const pct = Math.round(Number(bags) / maxFeed * 100);
+          return `
+            <div class="pretty-card">
+              <div class="pretty-row">
+                <div class="pretty-title">${escapeHtml(name)}</div>
+                <div class="pretty-num">${formatNumber(bags)} 包</div>
+              </div>
+              <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+            </div>
+          `;
+        }).join("")
+        : `<div class="empty">这个鱼塘在所选时间段暂无饲料用量</div>`;
+
+      const dayEntries = Object.entries(dailyTotals).sort((a, b) => String(b[0]).localeCompare(String(a[0])));
+      dailySummaryList.innerHTML = dayEntries.length
+        ? dayEntries.map(([date, bags]) => {
+          const pct = Math.round(Number(bags) / maxDay * 100);
+          return `
+            <div class="pretty-card">
+              <div class="pretty-row">
+                <div class="pretty-title">${escapeHtml(date)}</div>
+                <div class="pretty-num">${formatNumber(bags)} 包</div>
+              </div>
+              <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+            </div>
+          `;
+        }).join("")
+        : `<div class="empty">这个鱼塘在所选时间段暂无按日记录</div>`;
+
+      const details = selectedRecords
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        .slice(0, 200);
+
+      detailList.innerHTML = details.length
+        ? details.map(r => `
+          <div class="record-item">
+            <div class="record-head">
+              <div>
+                <div class="record-title">${escapeHtml(r.date || "")}　${nowTime(r.createdAt)}</div>
+                <div class="meta">饲料：${escapeHtml(r.feedName || "普通饲料")}</div>
+                <div class="meta">仓库：${escapeHtml(r.warehouseName || warehouseName(r.warehouseId))}</div>
+                <div class="meta">记录人：${escapeHtml(r.person || "")}</div>
+              </div>
+              <div class="record-bags">${formatNumber(r.bags)} 包</div>
+            </div>
+            ${r.note ? `<div class="note">备注：${escapeHtml(r.note)}</div>` : ""}
+          </div>
+        `).join("")
+        : `<div class="empty">这个鱼塘在所选时间段暂无喂料明细</div>`;
+    }
+
+    window.selectSinglePond = function(pondId) {
+      $("singlePondSelect").value = pondId;
+      renderAll();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    window.exportStatsCSV = function() {
+      const range = getStatsRange();
+      const feedFilter = $("pondStatsFeedFilter").value.trim();
+      const selectedId = $("singlePondSelect").value || "";
+      const selectedPond = pondById(selectedId);
+
+      const rows = [
+        ["统计鱼塘", selectedPond.name],
+        ["鱼种", selectedPond.species || "空置"],
+        ["统计范围", range.label],
+        ["开始日期", range.start || "全部"],
+        ["结束日期", range.end || "全部"],
+        []
+      ];
+
+      const records = feedRecords
+        .filter(r => !feedFilter || String(r.feedName || "").includes(feedFilter))
+        .filter(r => recordInPondRange(r, selectedPond, range))
+        .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
+
+      const total = records.reduce((sum, r) => sum + Number(r.bags || 0), 0);
+      rows.push(["总包数", formatNumber(total)]);
+      rows.push(["喂料次数", records.length]);
+      rows.push([]);
+      rows.push(["日期", "鱼塘", "鱼种", "饲料", "包数", "仓库", "记录人", "备注"]);
+
+      records.forEach(r => {
+        rows.push([
+          r.date || "",
+          r.pondName || selectedPond.name,
+          r.species || selectedPond.species || "空置",
+          r.feedName || "",
+          formatNumber(r.bags),
+          r.warehouseName || warehouseName(r.warehouseId),
+          r.person || "",
+          r.note || ""
+        ]);
+      });
+
+      const csv = rows.map(row => row.map(cell => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(",")).join("\n");
+      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${selectedPond.name}_喂料汇总_${range.label}_${todayStr()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+
+    window.saveBackfillRecord = async function() {
+      const selectedId = $("singlePondSelect").value || "";
+      const pond = pondById(selectedId);
+      const date = $("backfillDate").value;
+      const bags = Number($("backfillBags").value);
+      const feedName = getFeedInputValue("backfillFeedName", "backfillFeedNameCustom") || "前期累计饲料";
+      const note = $("backfillNote").value.trim() || "前期累计补录，不扣库存";
+
+      if (!pond) return alert("请先选择鱼塘");
+      if (!date) return alert("请选择补录日期");
+      if (!bags || bags <= 0) return alert("请输入前期已喂多少包");
+
+      const record = {
+        date,
+        pondId: pond.id,
+        pondName: pond.name,
+        species: pond.species || "空置",
+        warehouseId: "backfill",
+        warehouseName: "前期补录，不扣库存",
+        feedName,
+        bags,
+        person: "补录",
+        note,
+        sourceType: "backfill",
+        stockAffect: false,
+        createdAt: Date.now()
+      };
+
+      if (USE_FIREBASE && firebaseReady) {
+        await firebaseApi.push(firebaseApi.ref(db, "feedRecords"), record);
+      } else {
+        record.id = "local_backfill_" + Date.now();
+        feedRecords.unshift(record);
+        localSaveAll();
+        renderAll();
+      }
+
+      $("backfillBags").value = "";
+      $("backfillNote").value = "";
+      $("backfillFeedName").value = "生鱼料";
+      $("backfillFeedNameCustom").value = "";
+      $("backfillFeedNameCustom").classList.add("hidden");
+      alert("前期用料已补录，这条记录不会扣仓库库存");
+      showPage("pondStats");
+    };
+
+    window.finishCurrentCycle = async function() {
+      const selectedId = $("singlePondSelect").value || "";
+      const pond = pondById(selectedId);
+      const saleDate = $("cycleSaleDate").value || todayStr();
+      const note = $("cycleSaleNote").value.trim();
+
+      if (!pond) return alert("请先选择鱼塘");
+
+      const startAt = getCycleStartAt(pond.id);
+      const records = feedRecords.filter(r => recordBelongsToPond(r, pond) && Number(r.createdAt || 0) >= startAt);
+
+      const totalBags = records.reduce((sum, r) => sum + Number(r.bags || 0), 0);
+      const feedTotals = {};
+      records.forEach(r => {
+        const feedName = r.feedName || "普通饲料";
+        feedTotals[feedName] = (feedTotals[feedName] || 0) + Number(r.bags || 0);
+      });
+
+      const dates = records.map(r => r.date).filter(Boolean).sort();
+      const startDate = dates[0] || "";
+      const endDate = dates[dates.length - 1] || saleDate;
+
+      const ok = confirm(
+        `${pond.name} 将归档为历史记录。\n` +
+        `本轮鱼种：${pond.species || "空置"}\n` +
+        `本轮喂料：${formatNumber(totalBags)} 包，共 ${records.length} 次。\n\n` +
+        `归档后，这口塘会重新开始统计，并把鱼种设为空置。确定继续吗？`
+      );
+      if (!ok) return;
+
+      const now = Date.now();
+      const history = {
+        pondId: pond.id,
+        pondName: pond.name,
+        species: pond.species || "空置",
+        saleDate,
+        startDate,
+        endDate,
+        cycleStartAt: startAt,
+        cycleEndAt: now,
+        totalBags,
+        feedTimes: records.length,
+        feedTotals,
+        note,
+        createdAt: now
+      };
+
+      const updatedPonds = ponds.map(p => p.id === pond.id ? { ...p, species: "空置" } : p);
+      const updatedCycleStarts = { ...cycleStarts, [pond.id]: now + 1 };
+
+      if (USE_FIREBASE && firebaseReady) {
+        await firebaseApi.push(firebaseApi.ref(db, "cycleHistories"), history);
+        await firebaseApi.set(firebaseApi.ref(db, "cycleStarts/" + pond.id), now + 1);
+        await firebaseApi.set(firebaseApi.ref(db, "settings/ponds"), Object.fromEntries(updatedPonds.map(p => [p.id, p])));
+      } else {
+        history.id = "local_cycle_" + now;
+        cycleHistories.unshift(history);
+        cycleStarts = updatedCycleStarts;
+        ponds = updatedPonds;
+        localSaveAll();
+        renderAll();
+      }
+
+      $("cycleSaleNote").value = "";
+      alert("已归档历史记录，这口塘已重新开始统计，鱼种已设为空置");
+      showPage("pondStats");
+    };
+
+    function renderCycleHistory() {
+      const box = $("cycleHistoryList");
+      if (!box) return;
+
+      const selectedId = $("singlePondSelect").value || "";
+      const pond = pondById(selectedId);
+      const histories = cycleHistories
+        .filter(h => h.pondId === pond.id || h.pondName === pond.name)
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      if (!histories.length) {
+        box.innerHTML = `<div class="empty">这个鱼塘暂无历史养殖记录</div>`;
+        return;
+      }
+
+      box.innerHTML = histories.map(h => {
+        const feeds = Object.entries(h.feedTotals || {})
+          .sort((a, b) => Number(b[1]) - Number(a[1]))
+          .map(([name, bags]) => `
+            <div class="history-feed-line">
+              <span>${escapeHtml(name)}</span>
+              <strong>${formatNumber(bags)} 包</strong>
+            </div>
+          `).join("");
+
+        return `
+          <div class="history-card">
+            <div class="history-head">
+              <div>
+                <div class="history-title">${escapeHtml(h.pondName || "")}　${escapeHtml(h.species || "空置")}</div>
+                <div class="meta">卖鱼日期：${escapeHtml(h.saleDate || "")}</div>
+                <div class="meta">记录范围：${escapeHtml(h.startDate || "未记录")} 至 ${escapeHtml(h.endDate || h.saleDate || "")}</div>
+                <div class="meta">喂料次数：${h.feedTimes || 0} 次</div>
+              </div>
+              <div class="history-total">${formatNumber(h.totalBags)} 包</div>
+            </div>
+            ${feeds ? `<div class="history-feed">${feeds}</div>` : ""}
+            ${h.note ? `<div class="note">备注：${escapeHtml(h.note)}</div>` : ""}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderStockLogs() {
+      const list = $("stockLogList");
+      const date = $("logDateFilter").value;
+      const type = $("logTypeFilter").value;
+
+      const filtered = stockLogs
+        .filter(log => !date || log.date === date)
+        .filter(log => type === "全部" || log.type === type)
+        .slice(0, 80);
+
+      list.innerHTML = filtered.length
+        ? filtered.map(log => {
+          const isIn = log.type === "in";
+          const title = isIn ? "入库" : "喂料扣库";
+          const symbol = isIn ? "+" : "-";
+          return `
+            <div class="log-item">
+              <div class="log-head">
+                <div>
+                  <div class="log-title ${isIn ? "log-in" : "log-out"}">${title}</div>
+                  <div class="meta">${escapeHtml(log.date)}　${nowTime(log.createdAt)}</div>
+                </div>
+                <div class="inventory-bags ${isIn ? "log-in" : "log-out"}">${symbol}${formatNumber(log.bags)} 包</div>
+              </div>
+              <div class="meta">仓库：${escapeHtml(log.warehouseName || warehouseName(log.warehouseId))}</div>
+              <div class="meta">饲料：${escapeHtml(log.feedName || "")}</div>
+              ${!isIn ? `<div class="meta">鱼塘：${escapeHtml(log.pondName || "")}　鱼种：${escapeHtml(log.species || "")}</div>` : ""}
+              <div class="meta">登记人：${escapeHtml(log.person || "")}</div>
+              ${log.note ? `<div class="note">备注：${escapeHtml(log.note)}</div>` : ""}
+            </div>
+          `;
+        }).join("")
+        : `<div class="empty">暂无库存流水</div>`;
+    }
+
+    $("feedName").addEventListener("change", updateCurrentStockBox);
+    $("feedNameCustom").addEventListener("input", updateCurrentStockBox);
+    $("feedWarehouse").addEventListener("change", updateCurrentStockBox);
+
+    setDefaultDates();
+    handleStatsRangeChange();
+    initFirebase();
+  </script>
+</body>
+</html>
