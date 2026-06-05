@@ -499,6 +499,41 @@
       font-weight: 900;
     }
 
+
+    .btn-undo {
+      background: #fff7ed;
+      color: #9a3412;
+      border: 2px solid #fdba74;
+      min-height: 52px;
+      font-size: 21px;
+      margin-top: 10px;
+    }
+    .cancelled-card {
+      opacity: 0.62;
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+    }
+    .cancelled-badge {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #475569;
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .undo-tip {
+      background: #fffbeb;
+      border: 2px solid #fde68a;
+      border-radius: 16px;
+      color: #92400e;
+      font-size: 19px;
+      font-weight: 800;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
     .single-pond-hero {
       background: linear-gradient(135deg, #ecfdf5, #eff6ff);
       border: 2px solid #bae6fd;
@@ -909,6 +944,7 @@
       <div id="inventoryList" class="summary-grid"></div>
 
       <div class="sub-title">库存流水</div>
+      <div class="undo-tip">登记错了，可以在下面点“撤销这条”。撤销会自动反向修正库存和鱼塘汇总。</div>
       <div class="filters">
         <div>
           <label for="logDateFilter">日期</label>
@@ -1265,6 +1301,7 @@
     }
 
     function recordInPondRange(record, pond, range) {
+      if (record?.cancelled) return false;
       if (!recordBelongsToPond(record, pond)) return false;
       if (range && range.currentCycle) {
         return Number(record.createdAt || 0) >= getCycleStartAt(pond.id);
@@ -1553,7 +1590,10 @@
       if (!feedName) return alert("请输入饲料名称");
       if (!bags || bags <= 0) return alert("请输入入库包数");
 
+      const undoGroupId = "stock_in_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+
       const log = {
+        undoGroupId,
         date,
         type: "in",
         warehouseId,
@@ -1607,8 +1647,10 @@
       }
 
       const createdAt = Date.now();
+      const undoGroupId = "feed_" + createdAt + "_" + Math.random().toString(36).slice(2, 8);
 
       const record = {
+        undoGroupId,
         date,
         pondId: pond.id,
         pondName: pond.name,
@@ -1623,6 +1665,7 @@
       };
 
       const log = {
+        undoGroupId,
         date,
         type: "out",
         warehouseId,
@@ -1866,6 +1909,7 @@
       const feedFilter = $("pondStatsFeedFilter").value.trim();
 
       const rangeRecords = feedRecords
+        .filter(r => !r.cancelled)
         .filter(r => !feedFilter || String(r.feedName || "").includes(feedFilter));
 
       const selectedRecords = rangeRecords.filter(r => recordInPondRange(r, selectedPond, range));
@@ -1988,6 +2032,7 @@
               <div class="record-bags">${formatNumber(r.bags)} 包</div>
             </div>
             ${r.note ? `<div class="note">备注：${escapeHtml(r.note)}</div>` : ""}
+            <button class="btn btn-undo" onclick="undoFeedRecord('${r.id}')">撤销这条记录</button>
           </div>
         `).join("")
         : `<div class="empty">这个鱼塘在所选时间段暂无喂料明细</div>`;
@@ -2015,6 +2060,7 @@
       ];
 
       const records = feedRecords
+        .filter(r => !r.cancelled)
         .filter(r => !feedFilter || String(r.feedName || "").includes(feedFilter))
         .filter(r => recordInPondRange(r, selectedPond, range))
         .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
@@ -2063,7 +2109,10 @@
       if (!date) return alert("请选择补录日期");
       if (!bags || bags <= 0) return alert("请输入前期已喂多少包");
 
+      const undoGroupId = "backfill_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+
       const record = {
+        undoGroupId,
         date,
         pondId: pond.id,
         pondName: pond.name,
@@ -2106,7 +2155,7 @@
       if (!pond) return alert("请先选择鱼塘");
 
       const startAt = getCycleStartAt(pond.id);
-      const records = feedRecords.filter(r => recordBelongsToPond(r, pond) && Number(r.createdAt || 0) >= startAt);
+      const records = feedRecords.filter(r => !r.cancelled && recordBelongsToPond(r, pond) && Number(r.createdAt || 0) >= startAt);
 
       const totalBags = records.reduce((sum, r) => sum + Number(r.bags || 0), 0);
       const feedTotals = {};
@@ -2208,6 +2257,136 @@
       }).join("");
     }
 
+
+    function sameBags(a, b) {
+      return Number(a || 0) === Number(b || 0);
+    }
+
+    function findMatchingStockLogForFeedRecord(record) {
+      return stockLogs.find(log => {
+        if (!log || log.cancelled || log.type !== "out") return false;
+
+        if (record.undoGroupId && log.undoGroupId && record.undoGroupId === log.undoGroupId) {
+          return true;
+        }
+
+        return Number(log.createdAt || 0) === Number(record.createdAt || 0)
+          && String(log.pondId || "") === String(record.pondId || "")
+          && String(log.feedName || "") === String(record.feedName || "")
+          && sameBags(log.bags, record.bags);
+      });
+    }
+
+    function findMatchingFeedRecordForStockLog(log) {
+      return feedRecords.find(record => {
+        if (!record || record.cancelled) return false;
+
+        if (log.undoGroupId && record.undoGroupId && log.undoGroupId === record.undoGroupId) {
+          return true;
+        }
+
+        return Number(record.createdAt || 0) === Number(log.createdAt || 0)
+          && String(record.pondId || "") === String(log.pondId || "")
+          && String(record.feedName || "") === String(log.feedName || "")
+          && sameBags(record.bags, log.bags);
+      });
+    }
+
+    async function markCancelled(collectionName, item, reason) {
+      if (!item || item.cancelled) return;
+
+      const fields = {
+        cancelled: true,
+        cancelledAt: Date.now(),
+        cancelReason: reason || "手动撤销"
+      };
+
+      if (USE_FIREBASE && firebaseReady && item.id && !String(item.id).startsWith("local_")) {
+        for (const [key, value] of Object.entries(fields)) {
+          await firebaseApi.set(firebaseApi.ref(db, `${collectionName}/${item.id}/${key}`), value);
+        }
+      } else {
+        Object.assign(item, fields);
+      }
+    }
+
+    async function applyStockDelta(warehouseId, feedName, deltaBags) {
+      if (!warehouseId || warehouseId === "backfill" || !feedName || !deltaBags) return;
+
+      if (USE_FIREBASE && firebaseReady) {
+        await firebaseUpdateStock(warehouseId, feedName, deltaBags);
+      } else {
+        localAddStock(warehouseId, feedName, deltaBags);
+      }
+    }
+
+    window.undoStockLog = async function(id) {
+      const log = stockLogs.find(item => item.id === id);
+      if (!log) return alert("没有找到这条记录");
+      if (log.cancelled) return alert("这条记录已经撤销过了");
+
+      const isIn = log.type === "in";
+      const isOut = log.type === "out";
+      if (!isIn && !isOut) return alert("这条记录暂不支持撤销");
+
+      let message = "";
+      if (isIn) {
+        message = `确定撤销这条入库吗？\n\n仓库：${log.warehouseName || warehouseName(log.warehouseId)}\n饲料：${log.feedName}\n数量：${formatNumber(log.bags)} 包\n\n撤销后库存会减少 ${formatNumber(log.bags)} 包。`;
+      } else {
+        message = `确定撤销这条喂料扣库吗？\n\n鱼塘：${log.pondName || ""}\n饲料：${log.feedName}\n数量：${formatNumber(log.bags)} 包\n\n撤销后鱼塘汇总会减少，仓库库存会加回 ${formatNumber(log.bags)} 包。`;
+      }
+
+      if (!confirm(message)) return;
+
+      const delta = isIn ? -Number(log.bags || 0) : Number(log.bags || 0);
+      const matchingRecord = isOut ? findMatchingFeedRecordForStockLog(log) : null;
+
+      await markCancelled("stockLogs", log, "从库存流水撤销");
+      if (matchingRecord) {
+        await markCancelled("feedRecords", matchingRecord, "对应库存流水已撤销");
+      }
+      await applyStockDelta(log.warehouseId, log.feedName, delta);
+
+      if (!(USE_FIREBASE && firebaseReady)) {
+        localSaveAll();
+        renderAll();
+      }
+
+      alert("已撤销，库存和汇总已自动修正");
+    };
+
+    window.undoFeedRecord = async function(id) {
+      const record = feedRecords.find(item => item.id === id);
+      if (!record) return alert("没有找到这条记录");
+      if (record.cancelled) return alert("这条记录已经撤销过了");
+
+      const affectsStock = record.warehouseId && record.warehouseId !== "backfill" && record.stockAffect !== false;
+      const stockText = affectsStock ? `\n\n撤销后仓库库存会加回 ${formatNumber(record.bags)} 包。` : "\n\n这条是前期补录，不影响仓库库存。";
+      const ok = confirm(
+        `确定撤销这条记录吗？\n\n鱼塘：${record.pondName || ""}\n饲料：${record.feedName || ""}\n数量：${formatNumber(record.bags)} 包${stockText}`
+      );
+      if (!ok) return;
+
+      const matchingLog = affectsStock ? findMatchingStockLogForFeedRecord(record) : null;
+
+      await markCancelled("feedRecords", record, "从鱼塘明细撤销");
+      if (matchingLog) {
+        await markCancelled("stockLogs", matchingLog, "对应喂料记录已撤销");
+      }
+
+      if (affectsStock) {
+        await applyStockDelta(record.warehouseId, record.feedName, Number(record.bags || 0));
+      }
+
+      if (!(USE_FIREBASE && firebaseReady)) {
+        localSaveAll();
+        renderAll();
+      }
+
+      alert("已撤销，汇总和库存已自动修正");
+    };
+
+
     function renderStockLogs() {
       const list = $("stockLogList");
       const date = $("logDateFilter").value;
@@ -2221,13 +2400,14 @@
       list.innerHTML = filtered.length
         ? filtered.map(log => {
           const isIn = log.type === "in";
+          const isCancelled = !!log.cancelled;
           const title = isIn ? "入库" : "喂料扣库";
           const symbol = isIn ? "+" : "-";
           return `
-            <div class="log-item">
+            <div class="log-item ${isCancelled ? "cancelled-card" : ""}">
               <div class="log-head">
                 <div>
-                  <div class="log-title ${isIn ? "log-in" : "log-out"}">${title}</div>
+                  <div class="log-title ${isIn ? "log-in" : "log-out"}">${isCancelled ? "已撤销 - " : ""}${title}</div>
                   <div class="meta">${escapeHtml(log.date)}　${nowTime(log.createdAt)}</div>
                 </div>
                 <div class="inventory-bags ${isIn ? "log-in" : "log-out"}">${symbol}${formatNumber(log.bags)} 包</div>
@@ -2237,6 +2417,7 @@
               ${!isIn ? `<div class="meta">鱼塘：${escapeHtml(log.pondName || "")}　鱼种：${escapeHtml(log.species || "")}</div>` : ""}
               <div class="meta">登记人：${escapeHtml(log.person || "")}</div>
               ${log.note ? `<div class="note">备注：${escapeHtml(log.note)}</div>` : ""}
+              ${isCancelled ? `<div class="cancelled-badge">已撤销：${escapeHtml(log.cancelReason || "手动撤销")}</div>` : `<button class="btn btn-undo" onclick="undoStockLog('${log.id}')">撤销这条</button>`}
             </div>
           `;
         }).join("")
