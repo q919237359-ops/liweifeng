@@ -1574,6 +1574,7 @@
           const stockJin = item.stockJin !== undefined ? Number(item.stockJin || 0) : item.jin !== undefined ? Number(item.jin || 0) : Number(item.bags || 0) * getBagJin(feedName);
           return { ...item, feedName, stockJin };
         })
+        .filter(item => Number(item.stockJin || 0) > 0)
         .sort((a, b) => warehouseName(a.warehouseId).localeCompare(warehouseName(b.warehouseId), "zh-CN") || String(a.feedName || "").localeCompare(String(b.feedName || ""), "zh-CN"));
 
       const totalByFeed = {};
@@ -1584,7 +1585,9 @@
         totalByFeed[name] = (totalByFeed[name] || 0) + stockJin;
       });
 
-      const feedTotals = Object.entries(totalByFeed).sort((a, b) => a[0].localeCompare(b[0], "zh-CN"));
+      const feedTotals = Object.entries(totalByFeed)
+        .filter(([name, stockJin]) => Number(stockJin || 0) > 0)
+        .sort((a, b) => a[0].localeCompare(b[0], "zh-CN"));
       feedTotalList.innerHTML = feedTotals.length
         ? feedTotals.map(([name, stockJin]) => `
           <div class="summary-item">
@@ -1594,7 +1597,7 @@
         `).join("")
         : `<div class="empty">暂无总库存</div>`;
 
-      const lowItems = items.filter(item => Number(item.stockJin || 0) <= getBagJin(item.feedName) * 2);
+      const lowItems = items.filter(item => Number(item.stockJin || 0) > 0 && Number(item.stockJin || 0) <= getBagJin(item.feedName) * 2);
       if (lowItems.length) {
         $("inventoryWarning").classList.remove("hidden");
         $("inventoryWarning").textContent = `库存提醒：有 ${lowItems.length} 项库存低于约 2 包，请注意补货。`;
