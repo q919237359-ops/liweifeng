@@ -614,6 +614,164 @@
     }
   </style>
 
+
+  <!-- 单塘汇总三个筛选按钮缩小版：仅 CSS，不动 Firebase -->
+  <style>
+    #pagePondStats .range-box {
+      padding: 8px 10px !important;
+      margin-bottom: 8px !important;
+      border-radius: 12px !important;
+    }
+
+    #pagePondStats .range-box .form-row {
+      margin-bottom: 7px !important;
+    }
+
+    #pagePondStats .range-box label {
+      font-size: 14px !important;
+      margin-bottom: 3px !important;
+      line-height: 1.15 !important;
+    }
+
+    #pagePondStats .range-box select,
+    #pagePondStats .range-box input {
+      min-height: 36px !important;
+      height: 36px !important;
+      font-size: 15px !important;
+      padding: 5px 9px !important;
+      border-radius: 10px !important;
+      border-width: 2px !important;
+    }
+
+    #pagePondStats .range-box .small-text {
+      display: none !important;
+    }
+
+    #pagePondStats #customRangeBox {
+      gap: 8px !important;
+      margin-bottom: 4px !important;
+    }
+
+    #pagePondStats .export-btn {
+      min-height: 38px !important;
+      height: 38px !important;
+      font-size: 15px !important;
+      border-radius: 11px !important;
+      margin-top: 3px !important;
+      padding: 0 10px !important;
+    }
+
+    @media (max-width: 420px) {
+      #pagePondStats .range-box {
+        padding: 7px 9px !important;
+      }
+      #pagePondStats .range-box select,
+      #pagePondStats .range-box input {
+        min-height: 34px !important;
+        height: 34px !important;
+        font-size: 14px !important;
+      }
+      #pagePondStats .export-btn {
+        min-height: 36px !important;
+        height: 36px !important;
+        font-size: 14px !important;
+      }
+    }
+  </style>
+
+
+  <!-- 单塘汇总顶部三项并排版：仅 CSS，不动 Firebase -->
+  <style>
+    #pagePondStats .range-box {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 8px 10px !important;
+      align-items: start !important;
+      padding: 8px 10px !important;
+      margin-bottom: 8px !important;
+      border-radius: 12px !important;
+    }
+
+    #pagePondStats .range-box > .form-row {
+      margin-bottom: 0 !important;
+      min-width: 0 !important;
+    }
+
+    #pagePondStats .range-box > .form-row > label {
+      display: block !important;
+      font-size: 13px !important;
+      margin-bottom: 3px !important;
+      line-height: 1.12 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    #pagePondStats .range-box > .form-row > select,
+    #pagePondStats .range-box > .form-row > input {
+      width: 100% !important;
+      min-height: 34px !important;
+      height: 34px !important;
+      font-size: 13px !important;
+      padding: 4px 8px !important;
+      border-radius: 10px !important;
+      border-width: 2px !important;
+      min-width: 0 !important;
+    }
+
+    #pagePondStats .range-box > .form-row .small-text {
+      display: none !important;
+    }
+
+    #pagePondStats .range-box > #customRangeBox {
+      grid-column: 1 / -1 !important;
+      margin: 0 !important;
+      padding-top: 2px !important;
+    }
+
+    #pagePondStats .range-box > #customRangeBox .grid-2 {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 8px !important;
+    }
+
+    #pagePondStats .range-box > #customRangeBox .form-row {
+      margin-bottom: 0 !important;
+    }
+
+    #pagePondStats .range-box > .export-btn {
+      grid-column: 1 / -1 !important;
+      min-height: 36px !important;
+      height: 36px !important;
+      font-size: 14px !important;
+      border-radius: 11px !important;
+      margin-top: 2px !important;
+      padding: 0 10px !important;
+    }
+
+    @media (max-width: 420px) {
+      #pagePondStats .range-box {
+        gap: 7px 8px !important;
+        padding: 7px 8px !important;
+      }
+      #pagePondStats .range-box > .form-row > label {
+        font-size: 12px !important;
+      }
+      #pagePondStats .range-box > .form-row > select,
+      #pagePondStats .range-box > .form-row > input {
+        min-height: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        padding: 3px 7px !important;
+      }
+      #pagePondStats .range-box > .export-btn {
+        min-height: 34px !important;
+        height: 34px !important;
+        font-size: 13px !important;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
