@@ -481,6 +481,125 @@
     }
   </style>
 
+
+  <!-- 单塘汇总三按钮与快速切换优化 -->
+  <style>
+    #pagePondStats .compact-toolbar-box {
+      padding: 10px !important;
+      margin-bottom: 10px !important;
+    }
+    #pagePondStats .stats-top-btns {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    #pagePondStats .stats-top-btn {
+      border: 2px solid #dbeafe;
+      background: #ffffff;
+      border-radius: 12px;
+      min-height: 56px;
+      padding: 7px 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      text-align: left;
+      gap: 2px;
+      box-shadow: 0 2px 8px rgba(15,23,42,.04);
+    }
+    #pagePondStats .stats-top-btn.active {
+      border-color: #0ea5e9;
+      background: #eff6ff;
+      box-shadow: 0 4px 12px rgba(14,165,233,.12);
+    }
+    #pagePondStats .stats-top-label {
+      font-size: 12px;
+      font-weight: 900;
+      color: #64748b;
+      line-height: 1.05;
+    }
+    #pagePondStats .stats-top-value {
+      font-size: 13px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+    #pagePondStats .stats-panel {
+      margin: 4px 0 8px;
+      padding: 8px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #ffffff;
+    }
+    #pagePondStats .stats-panel .form-row:last-child {
+      margin-bottom: 0 !important;
+    }
+
+    /* 缩小“1包加州鲈料”等文字 */
+    #pagePondStats .pretty-num {
+      font-size: 16px !important;
+      white-space: normal !important;
+      text-align: right !important;
+      line-height: 1.2 !important;
+    }
+    #pagePondStats .daily-bar-value {
+      min-width: 56px !important;
+      font-size: 10px !important;
+      line-height: 1.1 !important;
+      color: #0f766e !important;
+      word-break: break-word !important;
+      max-width: 88px !important;
+      margin: 0 auto !important;
+    }
+
+    /* 快速切换鱼塘：让文字尽量显示完整 */
+    #pagePondStats .pond-quick-grid {
+      gap: 10px !important;
+      padding: 2px 2px 8px !important;
+    }
+    #pagePondStats .pond-quick-card {
+      min-width: 124px !important;
+      max-width: 138px !important;
+      min-height: 74px !important;
+      padding: 8px 10px !important;
+      align-items: flex-start !important;
+      text-align: left !important;
+      gap: 4px !important;
+      justify-content: flex-start !important;
+    }
+    #pagePondStats .pond-quick-name {
+      font-size: 15px !important;
+      line-height: 1.1 !important;
+      white-space: nowrap !important;
+    }
+    #pagePondStats .pond-quick-bags {
+      font-size: 12px !important;
+      line-height: 1.18 !important;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 3 !important;
+      -webkit-box-orient: vertical !important;
+      max-height: none !important;
+      word-break: break-word !important;
+    }
+
+    @media (max-width: 420px) {
+      #pagePondStats .stats-top-btn { min-height: 52px; padding: 6px 7px; }
+      #pagePondStats .stats-top-value { font-size: 12px; }
+      #pagePondStats .pond-quick-card { min-width: 118px !important; max-width: 128px !important; min-height: 70px !important; }
+      #pagePondStats .pond-quick-bags { font-size: 11.5px !important; }
+      #pagePondStats .pretty-num { font-size: 15px !important; }
+      #pagePondStats .daily-bar-value { font-size: 9.5px !important; max-width: 82px !important; }
+    }
+  </style>
+
 </head>
 
 <body>
@@ -646,41 +765,65 @@
 
     <section id="pagePondStats" class="card hidden">
       <h2>📊 单塘汇总</h2>
-      <div class="range-box">
-        <div class="form-row">
-          <label for="singlePondSelect">选择鱼塘</label>
-          <select id="singlePondSelect" onchange="renderAll()"></select>
-          <div class="small-text">有鱼的鱼塘自动排在前面，没设置鱼种默认显示为空置。</div>
+      <div class="range-box compact-toolbar-box">
+        <div class="stats-top-btns">
+          <button type="button" id="statsBtnPond" class="stats-top-btn" onclick="togglePondStatsPanel('pond')">
+            <span class="stats-top-label">鱼塘</span>
+            <span class="stats-top-value" id="statsBtnPondText">选择鱼塘</span>
+          </button>
+          <button type="button" id="statsBtnRange" class="stats-top-btn" onclick="togglePondStatsPanel('range')">
+            <span class="stats-top-label">范围</span>
+            <span class="stats-top-value" id="statsBtnRangeText">统计范围</span>
+          </button>
+          <button type="button" id="statsBtnFeed" class="stats-top-btn" onclick="togglePondStatsPanel('feed')">
+            <span class="stats-top-label">筛选</span>
+            <span class="stats-top-value" id="statsBtnFeedText">全部饲料</span>
+          </button>
         </div>
-        <div class="form-row">
-          <label for="pondStatsRange">统计范围</label>
-          <select id="pondStatsRange" onchange="handleStatsRangeChange()">
-            <option value="currentCycle">当前这塘鱼</option>
-            <option value="today">今天</option>
-            <option value="yesterday">昨天</option>
-            <option value="last7">近7天</option>
-            <option value="thisMonth">本月</option>
-            <option value="lastMonth">上月</option>
-            <option value="all">全部记录</option>
-            <option value="custom">自定义时间段</option>
-          </select>
-        </div>
-        <div id="customRangeBox" class="grid-2 hidden">
+
+        <div id="statsPanelPond" class="stats-panel hidden">
           <div class="form-row">
-            <label for="pondStatsStartDate">开始日期</label>
-            <input type="date" id="pondStatsStartDate" onchange="renderAll()" />
-          </div>
-          <div class="form-row">
-            <label for="pondStatsEndDate">结束日期</label>
-            <input type="date" id="pondStatsEndDate" onchange="renderAll()" />
+            <label for="singlePondSelect">选择鱼塘</label>
+            <select id="singlePondSelect" onchange="renderPondStats()"></select>
           </div>
         </div>
-        <div class="form-row">
-          <label for="pondStatsFeedFilter">饲料筛选</label>
-          <input id="pondStatsFeedFilter" placeholder="不填=全部饲料" oninput="renderAll()" />
+
+        <div id="statsPanelRange" class="stats-panel hidden">
+          <div class="form-row">
+            <label for="pondStatsRange">统计范围</label>
+            <select id="pondStatsRange" onchange="toggleDateRangeInputs(); renderPondStats()">
+              <option value="currentCycle">当前这塘鱼</option>
+              <option value="all">全部历史</option>
+              <option value="today">今天</option>
+              <option value="last7">最近7天</option>
+              <option value="month">本月</option>
+              <option value="custom">自定义时间</option>
+            </select>
+          </div>
+          <div id="customDateRange" class="hidden">
+            <div class="grid-2">
+              <div class="form-row">
+                <label for="pondStatsStartDate">开始日期</label>
+                <input id="pondStatsStartDate" type="date" onchange="renderPondStats()" />
+              </div>
+              <div class="form-row">
+                <label for="pondStatsEndDate">结束日期</label>
+                <input id="pondStatsEndDate" type="date" onchange="renderPondStats()" />
+              </div>
+            </div>
+          </div>
         </div>
-        <button class="btn export-btn" onclick="exportStatsCSV()">导出汇总 CSV</button>
+
+        <div id="statsPanelFeed" class="stats-panel hidden">
+          <div class="form-row">
+            <label for="pondStatsFeedFilter">饲料筛选</label>
+            <input id="pondStatsFeedFilter" placeholder="不填=全部饲料" oninput="renderPondStats()" />
+          </div>
+        </div>
+
+        <button class="btn export-btn" onclick="exportSinglePondCSV()">导出汇总 CSV</button>
       </div>
+
       <div class="sub-title">快速切换鱼塘</div>
       <div class="pond-quick-note">左右滑动切换鱼塘，点一下即可查看对应鱼塘。</div>
       <div id="pondQuickGrid" class="pond-quick-grid"></div>
@@ -2110,10 +2253,40 @@
         : `<div class="empty">暂无库存流水</div>`;
     }
 
+
+    window.togglePondStatsPanel = function(name) {
+      const map = {
+        pond: ["statsPanelPond", "statsBtnPond"],
+        range: ["statsPanelRange", "statsBtnRange"],
+        feed: ["statsPanelFeed", "statsBtnFeed"]
+      };
+      if (!map[name]) return;
+      const targetPanel = $(map[name][0]);
+      const willOpen = targetPanel.classList.contains("hidden");
+      Object.values(map).forEach(([panelId, btnId]) => {
+        $(panelId).classList.add("hidden");
+        $(btnId).classList.remove("active");
+      });
+      if (willOpen) {
+        targetPanel.classList.remove("hidden");
+        $(map[name][1]).classList.add("active");
+      }
+    };
+
+    function updatePondStatsTopButtons(selectedPond) {
+      if ($("statsBtnPondText")) $("statsBtnPondText").textContent = selectedPond?.name || "选择鱼塘";
+      if ($("statsBtnRangeText")) $("statsBtnRangeText").textContent = $("pondStatsRange")?.selectedOptions?.[0]?.textContent || "统计范围";
+      if ($("statsBtnFeedText")) {
+        const v = $("pondStatsFeedFilter")?.value?.trim();
+        $("statsBtnFeedText").textContent = v || "全部饲料";
+      }
+    }
+
     function renderPondStats() {
       const displayPonds = sortedPondsForDisplay();
       const selectedId = $("singlePondSelect").value || (displayPonds[0]?.id || "");
       const selectedPond = pondById(selectedId);
+      updatePondStatsTopButtons(selectedPond);
       const range = getStatsRange();
       const feedFilter = $("pondStatsFeedFilter").value.trim();
 
