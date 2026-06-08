@@ -108,6 +108,200 @@
     .nav-btn.active{background:#0f766e;color:#fff}
     @media(max-width:380px){.nav-btn{font-size:18px;min-height:50px;border-radius:14px}.bottom-inner{gap:5px}}
   </style>
+
+  <!-- 标准字号覆盖版 -->
+  <style>
+    body { font-size: 18px !important; line-height: 1.45 !important; }
+    .app { padding: 12px !important; padding-bottom: 74px !important; }
+    .top-title { padding: 14px !important; border-radius: 18px !important; margin-bottom: 12px !important; }
+    .top-title h1 { font-size: clamp(22px, 6.2vw, 26px) !important; letter-spacing: -0.5px !important; }
+    .card { padding: 14px !important; border-radius: 18px !important; margin-bottom: 12px !important; }
+    .card h2 { font-size: 23px !important; margin-bottom: 12px !important; }
+    .sub-title { font-size: 20px !important; margin: 16px 0 8px !important; }
+    label { font-size: 18px !important; margin-bottom: 6px !important; }
+    input, select, textarea { font-size: 18px !important; min-height: 48px !important; border-radius: 12px !important; padding: 9px 11px !important; }
+    textarea { min-height: 72px !important; }
+    .form-row { margin-bottom: 12px !important; }
+    .btn { font-size: 20px !important; min-height: 52px !important; border-radius: 14px !important; }
+    .btn-undo { font-size: 17px !important; min-height: 44px !important; }
+    .quick-bags button, .quick-jin button { font-size: 17px !important; min-height: 42px !important; border-radius: 11px !important; }
+    .info-box, .warn-box, .undo-tip { font-size: 16px !important; padding: 10px !important; border-radius: 13px !important; margin-bottom: 12px !important; }
+    .small-text, .meta, .note, .badge { font-size: 15px !important; }
+    .summary-item, .inventory-item, .log-item, .record-item, .pretty-card, .setting-row, .history-card, .memo-card {
+      padding: 11px !important; border-radius: 14px !important;
+    }
+    .summary-name, .inventory-title, .record-title, .log-title, .history-title, .memo-title, .pretty-title {
+      font-size: 20px !important;
+    }
+    .summary-num, .inventory-bags, .record-bags, .pretty-num, .history-total {
+      font-size: 23px !important;
+    }
+    .single-pond-name { font-size: 24px !important; }
+    .single-pond-bags { font-size: 26px !important; }
+    .single-pond-bags span, .single-pond-species { font-size: 16px !important; }
+    .cycle-pill { font-size: 15px !important; }
+    .visual-stat { padding: 10px !important; border-radius: 13px !important; }
+    .visual-stat .label { font-size: 15px !important; }
+    .visual-stat .value { font-size: 22px !important; }
+    .pond-quick-card { padding: 11px !important; border-radius: 14px !important; }
+    .pond-quick-name { font-size: 20px !important; }
+    .pond-quick-species { font-size: 15px !important; }
+    .pond-quick-bags { font-size: 20px !important; }
+    .minor-actions summary { font-size: 18px !important; padding: 12px !important; }
+    .minor-panel h3 { font-size: 20px !important; }
+    .bottom-bar { padding: 7px 7px calc(7px + env(safe-area-inset-bottom)) !important; }
+    .nav-btn { font-size: 16px !important; min-height: 44px !important; border-radius: 12px !important; }
+  </style>
+
+
+  <!-- 每日喂料柱状图样式 -->
+  <style>
+    .daily-chart-card {
+      background: #ffffff;
+      border: 2px solid #dbeafe;
+      border-radius: 16px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+    .daily-chart-title {
+      font-size: 19px;
+      font-weight: 900;
+      color: #0f172a;
+      margin-bottom: 2px;
+    }
+    .daily-chart-sub {
+      font-size: 14px;
+      font-weight: 800;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+    .daily-chart-wrap {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      min-height: 165px;
+      overflow-x: auto;
+      padding: 8px 4px 2px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .daily-bar-item {
+      min-width: 58px;
+      text-align: center;
+      flex: 0 0 auto;
+    }
+    .daily-bar-value {
+      font-size: 13px;
+      line-height: 1.15;
+      font-weight: 900;
+      color: #0f766e;
+      min-height: 32px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      white-space: normal;
+    }
+    .daily-bar {
+      height: 112px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      margin: 5px auto 6px;
+    }
+    .daily-bar-fill {
+      width: 34px;
+      min-height: 8px;
+      border-radius: 10px 10px 4px 4px;
+      background: linear-gradient(180deg, #0ea5e9, #0f766e);
+      box-shadow: 0 3px 8px rgba(15, 118, 110, 0.18);
+    }
+    .daily-bar-date {
+      font-size: 13px;
+      font-weight: 900;
+      color: #475569;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+    @media (max-width: 420px) {
+      .daily-bar-item { min-width: 52px; }
+      .daily-bar-fill { width: 30px; }
+      .daily-chart-wrap { gap: 8px; }
+    }
+  </style>
+
+
+  <!-- 快速切换鱼塘紧凑版 -->
+  <style>
+    .pond-quick-grid {
+      display: flex !important;
+      grid-template-columns: none !important;
+      gap: 8px !important;
+      overflow-x: auto !important;
+      padding: 2px 2px 8px !important;
+      margin-bottom: 10px !important;
+      -webkit-overflow-scrolling: touch;
+    }
+    .pond-quick-card {
+      flex: 0 0 auto !important;
+      min-width: 76px !important;
+      max-width: 92px !important;
+      min-height: 52px !important;
+      padding: 7px 8px !important;
+      border-radius: 14px !important;
+      text-align: center !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      gap: 2px !important;
+    }
+    .pond-quick-card.empty {
+      opacity: .42 !important;
+    }
+    .pond-quick-card.active {
+      border-color: #0f766e !important;
+      background: #ecfdf5 !important;
+      box-shadow: 0 3px 10px rgba(15,118,110,.16) !important;
+    }
+    .pond-quick-name {
+      font-size: 16px !important;
+      line-height: 1.1 !important;
+      font-weight: 900 !important;
+      white-space: nowrap !important;
+    }
+    .pond-quick-species {
+      display: none !important;
+    }
+    .pond-quick-bags {
+      margin-top: 0 !important;
+      font-size: 14px !important;
+      line-height: 1.1 !important;
+      font-weight: 900 !important;
+      color: #dc2626 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    .pond-quick-note {
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 800;
+      margin: -4px 0 8px;
+    }
+  </style>
+
+
+  <!-- 鳗鱼料双单位优化 -->
+  <style>
+    #eelUnitModeRow {
+      background: #f8fafc;
+      border: 2px solid #dbeafe;
+      border-radius: 14px;
+      padding: 10px;
+    }
+    #eelUnitModeRow .small-text {
+      margin-top: 6px;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -152,6 +346,16 @@
         </select>
         <input id="feedNameCustom" class="hidden" placeholder="请输入其他饲料名称" oninput="updateFeedUnitUI(); updateCurrentStockBox()" style="margin-top:10px;" />
       </div>
+
+      <div id="eelUnitModeRow" class="form-row hidden">
+        <label for="eelUnitMode">鳗鱼料本次登记方式</label>
+        <select id="eelUnitMode" onchange="updateFeedUnitUI(); updateCurrentStockBox();">
+          <option value="jin">按斤登记：前期散喂用</option>
+          <option value="bag">按包登记：后期整包喂用</option>
+        </select>
+        <div class="small-text">前期喂多少斤就选“按斤”；后期整包喂就选“按包”。库存会自动按“鳗鱼料每包多少斤”换算。</div>
+      </div>
+
       <div id="currentStockBox" class="info-box">当前库存：请选择仓库和饲料</div>
       <div class="form-row">
         <label id="feedAmountLabel" for="feedAmount">喂了多少包</label>
@@ -300,6 +504,7 @@
       </div>
       <div id="singlePondHero" class="single-pond-hero"></div>
       <div class="sub-title">快速切换鱼塘</div>
+      <div class="pond-quick-note">左右滑动切换鱼塘，点一下即可查看对应鱼塘。</div>
       <div id="pondQuickGrid" class="pond-quick-grid"></div>
       <div class="sub-title">饲料用量构成</div>
       <div id="feedTypeSummaryList"></div>
@@ -614,7 +819,10 @@
 
     function getFeedUnitForCurrentSelection() {
       const feedName = getFeedInputValue("feedName", "feedNameCustom");
-      return getFeedUnitForFeedName(feedName);
+      if (isEelFeed(feedName)) {
+        return $("eelUnitMode")?.value || "jin";
+      }
+      return "bag";
     }
 
     function amountToJin(feedName, amount, unit) {
@@ -676,23 +884,45 @@
       return formatStockDual(feedName, jin);
     }
 
-    function summaryMixedDisplay(records) {
-      let eelJin = 0;
-      let otherBags = 0;
-      records.forEach(r => {
-        const jin = recordStockJin(r);
-        if (isEelFeed(r.feedName)) eelJin += jin;
-        else otherBags += jin / getBagJin(r.feedName);
-      });
-      if (eelJin && otherBags) return `${formatBag(otherBags)} 包 / 鳗鱼料 ${formatJin(eelJin)} 斤`;
-      if (eelJin) return `${formatJin(eelJin)} 斤`;
-      return `${formatBag(otherBags)} 包`;
+    function originalAmount(record) {
+      const feedName = record.feedName || "";
+      const jin = recordStockJin(record);
+      const unit = record.unit || getFeedUnitForFeedName(feedName);
+      return Number(record.amount ?? record.bags ?? (unit === "jin" ? jin : jin / getBagJin(feedName)));
     }
 
-    function summaryMixedFromJinParts(otherBags, eelJin) {
-      if (eelJin && otherBags) return `${formatBag(otherBags)} 包 / 鳗鱼料 ${formatJin(eelJin)} 斤`;
-      if (eelJin) return `${formatJin(eelJin)} 斤`;
-      return `${formatBag(otherBags)} 包`;
+    function usagePartsToText(parts) {
+      const list = [];
+      if (Number(parts.otherBags || 0) > 0) list.push(`${formatBag(parts.otherBags)} 包`);
+      if (Number(parts.eelJin || 0) > 0) list.push(`鳗鱼料 ${formatJin(parts.eelJin)} 斤`);
+      if (Number(parts.eelBags || 0) > 0) list.push(`鳗鱼料 ${formatBag(parts.eelBags)} 包`);
+      return list.length ? list.join(" + ") : "0 包";
+    }
+
+    function usagePartsFromRecords(records) {
+      const parts = { otherBags: 0, eelJin: 0, eelBags: 0 };
+      records.forEach(r => {
+        const feedName = r.feedName || "";
+        const unit = r.unit || getFeedUnitForFeedName(feedName);
+        const amount = originalAmount(r);
+        const jin = recordStockJin(r);
+
+        if (isEelFeed(feedName)) {
+          if (unit === "bag") parts.eelBags += amount;
+          else parts.eelJin += amount;
+        } else {
+          parts.otherBags += unit === "bag" ? amount : jin / getBagJin(feedName);
+        }
+      });
+      return parts;
+    }
+
+    function summaryMixedDisplay(records) {
+      return usagePartsToText(usagePartsFromRecords(records));
+    }
+
+    function summaryMixedFromJinParts(otherBags, eelJin, eelBags = 0) {
+      return usagePartsToText({ otherBags, eelJin, eelBags });
     }
 
     function uniqueFeedNames() {
@@ -918,6 +1148,11 @@
     };
 
     window.updateFeedUnitUI = function() {
+      const feedName = getFeedInputValue("feedName", "feedNameCustom");
+      const isEel = isEelFeed(feedName);
+      const row = $("eelUnitModeRow");
+      if (row) row.classList.toggle("hidden", !isEel);
+
       const unit = getFeedUnitForCurrentSelection();
       if (unit === "jin") {
         $("feedAmountLabel").textContent = "喂了多少斤";
@@ -1681,6 +1916,7 @@
       const selectedRecords = rangeRecords.filter(r => recordInPondRange(r, selectedPond, range));
 
       let eelJin = 0;
+      let eelBags = 0;
       let otherBags = 0;
       const feedTotals = {};
       const daily = {};
@@ -1688,17 +1924,77 @@
       selectedRecords.forEach(r => {
         const jin = recordStockJin(r);
         const feedName = r.feedName || "普通饲料";
-        if (isEelFeed(feedName)) eelJin += jin;
-        else otherBags += jin / getBagJin(feedName);
-        feedTotals[feedName] = (feedTotals[feedName] || 0) + jin;
-        if (!daily[r.date || "未填日期"]) daily[r.date || "未填日期"] = { eelJin: 0, otherBags: 0 };
-        if (isEelFeed(feedName)) daily[r.date || "未填日期"].eelJin += jin;
-        else daily[r.date || "未填日期"].otherBags += jin / getBagJin(feedName);
+        const unit = r.unit || getFeedUnitForFeedName(feedName);
+        const amount = originalAmount(r);
+
+        let displayKey = feedName;
+        let displayUnit = "bag";
+        let displayAmountValue = amount;
+
+        if (isEelFeed(feedName)) {
+          if (unit === "bag") {
+            eelBags += amount;
+            displayKey = `${feedName}（按包）`;
+            displayUnit = "bag";
+            displayAmountValue = amount;
+          } else {
+            eelJin += amount;
+            displayKey = `${feedName}（按斤）`;
+            displayUnit = "jin";
+            displayAmountValue = amount;
+          }
+        } else {
+          otherBags += unit === "bag" ? amount : jin / getBagJin(feedName);
+          displayKey = feedName;
+          displayUnit = "bag";
+          displayAmountValue = unit === "bag" ? amount : jin / getBagJin(feedName);
+        }
+
+        if (!feedTotals[displayKey]) {
+          feedTotals[displayKey] = {
+            feedName,
+            displayUnit,
+            amount: 0,
+            score: 0
+          };
+        }
+        feedTotals[displayKey].amount += displayAmountValue;
+        feedTotals[displayKey].score += jin;
+
+        const dayKey = r.date || "未填日期";
+        if (!daily[dayKey]) daily[dayKey] = { eelJin: 0, eelBags: 0, otherBags: 0, score: 0 };
+        if (isEelFeed(feedName)) {
+          if (unit === "bag") daily[dayKey].eelBags += amount;
+          else daily[dayKey].eelJin += amount;
+        } else {
+          daily[dayKey].otherBags += unit === "bag" ? amount : jin / getBagJin(feedName);
+        }
+        daily[dayKey].score += jin;
       });
 
       const rangeDays = range.start && range.end ? daysBetweenInclusive(range.start, range.end) : Math.max(1, new Set(selectedRecords.map(r => r.date)).size || 1);
       const speciesEmpty = !isPondOccupied(selectedPond);
-      const totalText = summaryMixedFromJinParts(otherBags, eelJin);
+      const totalText = summaryMixedFromJinParts(otherBags, eelJin, eelBags);
+
+      const dailyChartEntries = Object.entries(daily).sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+      const dailyChartMax = Math.max(1, ...dailyChartEntries.map(([_, v]) => v.score || 0));
+      const dailyChartHtml = dailyChartEntries.length
+        ? dailyChartEntries.map(([date, v]) => {
+          const score = v.score || 0;
+          const height = Math.max(8, Math.round(score / dailyChartMax * 112));
+          const label = summaryMixedFromJinParts(v.otherBags, v.eelJin, v.eelBags);
+          const dateText = String(date || "").slice(5).replace("-", "/");
+          return `
+            <div class="daily-bar-item">
+              <div class="daily-bar-value">${escapeHtml(label)}</div>
+              <div class="daily-bar">
+                <div class="daily-bar-fill" style="height:${height}px"></div>
+              </div>
+              <div class="daily-bar-date">${escapeHtml(dateText)}</div>
+            </div>
+          `;
+        }).join("")
+        : `<div class="empty" style="width:100%">当前时间段暂无喂料记录</div>`;
 
       $("singlePondHero").innerHTML = `
         <div class="single-pond-top">
@@ -1709,46 +2005,52 @@
           </div>
           <div class="single-pond-bags">${escapeHtml(totalText)}<span>${escapeHtml(range.label)}总用料</span></div>
         </div>
-        <div class="visual-stat-grid">
-          <div class="visual-stat"><div class="label">喂料次数</div><div class="value">${selectedRecords.length} 次</div></div>
-          <div class="visual-stat"><div class="label">日均用料</div><div class="value">${escapeHtml(summaryMixedFromJinParts(otherBags / rangeDays, eelJin / rangeDays))}</div></div>
-          <div class="visual-stat"><div class="label">饲料品种</div><div class="value">${Object.keys(feedTotals).length} 种</div></div>
-          <div class="visual-stat"><div class="label">当前状态</div><div class="value">${speciesEmpty ? "空置" : "有鱼"}</div></div>
+        <div class="daily-chart-card">
+          <div class="daily-chart-title">每天喂料柱状图</div>
+          <div class="daily-chart-sub">按上方选择的时间范围统计，左右滑动可查看更多日期</div>
+          <div class="daily-chart-wrap">${dailyChartHtml}</div>
         </div>
       `;
 
       const pondTotals = {};
-      displayPonds.forEach(p => pondTotals[p.id] = { eelJin: 0, otherBags: 0 });
+      displayPonds.forEach(p => pondTotals[p.id] = { eelJin: 0, eelBags: 0, otherBags: 0 });
       rangeRecords.forEach(r => {
         const p = displayPonds.find(x => recordBelongsToPond(r, x));
         if (p && recordInPondRange(r, p, range)) {
+          const feedName = r.feedName || "";
+          const unit = r.unit || getFeedUnitForFeedName(feedName);
+          const amount = originalAmount(r);
           const jin = recordStockJin(r);
-          if (isEelFeed(r.feedName)) pondTotals[p.id].eelJin += jin;
-          else pondTotals[p.id].otherBags += jin / getBagJin(r.feedName);
+          if (isEelFeed(feedName)) {
+            if (unit === "bag") pondTotals[p.id].eelBags += amount;
+            else pondTotals[p.id].eelJin += amount;
+          } else {
+            pondTotals[p.id].otherBags += unit === "bag" ? amount : jin / getBagJin(feedName);
+          }
         }
       });
 
       $("pondQuickGrid").innerHTML = displayPonds.map(p => {
         const isActive = p.id === selectedId;
         const isEmpty = !isPondOccupied(p);
-        const t = pondTotals[p.id] || { eelJin: 0, otherBags: 0 };
+        const t = pondTotals[p.id] || { eelJin: 0, eelBags: 0, otherBags: 0 };
         return `
           <button type="button" class="pond-quick-card ${isActive ? "active" : ""} ${isEmpty ? "empty" : ""}" onclick="selectSinglePond('${p.id}')">
             <div class="pond-quick-name">${escapeHtml(p.name)}</div>
-            <div class="pond-quick-species">鱼种：${escapeHtml(p.species || "空置")}</div>
-            <div class="pond-quick-bags">${escapeHtml(summaryMixedFromJinParts(t.otherBags, t.eelJin))}</div>
+            <div class="pond-quick-bags">${escapeHtml(summaryMixedFromJinParts(t.otherBags, t.eelJin, t.eelBags))}</div>
           </button>
         `;
       }).join("");
 
-      const feedEntries = Object.entries(feedTotals).sort((a, b) => Number(b[1]) - Number(a[1]));
-      const maxFeed = Math.max(1, ...Object.values(feedTotals).map(Number));
+      const feedEntries = Object.entries(feedTotals).sort((a, b) => Number(b[1].score || 0) - Number(a[1].score || 0));
+      const maxFeed = Math.max(1, ...Object.values(feedTotals).map(v => Number(v.score || 0)));
       $("feedTypeSummaryList").innerHTML = feedEntries.length
-        ? feedEntries.map(([name, jin]) => {
-          const pct = Math.round(Number(jin) / maxFeed * 100);
+        ? feedEntries.map(([name, info]) => {
+          const pct = Math.round(Number(info.score || 0) / maxFeed * 100);
+          const amountText = info.displayUnit === "jin" ? `${formatJin(info.amount)} 斤` : `${formatBag(info.amount)} 包`;
           return `
             <div class="pretty-card">
-              <div class="pretty-row"><div class="pretty-title">${escapeHtml(name)}</div><div class="pretty-num">${feedDisplay(name, jin)}</div></div>
+              <div class="pretty-row"><div class="pretty-title">${escapeHtml(name)}</div><div class="pretty-num">${escapeHtml(amountText)}</div></div>
               <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
             </div>
           `;
@@ -1756,14 +2058,13 @@
         : `<div class="empty">这个鱼塘在所选时间段暂无饲料用量</div>`;
 
       const dayEntries = Object.entries(daily).sort((a, b) => String(b[0]).localeCompare(String(a[0])));
-      const maxDay = Math.max(1, ...dayEntries.map(([_, v]) => v.eelJin + v.otherBags * 40));
+      const maxDay = Math.max(1, ...dayEntries.map(([_, v]) => v.score || 0));
       $("dailySummaryList").innerHTML = dayEntries.length
         ? dayEntries.map(([date, v]) => {
-          const score = v.eelJin + v.otherBags * 40;
-          const pct = Math.round(score / maxDay * 100);
+          const pct = Math.round((v.score || 0) / maxDay * 100);
           return `
             <div class="pretty-card">
-              <div class="pretty-row"><div class="pretty-title">${escapeHtml(date)}</div><div class="pretty-num">${escapeHtml(summaryMixedFromJinParts(v.otherBags, v.eelJin))}</div></div>
+              <div class="pretty-row"><div class="pretty-title">${escapeHtml(date)}</div><div class="pretty-num">${escapeHtml(summaryMixedFromJinParts(v.otherBags, v.eelJin, v.eelBags))}</div></div>
               <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
             </div>
           `;
