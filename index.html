@@ -533,6 +533,87 @@
     }
   </style>
 
+
+  <!-- 单塘用料文字与今日喂料优化 -->
+  <style>
+    /* 红色总用料区域略微缩小 */
+    #pagePondStats .single-pond-bags {
+      font-size: 20px !important;
+      line-height: 1.22 !important;
+      max-width: 360px !important;
+      color: #dc2626 !important;
+      text-align: right !important;
+    }
+    #pagePondStats .single-pond-bags span {
+      font-size: 13px !important;
+      margin-top: 2px !important;
+      color: #64748b !important;
+    }
+    #pagePondStats .today-feed-pill {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.2;
+      max-width: 100%;
+      white-space: normal;
+      text-align: right;
+    }
+
+    /* 图表上方“1包加州鲈料”缩小 */
+    #pagePondStats .daily-bar-value {
+      font-size: 9px !important;
+      line-height: 1.08 !important;
+      max-width: 72px !important;
+      min-width: 50px !important;
+      word-break: break-word !important;
+      margin: 0 auto !important;
+      color: #0f766e !important;
+    }
+
+    /* 饲料用量构成、按日期查看右侧文字缩小，避免挤满 */
+    #pagePondStats .pretty-num {
+      font-size: 14px !important;
+      line-height: 1.18 !important;
+      white-space: normal !important;
+      text-align: right !important;
+      max-width: 58% !important;
+    }
+
+    /* 快速切换卡片里的用量也缩小一点 */
+    #pagePondStats .pond-quick-bags {
+      font-size: 10.5px !important;
+      line-height: 1.12 !important;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      word-break: break-word !important;
+    }
+
+    @media (max-width: 420px) {
+      #pagePondStats .single-pond-bags {
+        font-size: 18px !important;
+        text-align: left !important;
+      }
+      #pagePondStats .today-feed-pill {
+        font-size: 11.5px !important;
+        text-align: left !important;
+      }
+      #pagePondStats .daily-bar-value {
+        font-size: 8.5px !important;
+        max-width: 66px !important;
+      }
+      #pagePondStats .pretty-num {
+        font-size: 13px !important;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
@@ -1184,12 +1265,13 @@
         if (ae !== be) return ae - be;
         return String(a.feedName).localeCompare(String(b.feedName), "zh-CN");
       }).map(g => {
+        const feedName = escapeHtml(g.feedName);
         if (isEelFeed(g.feedName)) {
           return g.unit === "jin"
-            ? `${escapeHtml(g.feedName)} ${formatJin(g.amount)}斤`
-            : `${escapeHtml(g.feedName)} ${formatBag(g.amount)}包`;
+            ? `${feedName}${formatJin(g.amount)}斤`
+            : `${feedName}${formatBag(g.amount)}包`;
         }
-        return `${formatBag(g.amount)}包${escapeHtml(g.feedName)}`;
+        return `${formatBag(g.amount)}包${feedName}`;
       });
 
       return parts.length ? parts.join(" + ") : "0包";
@@ -2277,6 +2359,8 @@
       const rangeDays = range.start && range.end ? daysBetweenInclusive(range.start, range.end) : Math.max(1, new Set(selectedRecords.map(r => r.date)).size || 1);
       const speciesEmpty = !isPondOccupied(selectedPond);
       const totalText = summaryMixedFromJinParts(otherBags, eelJin, eelBags);
+      const todayPondRecords = rangeRecords.filter(r => recordBelongsToPond(r, selectedPond) && r.date === todayStr());
+      const todayFeedText = usageTextFromRecords(todayPondRecords);
 
       const dailyChartEntries = Object.entries(daily).sort((a, b) => String(a[0]).localeCompare(String(b[0])));
       const dailyChartMax = Math.max(1, ...dailyChartEntries.map(([_, v]) => v.score || 0));
@@ -2305,7 +2389,11 @@
             <div class="single-pond-species ${speciesEmpty ? "empty" : ""}">鱼种：${escapeHtml(selectedPond.species || "空置")}</div>
             <div class="cycle-pill">本轮开始：${formatDateTimeMs(getCycleStartAt(selectedPond.id))}</div>
           </div>
-          <div class="single-pond-bags">${escapeHtml(totalText)}<span>${escapeHtml(range.label)}总用料</span></div>
+          <div class="single-pond-bags">
+            <div>${escapeHtml(totalText)}</div>
+            <span>${escapeHtml(range.label)}总用料</span>
+            <div class="today-feed-pill">今日喂料：${escapeHtml(todayFeedText)}</div>
+          </div>
         </div>
         <div class="daily-chart-card">
           <div class="daily-chart-title">每天喂料柱状图</div>
