@@ -784,31 +784,33 @@
         <div id="statsPanelPond" class="stats-panel hidden">
           <div class="form-row">
             <label for="singlePondSelect">选择鱼塘</label>
-            <select id="singlePondSelect" onchange="renderPondStats()"></select>
+            <select id="singlePondSelect" onchange="renderAll()"></select>
           </div>
         </div>
 
         <div id="statsPanelRange" class="stats-panel hidden">
           <div class="form-row">
             <label for="pondStatsRange">统计范围</label>
-            <select id="pondStatsRange" onchange="toggleDateRangeInputs(); renderPondStats()">
+            <select id="pondStatsRange" onchange="handleStatsRangeChange()">
               <option value="currentCycle">当前这塘鱼</option>
-              <option value="all">全部历史</option>
               <option value="today">今天</option>
-              <option value="last7">最近7天</option>
-              <option value="month">本月</option>
-              <option value="custom">自定义时间</option>
+              <option value="yesterday">昨天</option>
+              <option value="last7">近7天</option>
+              <option value="thisMonth">本月</option>
+              <option value="lastMonth">上月</option>
+              <option value="all">全部记录</option>
+              <option value="custom">自定义时间段</option>
             </select>
           </div>
-          <div id="customDateRange" class="hidden">
+          <div id="customRangeBox" class="hidden">
             <div class="grid-2">
               <div class="form-row">
                 <label for="pondStatsStartDate">开始日期</label>
-                <input id="pondStatsStartDate" type="date" onchange="renderPondStats()" />
+                <input id="pondStatsStartDate" type="date" onchange="renderAll()" />
               </div>
               <div class="form-row">
                 <label for="pondStatsEndDate">结束日期</label>
-                <input id="pondStatsEndDate" type="date" onchange="renderPondStats()" />
+                <input id="pondStatsEndDate" type="date" onchange="renderAll()" />
               </div>
             </div>
           </div>
@@ -817,11 +819,11 @@
         <div id="statsPanelFeed" class="stats-panel hidden">
           <div class="form-row">
             <label for="pondStatsFeedFilter">饲料筛选</label>
-            <input id="pondStatsFeedFilter" placeholder="不填=全部饲料" oninput="renderPondStats()" />
+            <input id="pondStatsFeedFilter" placeholder="不填=全部饲料" oninput="renderAll()" />
           </div>
         </div>
 
-        <button class="btn export-btn" onclick="exportSinglePondCSV()">导出汇总 CSV</button>
+        <button class="btn export-btn" onclick="exportStatsCSV()">导出汇总 CSV</button>
       </div>
 
       <div class="sub-title">快速切换鱼塘</div>
@@ -2065,7 +2067,7 @@
       renderFeedSpecSettings();
       renderInventory();
       renderStockLogs();
-      renderPondStats();
+      renderAll();
       renderMemos();
       renderCycleHistory();
       updatePondInfo();
