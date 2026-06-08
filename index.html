@@ -453,6 +453,34 @@
     }
   </style>
 
+
+  <!-- 单塘顶部切换与饲料名显示优化 -->
+  <style>
+    #pagePondStats .pond-quick-grid {
+      margin-bottom: 8px !important;
+    }
+    #pagePondStats .single-pond-hero {
+      margin-top: 4px !important;
+    }
+    #pagePondStats .daily-bar-value {
+      min-width: 66px !important;
+      font-size: 11.5px !important;
+      line-height: 1.15 !important;
+      color: #0f766e !important;
+      word-break: keep-all !important;
+    }
+    #pagePondStats .pretty-num {
+      white-space: normal !important;
+      text-align: right !important;
+      line-height: 1.25 !important;
+    }
+    #pagePondStats .pond-quick-bags {
+      white-space: normal !important;
+      line-height: 1.15 !important;
+      max-height: 32px !important;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -653,10 +681,10 @@
         </div>
         <button class="btn export-btn" onclick="exportStatsCSV()">导出汇总 CSV</button>
       </div>
-      <div id="singlePondHero" class="single-pond-hero"></div>
       <div class="sub-title">快速切换鱼塘</div>
       <div class="pond-quick-note">左右滑动切换鱼塘，点一下即可查看对应鱼塘。</div>
       <div id="pondQuickGrid" class="pond-quick-grid"></div>
+      <div id="singlePondHero" class="single-pond-hero"></div>
       <div class="sub-title">饲料用量构成</div>
       <div id="feedTypeSummaryList"></div>
       <div class="sub-title">按日期查看</div>
@@ -1050,6 +1078,35 @@
       return list.length ? list.join(" + ") : "0 包";
     }
 
+    function usageTextFromRecords(records) {
+      const groups = {};
+      (records || []).forEach(r => {
+        if (!r || r.cancelled) return;
+        const feedName = r.feedName || "普通饲料";
+        const unit = r.unit || getFeedUnitForFeedName(feedName);
+        const amount = originalAmount(r);
+        const key = feedName + "__" + unit;
+        if (!groups[key]) groups[key] = { feedName, unit, amount: 0 };
+        groups[key].amount += amount;
+      });
+
+      const parts = Object.values(groups).sort((a, b) => {
+        const ae = isEelFeed(a.feedName) ? 1 : 0;
+        const be = isEelFeed(b.feedName) ? 1 : 0;
+        if (ae !== be) return ae - be;
+        return String(a.feedName).localeCompare(String(b.feedName), "zh-CN");
+      }).map(g => {
+        if (isEelFeed(g.feedName)) {
+          return g.unit === "jin"
+            ? `${escapeHtml(g.feedName)} ${formatJin(g.amount)}斤`
+            : `${escapeHtml(g.feedName)} ${formatBag(g.amount)}包`;
+        }
+        return `${formatBag(g.amount)}包${escapeHtml(g.feedName)}`;
+      });
+
+      return parts.length ? parts.join(" + ") : "0包";
+    }
+
     function usagePartsFromRecords(records) {
       const parts = { otherBags: 0, eelJin: 0, eelBags: 0 };
       records.forEach(r => {
@@ -1069,7 +1126,7 @@
     }
 
     function summaryMixedDisplay(records) {
-      return usagePartsToText(usagePartsFromRecords(records));
+      return usageTextFromRecords(records);
     }
 
     function summaryMixedFromJinParts(otherBags, eelJin, eelBags = 0) {
@@ -2071,6 +2128,8 @@
       let otherBags = 0;
       const feedTotals = {};
       const daily = {};
+      const dailyRecords = {};
+      const pondRecords = {};
 
       selectedRecords.forEach(r => {
         const jin = recordStockJin(r);
@@ -2114,6 +2173,8 @@
 
         const dayKey = r.date || "未填日期";
         if (!daily[dayKey]) daily[dayKey] = { eelJin: 0, eelBags: 0, otherBags: 0, score: 0 };
+        if (!dailyRecords[dayKey]) dailyRecords[dayKey] = [];
+        dailyRecords[dayKey].push(r);
         if (isEelFeed(feedName)) {
           if (unit === "bag") daily[dayKey].eelBags += amount;
           else daily[dayKey].eelJin += amount;
@@ -2133,7 +2194,7 @@
         ? dailyChartEntries.map(([date, v]) => {
           const score = v.score || 0;
           const height = Math.max(8, Math.round(score / dailyChartMax * 78));
-          const label = summaryMixedFromJinParts(v.otherBags, v.eelJin, v.eelBags);
+          const label = usageTextFromRecords(dailyRecords[date] || []);
           const dateText = String(date || "").slice(5).replace("-", "/");
           return `
             <div class="daily-bar-item">
@@ -2164,10 +2225,14 @@
       `;
 
       const pondTotals = {};
-      displayPonds.forEach(p => pondTotals[p.id] = { eelJin: 0, eelBags: 0, otherBags: 0 });
+      displayPonds.forEach(p => {
+        pondTotals[p.id] = { eelJin: 0, eelBags: 0, otherBags: 0 };
+        pondRecords[p.id] = [];
+      });
       rangeRecords.forEach(r => {
         const p = displayPonds.find(x => recordBelongsToPond(r, x));
         if (p && recordInPondRange(r, p, range)) {
+          pondRecords[p.id].push(r);
           const feedName = r.feedName || "";
           const unit = r.unit || getFeedUnitForFeedName(feedName);
           const amount = originalAmount(r);
@@ -2188,7 +2253,7 @@
         return `
           <button type="button" class="pond-quick-card ${isActive ? "active" : ""} ${isEmpty ? "empty" : ""}" onclick="selectSinglePond('${p.id}')">
             <div class="pond-quick-name">${escapeHtml(p.name)}</div>
-            <div class="pond-quick-bags">${escapeHtml(summaryMixedFromJinParts(t.otherBags, t.eelJin, t.eelBags))}</div>
+            <div class="pond-quick-bags">${usageTextFromRecords(pondRecords[p.id] || [])}</div>
           </button>
         `;
       }).join("");
@@ -2215,7 +2280,7 @@
           const pct = Math.round((v.score || 0) / maxDay * 100);
           return `
             <div class="pretty-card">
-              <div class="pretty-row"><div class="pretty-title">${escapeHtml(date)}</div><div class="pretty-num">${escapeHtml(summaryMixedFromJinParts(v.otherBags, v.eelJin, v.eelBags))}</div></div>
+              <div class="pretty-row"><div class="pretty-title">${escapeHtml(date)}</div><div class="pretty-num">${usageTextFromRecords(dailyRecords[date] || [])}</div></div>
               <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
             </div>
           `;
