@@ -772,6 +772,61 @@
     }
   </style>
 
+
+  <!-- 总用料标签与柱状图排除补录优化 -->
+  <style>
+    #pagePondStats .single-pond-bags {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-end !important;
+      gap: 6px !important;
+      max-width: 360px !important;
+      color: inherit !important;
+    }
+
+    #pagePondStats .total-feed-pill,
+    #pagePondStats .today-feed-pill {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 13px !important;
+      font-weight: 900;
+      line-height: 1.25;
+      white-space: normal;
+      text-align: right;
+      max-width: 100%;
+    }
+
+    #pagePondStats .total-feed-pill {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+    }
+
+    #pagePondStats .today-feed-pill {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      margin-top: 0 !important;
+    }
+
+    #pagePondStats .daily-chart-sub::after {
+      content: "，前期补录不显示在柱状图";
+    }
+
+    @media (max-width: 420px) {
+      #pagePondStats .single-pond-bags {
+        align-items: flex-start !important;
+        max-width: none !important;
+      }
+      #pagePondStats .total-feed-pill,
+      #pagePondStats .today-feed-pill {
+        font-size: 12px !important;
+        text-align: left;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
@@ -1284,6 +1339,11 @@
       if (!recordBelongsToPond(record, pond)) return false;
       if (range && range.currentCycle) return Number(record.createdAt || 0) >= getCycleStartAt(pond.id);
       return inStatsRange(record.date, range);
+    }
+
+    function isBackfillRecord(record) {
+      if (!record) return false;
+      return record.sourceType === "backfill" || record.stockAffect === false || record.warehouseId === "backfill";
     }
 
     function formatDateTimeMs(ms) {
@@ -2501,23 +2561,25 @@
         feedTotals[displayKey].amount += displayAmountValue;
         feedTotals[displayKey].score += jin;
 
-        const dayKey = r.date || "未填日期";
-        if (!daily[dayKey]) daily[dayKey] = { eelJin: 0, eelBags: 0, otherBags: 0, score: 0 };
-        if (!dailyRecords[dayKey]) dailyRecords[dayKey] = [];
-        dailyRecords[dayKey].push(r);
-        if (isEelFeed(feedName)) {
-          if (unit === "bag") daily[dayKey].eelBags += amount;
-          else daily[dayKey].eelJin += amount;
-        } else {
-          daily[dayKey].otherBags += unit === "bag" ? amount : jin / getBagJin(feedName);
+        if (!isBackfillRecord(r)) {
+          const dayKey = r.date || "未填日期";
+          if (!daily[dayKey]) daily[dayKey] = { eelJin: 0, eelBags: 0, otherBags: 0, score: 0 };
+          if (!dailyRecords[dayKey]) dailyRecords[dayKey] = [];
+          dailyRecords[dayKey].push(r);
+          if (isEelFeed(feedName)) {
+            if (unit === "bag") daily[dayKey].eelBags += amount;
+            else daily[dayKey].eelJin += amount;
+          } else {
+            daily[dayKey].otherBags += unit === "bag" ? amount : jin / getBagJin(feedName);
+          }
+          daily[dayKey].score += jin;
         }
-        daily[dayKey].score += jin;
       });
 
       const rangeDays = range.start && range.end ? daysBetweenInclusive(range.start, range.end) : Math.max(1, new Set(selectedRecords.map(r => r.date)).size || 1);
       const speciesEmpty = !isPondOccupied(selectedPond);
-      const totalText = summaryMixedFromJinParts(otherBags, eelJin, eelBags);
-      const todayPondRecords = rangeRecords.filter(r => recordBelongsToPond(r, selectedPond) && r.date === todayStr());
+      const totalText = usageTextFromRecords(selectedRecords);
+      const todayPondRecords = rangeRecords.filter(r => recordBelongsToPond(r, selectedPond) && r.date === todayStr() && !isBackfillRecord(r));
       const todayFeedText = usageTextFromRecords(todayPondRecords);
 
       const dailyChartEntries = Object.entries(daily).sort((a, b) => String(a[0]).localeCompare(String(b[0])));
@@ -2548,8 +2610,7 @@
             <div class="cycle-pill">本轮开始：${formatDateTimeMs(getCycleStartAt(selectedPond.id))}</div>
           </div>
           <div class="single-pond-bags">
-            <div>${escapeHtml(totalText)}</div>
-            <span>${escapeHtml(range.label)}总用料</span>
+            <div class="total-feed-pill">总用料：${escapeHtml(totalText)}</div>
             <div class="today-feed-pill">今日喂料：${escapeHtml(todayFeedText)}</div>
           </div>
         </div>
