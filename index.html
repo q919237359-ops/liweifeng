@@ -827,6 +827,105 @@
     }
   </style>
 
+
+  <!-- 大字体轻微缩小版：仅 CSS，不动 Firebase -->
+  <style>
+    /* 顶部系统标题 */
+    .top-title h1 {
+      font-size: clamp(20px, 5.6vw, 24px) !important;
+      letter-spacing: -0.3px !important;
+    }
+
+    /* 页面主标题，例如：喂料登记、仓库入库、单塘汇总 */
+    .card h2 {
+      font-size: 21px !important;
+      line-height: 1.25 !important;
+    }
+
+    /* 分区标题，例如：快速切换鱼塘、饲料用量构成、按日期查看 */
+    .sub-title {
+      font-size: 18px !important;
+      line-height: 1.25 !important;
+    }
+
+    /* 单塘卡片里的鱼塘号 */
+    #pagePondStats .single-pond-name {
+      font-size: 21px !important;
+      line-height: 1.15 !important;
+    }
+
+    /* 总用料、今日喂料标签：只略微缩小 */
+    #pagePondStats .total-feed-pill,
+    #pagePondStats .today-feed-pill {
+      font-size: 12px !important;
+      line-height: 1.2 !important;
+      padding: 4px 8px !important;
+    }
+
+    /* 快速切换鱼塘卡片的鱼塘号 */
+    #pagePondStats .pond-quick-name {
+      font-size: 14px !important;
+      line-height: 1.1 !important;
+    }
+
+    /* 饲料用量构成左侧饲料名 */
+    #pagePondStats .pretty-title {
+      font-size: 17px !important;
+      line-height: 1.2 !important;
+    }
+
+    /* 喂料明细里的日期大字 */
+    #pagePondStats .record-title {
+      font-size: 18px !important;
+      line-height: 1.2 !important;
+    }
+
+    /* 库存页面的大数字略微缩小 */
+    .summary-num,
+    .inventory-bags,
+    .record-bags,
+    .pretty-num,
+    .history-total {
+      font-size: 20px !important;
+      line-height: 1.2 !important;
+    }
+
+    /* 表单里的标签如果偏大，略缩小，但输入框内容不动 */
+    label {
+      font-size: 17px !important;
+    }
+
+    @media (max-width: 420px) {
+      .top-title h1 {
+        font-size: clamp(19px, 5.3vw, 23px) !important;
+      }
+
+      .card h2 {
+        font-size: 20px !important;
+      }
+
+      .sub-title {
+        font-size: 17px !important;
+      }
+
+      #pagePondStats .single-pond-name {
+        font-size: 20px !important;
+      }
+
+      #pagePondStats .pretty-title {
+        font-size: 16px !important;
+      }
+
+      .summary-num,
+      .inventory-bags,
+      .record-bags,
+      .pretty-num,
+      .history-total {
+        font-size: 19px !important;
+      }
+    }
+  </style>
+
 </head>
 
 <body>
