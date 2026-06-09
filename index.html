@@ -4,12 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>李伟锋鱼塘饲料库存系统</title>
-  <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
   <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <meta name="theme-color" content="#0f766e" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="鱼塘饲料" />
   <style>
     *{box-sizing:border-box}
     body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#f3f7fb;color:#172033;font-size:22px;line-height:1.5}
@@ -2873,16 +2870,29 @@
     setDefaultDates();
     handleStatsRangeChange();
     initFirebase();
+  
 
+    // 关闭离线网页/PWA缓存提示：卸载旧 Service Worker，并清理旧缓存
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("./sw.js").then(function(registration) {
-          registration.update();
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          registrations.forEach(function (registration) {
+            registration.unregister();
+          });
         }).catch(function (error) {
-          console.log("Service Worker 注册失败：", error);
+          console.log("Service Worker 清理失败：", error);
         });
+
+        if (window.caches) {
+          caches.keys().then(function (keys) {
+            return Promise.all(keys.map(function (key) { return caches.delete(key); }));
+          }).catch(function (error) {
+            console.log("缓存清理失败：", error);
+          });
+        }
       });
     }
-  </script>
+
+</script>
 </body>
 </html>

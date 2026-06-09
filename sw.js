@@ -1,13 +1,16 @@
-const CACHE_NAME = "li-weifeng-feed-network-first-v20260608";
-self.addEventListener("install", (event) => { self.skipWaiting(); });
-self.addEventListener("activate", (event) => {
-  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key)))).then(() => self.clients.claim()));
+// Offline cache disabled.
+// This file intentionally does not cache anything.
+self.addEventListener("install", function(event) {
+  self.skipWaiting();
 });
-self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
-  if (event.request.mode === "navigate") {
-    event.respondWith(fetch(event.request, { cache: "no-store" }).catch(() => caches.match(event.request)));
-    return;
-  }
-  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+self.addEventListener("activate", function(event) {
+  event.waitUntil(
+    caches.keys().then(function(keys) {
+      return Promise.all(keys.map(function(key) { return caches.delete(key); }));
+    }).then(function() {
+      return self.registration.unregister();
+    }).then(function() {
+      return self.clients.claim();
+    })
+  );
 });
