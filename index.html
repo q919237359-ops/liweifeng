@@ -1260,6 +1260,31 @@
       margin-bottom:0 !important;
     }
 
+
+    .pond-setting-row {
+      grid-template-columns:82px 1fr;
+    }
+
+    .pond-setting-fields {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .pond-setting-fields input,
+    .pond-setting-fields select {
+      min-height:38px;
+      border-radius:13px;
+      font-size:13px;
+      padding:6px 9px;
+    }
+
+    @media (max-width:430px) {
+      .pond-setting-fields {
+        grid-template-columns:1fr;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -2098,13 +2123,29 @@
     }
 
     function renderSettings() {
+      const whOptions = activeWarehouses().map(w => `<option value="${esc(w.id)}">${esc(w.name)}</option>`).join('');
+
       $('pondSettings').innerHTML = DEFAULT_PONDS.map((d,i)=>{
         const p = ponds.find(x => x.id === d.id) || d;
-        return `<div class="setting-row">
+        return `<div class="setting-row pond-setting-row">
           <div class="setting-name">${esc(p.name || d.name)}</div>
-          <input id="pondSpecies_${i}" value="${esc(p.species || '空置')}" placeholder="鱼种，不填=空置" />
+          <div class="pond-setting-fields">
+            <input id="pondSpecies_${i}" value="${esc(p.species || '空置')}" placeholder="鱼种，不填=空置" />
+            <select id="pondDefaultWh_${i}">
+              <option value="">默认仓库：不指定</option>
+              ${whOptions}
+            </select>
+          </div>
         </div>`;
       }).join('');
+
+      DEFAULT_PONDS.forEach((d,i)=>{
+        const p = ponds.find(x => x.id === d.id) || d;
+        const sel = $('pondDefaultWh_' + i);
+        if (sel && p.defaultWarehouseId && [...sel.options].some(o => o.value === p.defaultWarehouseId)) {
+          sel.value = p.defaultWarehouseId;
+        }
+      });
 
       $('warehouseSettings').innerHTML = DEFAULT_WAREHOUSES.map((d,i)=>{
         const w = warehouses.find(x => x.id === d.id) || d;
@@ -2261,9 +2302,10 @@
 
       updateWarehouseOptions('feedWarehouse');
 
-      // 默认先保留当前仓库；如果没有当前仓库，就用第一个仓库。
-      // 不强行跳到有生鱼料的仓库，避免用户选择仓库后又被改回其他仓库。
-      if (!$('feedWarehouse').value) {
+      const defaultWarehouseId = normalizeWarehouseId(pond.defaultWarehouseId || '');
+      if (defaultWarehouseId && [...$('feedWarehouse').options].some(o => o.value === defaultWarehouseId)) {
+        $('feedWarehouse').value = defaultWarehouseId;
+      } else if (!$('feedWarehouse').value) {
         $('feedWarehouse').value = activeWarehouses()[0]?.id || '';
       }
 
@@ -2424,7 +2466,8 @@
       if (!firebaseReady) return alert('Firebase 尚未连接');
       const newPonds = DEFAULT_PONDS.map((d,i)=>({
         ...d,
-        species: ($('pondSpecies_'+i)?.value || '').trim() || '空置'
+        species: ($('pondSpecies_'+i)?.value || '').trim() || '空置',
+        defaultWarehouseId: $('pondDefaultWh_'+i)?.value || ''
       }));
       const newWarehouses = DEFAULT_WAREHOUSES.map((d,i)=>({
         ...d,
