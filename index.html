@@ -1348,7 +1348,6 @@
           <div class="field"><label>仓库</label><select id="stockWarehouse"></select></div>
           <div class="field"><label>饲料</label><select id="stockFeedName"></select></div>
           <div class="field"><label>数量</label><input id="stockAmount" type="number" step="0.5" inputmode="decimal" placeholder="20包" /></div>
-          <div class="field full"><label>负责人</label><select id="stockPerson"><option>李伟锋</option><option>关淑芬</option></select></div>
           <input id="stockNote" type="hidden" value="" />
         </div>
 
@@ -1431,7 +1430,6 @@
           <div class="field"><label>日期</label><input type="date" id="memoDate" /></div>
           <div class="field"><label>鱼塘</label><select id="memoPond"></select></div>
           <div class="field"><label>动作</label><select id="memoAction"><option>换水</option><option>消毒</option><option>拉网检查</option><option>投药</option><option>测水质</option><option>清塘</option><option>其他</option></select></div>
-          <div class="field"><label>负责人</label><select id="memoPerson"><option>李伟锋</option><option>关淑芬</option></select></div>
           <div class="field full"><label>备注</label><textarea id="memoText" placeholder="例如：上午换水一次，鱼状态正常"></textarea></div>
         </div>
         <button class="btn" style="width:100%" onclick="saveMemo()">保存备忘录</button>
@@ -1515,13 +1513,6 @@
         <div class="field">
           <label>单位</label>
           <select id="feedUnit"></select>
-        </div>
-        <div class="field">
-          <label>负责人</label>
-          <select id="feedPerson">
-            <option>李伟锋</option>
-            <option>关淑芬</option>
-          </select>
         </div>
         <div class="field full">
           <label>数量</label>
@@ -2051,7 +2042,6 @@
           </div>
           <div class="pond-meta">
             <span>最后登记：${last}</span>
-            <span>负责人：${owner}</span>
           </div>
         </article>`;
       }).join('') || '<div class="record-card"><div class="record-title">暂无已养殖鱼塘</div><div class="record-meta">请先到设置里填写鱼种。</div></div>';
@@ -2117,7 +2107,7 @@
           <div class="memo-title">${esc(m.pondName || '')} · ${esc(m.species || '')}</div>
           <div class="memo-action">${esc(m.action || '备忘')}</div>
           <div class="memo-text">${esc(m.text || '')}</div>
-          <div class="memo-person">负责人：${esc(m.person || '')}</div>
+
         </div>
       </article>`).join('') || '<div class="record-card"><div class="record-title">暂无备忘录</div><div class="record-meta">这里记录换水、消毒、投药、测水质等动作。</div></div>';
     }
@@ -2348,7 +2338,7 @@
       const feedName = $('feedName').value;
       const unit = $('feedUnit').value;
       const amount = Number($('feedAmount').value || 0);
-      const person = $('feedPerson').value;
+      const person = '';
       const note = $('feedNote').value.trim();
       if (!pond?.id || !warehouseId || !feedName || amount <= 0) return alert('请填写鱼塘、仓库、饲料和数量');
 
@@ -2384,7 +2374,7 @@
       const warehouseId = $('stockWarehouse').value;
       const feedName = $('stockFeedName').value;
       const amount = Number($('stockAmount').value || 0);
-      const person = $('stockPerson').value;
+      const person = '';
       const note = $('stockNote').value.trim();
       if (!warehouseId || !feedName || amount <= 0) return alert('请填写仓库、饲料和入库数量');
       const unit = 'bag';
@@ -2451,7 +2441,7 @@
       const pond = pondById($('memoPond').value);
       const date = $('memoDate').value || todayStr();
       const action = $('memoAction').value;
-      const person = $('memoPerson').value;
+      const person = '';
       const text = $('memoText').value.trim();
       if (!pond?.id || !action) return alert('请选择鱼塘和动作');
       await push(ref(db, 'pondMemos'), {
@@ -2534,7 +2524,7 @@
         <div>
           <div class="meal-label">${mealLabel(i)} · ${nowTime(r.createdAt)}</div>
           <div class="meal-feed">${amountDisplay(r.feedName, originalAmount(r), r.unit || unitForFeed(r.feedName))}</div>
-          <div class="meal-time">${esc(r.person || '')}${r.note ? ' · ' + esc(r.note) : ''}</div>
+          <div class="meal-time">${r.note ? esc(r.note) : ''}</div>
         </div>
       </div>`).join('') : '<div class="meal-empty">这一天没有喂料记录</div>';
     };
@@ -2686,7 +2676,7 @@
         const label = l.type === 'in' || l.type === 'stockIn' ? '送货入库' : '喂鱼扣库';
         return `<div class="record-card">
           <div class="record-title">${label} · ${esc(l.feedName)} ${sign}${stockLogAmountText(l)}</div>
-          <div class="record-meta">${esc(l.date || '')} ${nowTime(l.createdAt)} · ${esc(l.warehouseName || whById(l.warehouseId).name)}${l.pondName ? ' · ' + esc(l.pondName) : ''} · ${esc(l.person || '')}</div>
+          <div class="record-meta">${esc(l.date || '')} ${nowTime(l.createdAt)} · ${esc(l.warehouseName || whById(l.warehouseId).name)}${l.pondName ? ' · ' + esc(l.pondName) : ''}</div>
           <button class="danger-link" onclick="undoStockLog('${esc(l.id)}')">撤销这条</button>
         </div>`;
       }).join('') || '<div class="record-card"><div class="record-title">这天没有记录</div><div class="record-meta">请选择月历里有标记的日期。</div></div>';
