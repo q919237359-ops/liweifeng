@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>李伟锋鱼塘饲料库存系统</title>
   <meta name="theme-color" content="#f6f3ed" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
   <style>
     :root {
       --bg:#f6f3ed;
@@ -2802,20 +2804,7 @@
       if ($('externalDateTime')) $('externalDateTime').value = currentDateTimeLocal();
     }
 
-    async function cleanupOffline(){
-      if('serviceWorker' in navigator){
-        try{
-          const regs = await navigator.serviceWorker.getRegistrations();
-          regs.forEach(r => r.unregister());
-        }catch(e){ console.log(e); }
-      }
-      if(window.caches){
-        try{
-          const keys = await caches.keys();
-          await Promise.all(keys.map(k => caches.delete(k)));
-        }catch(e){ console.log(e); }
-      }
-    }
+
 
     window.addEventListener('keydown', e => {
       if (e.key === 'Escape') { closeFeedSheet(); closePondDetail(); }
@@ -2824,7 +2813,10 @@
     setDefaults();
     bindWarehouseFeedEvents();
     initFirebase();
-    cleanupOffline();
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
   </script>
 </body>
 </html>
