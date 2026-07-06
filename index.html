@@ -3130,7 +3130,7 @@
       <div class="brand-lockup">
         <img class="brand-mark" src="icon-192.png" alt="" />
         <div>
-          <div class="brand-title">渔管家</div>
+          <div class="brand-title">鱼管家</div>
           <div class="brand-sub">鱼塘喂料与库存管理</div>
         </div>
       </div>
@@ -3442,16 +3442,17 @@
         </div>
         <div class="field">
           <label>单位</label>
-          <select id="feedUnit"></select>
+          <input id="feedUnit" type="hidden" value="bag" />
+          <div id="feedUnitText" class="stock-chip" style="margin-top:8px">自动：包</div>
         </div>
         <div class="field full">
           <label>数量</label>
           <input id="feedAmount" type="number" step="0.5" min="0" placeholder="例如：4" inputmode="decimal" />
           <div class="quick-amounts">
-            <button class="amount-btn" onclick="setAmount(1)">1包</button>
-            <button class="amount-btn" onclick="setAmount(2)">2包</button>
-            <button class="amount-btn" onclick="setAmount(4)">4包</button>
-            <button class="amount-btn" onclick="setAmount(8)">8包</button>
+            <button class="amount-btn" data-amount="1" onclick="setAmount(1)">1包</button>
+            <button class="amount-btn" data-amount="2" onclick="setAmount(2)">2包</button>
+            <button class="amount-btn" data-amount="4" onclick="setAmount(4)">4包</button>
+            <button class="amount-btn" data-amount="8" onclick="setAmount(8)">8包</button>
           </div>
         </div>
         <div class="field full">
@@ -4501,16 +4502,20 @@
     }
 
     function updateFeedUnitOptions() {
-      const feed = $('feedName').value;
+      const feed = $('feedName')?.value || '';
       const unit = $('feedUnit');
-      if (!unit) return;
-      if (isEelFeed(feed)) {
-        const old = unit.value || 'jin';
-        unit.innerHTML = '<option value="jin">斤</option><option value="bag">包</option>';
-        unit.value = old === 'bag' ? 'bag' : 'jin';
-      } else {
-        unit.innerHTML = '<option value="bag">包</option>';
-      }
+      const unitText = $('feedUnitText');
+      const amountInput = $('feedAmount');
+      const isEel = isEelFeed(feed);
+      const unitValue = isEel ? 'jin' : 'bag';
+      const unitLabel = isEel ? '斤' : '包';
+      if (unit) unit.value = unitValue;
+      if (unitText) unitText.textContent = '自动：' + unitLabel;
+      if (amountInput) amountInput.placeholder = isEel ? '例如：4斤' : '例如：4包';
+      document.querySelectorAll('#feedSheetLayer .quick-amounts .amount-btn').forEach(btn => {
+        const n = btn.getAttribute('data-amount') || btn.textContent.match(/[0-9.]+/)?.[0] || '';
+        if (n) btn.textContent = n + unitLabel;
+      });
     }
 
     function renderSheetStockHint() {
@@ -4618,7 +4623,7 @@
       const warehouseId = $('feedWarehouse').value;
       const feedName = $('feedName').value;
       const feedSpec = normalizeFeedSpec($('feedSpec')?.value || '');
-      const unit = $('feedUnit').value;
+      const unit = unitForFeed(feedName);
       const amount = Number($('feedAmount').value || 0);
       const person = '';
       const note = $('feedNote').value.trim();
