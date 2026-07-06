@@ -589,6 +589,93 @@
       color:var(--teal2);
     }
 
+    .spec-manager {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .spec-tip {
+      padding:10px 12px;
+      border-radius:16px;
+      background:rgba(237,247,244,.75);
+      border:1px solid rgba(15,118,110,.12);
+      color:var(--teal2);
+      font-size:13px;
+      line-height:1.55;
+      font-weight:850;
+    }
+
+    .spec-label {
+      color:var(--muted);
+      font-size:12px;
+      font-weight:950;
+    }
+
+    .spec-chip-list,
+    .spec-quick {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .spec-chip {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      min-height:34px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#fffdf8;
+      border:1.5px solid rgba(15,118,110,.18);
+      color:var(--teal2);
+      font-size:13px;
+      font-weight:950;
+    }
+
+    .spec-chip.fixed {
+      background:#fbf4e4;
+      color:#8a6426;
+      border-color:rgba(180,138,69,.24);
+    }
+
+    .spec-chip button {
+      width:20px;
+      height:20px;
+      border:0;
+      border-radius:999px;
+      background:rgba(15,118,110,.10);
+      color:var(--teal2);
+      font-weight:950;
+      line-height:20px;
+      cursor:pointer;
+    }
+
+    .spec-empty {
+      color:var(--muted);
+      font-size:13px;
+      font-weight:850;
+      padding:4px 0;
+    }
+
+    .spec-add-row {
+      display:grid;
+      grid-template-columns:1fr 88px;
+      gap:8px;
+    }
+
+    .spec-quick button {
+      min-height:32px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(228,222,210,.95);
+      background:#fffdf8;
+      color:var(--teal2);
+      font-size:12px;
+      font-weight:950;
+      cursor:pointer;
+    }
+
     .memo-card {
       display:grid;
       grid-template-columns:62px 1fr;
@@ -3117,7 +3204,8 @@
         <div class="compact-out-grid">
           <div class="field"><label>日期</label><input type="date" id="stockDate" /></div>
           <div class="field"><label>仓库</label><select id="stockWarehouse"></select></div>
-          <div class="field"><label>饲料</label><select id="stockFeedName"></select></div>
+          <div class="field"><label>饲料</label><select id="stockFeedName" onchange="updateStockFeedSpecOptions()" oninput="updateStockFeedSpecOptions()"></select></div>
+          <div class="field"><label>规格</label><select id="stockFeedSpec"></select></div>
           <div class="field"><label>数量</label><input id="stockAmount" type="number" step="0.5" inputmode="decimal" placeholder="20包" /></div>
           <input id="stockNote" type="hidden" value="" />
         </div>
@@ -3136,7 +3224,8 @@
         <div class="compact-out-grid">
           <div class="field"><label>领取时间</label><input id="externalDateTime" type="datetime-local" /></div>
           <div class="field"><label>仓库</label><select id="externalWarehouse" onchange="onExternalWarehouseChange()" oninput="onExternalWarehouseChange()"></select></div>
-          <div class="field"><label>饲料</label><select id="externalFeedName"></select></div>
+          <div class="field"><label>饲料</label><select id="externalFeedName" onchange="updateExternalSpecOptions(false);" oninput="updateExternalSpecOptions(false);"></select></div>
+          <div class="field"><label>规格</label><select id="externalFeedSpec"></select></div>
           <div class="field"><label>数量</label><input id="externalAmount" type="number" step="0.5" inputmode="decimal" placeholder="2包" /></div>
           <div class="field full"><label>领料人</label><input id="externalPerson" placeholder="谁拿走" /></div>
         </div>
@@ -3272,6 +3361,38 @@
       </section>
 
       <section class="card">
+        <h2>鱼料规格设置</h2>
+        <div class="spec-manager">
+          <div class="spec-tip">默认规格是旧数据和未分规格库存使用的固定项，不需要手动添加，也不会影响原来的记录。</div>
+
+          <div class="spec-label">固定规格</div>
+          <div class="spec-chip-list">
+            <span class="spec-chip fixed">默认规格</span>
+          </div>
+
+          <div class="spec-label">自定义规格</div>
+          <div id="feedGradeChips" class="spec-chip-list"></div>
+
+          <div class="spec-add-row">
+            <input id="feedGradeInput" placeholder="输入规格，例如：四号料" onkeydown="if(event.key==='Enter'){event.preventDefault();addFeedGradeFromInput();}" />
+            <button type="button" class="ghost-btn" onclick="addFeedGradeFromInput()">添加</button>
+          </div>
+
+          <div class="spec-label">快速添加</div>
+          <div class="spec-quick">
+            <button type="button" onclick="addFeedGrade('一号料')">一号料</button>
+            <button type="button" onclick="addFeedGrade('二号料')">二号料</button>
+            <button type="button" onclick="addFeedGrade('三号料')">三号料</button>
+            <button type="button" onclick="addFeedGrade('四号料')">四号料</button>
+            <button type="button" onclick="addFeedGrade('五号料')">五号料</button>
+          </div>
+
+          <input type="hidden" id="feedGradeList" value="" />
+        </div>
+        <div class="hint" style="margin-top:8px">保存后，入库、喂鱼、领料出库都会按“饲料 + 规格”分开记录；旧数据继续按“默认规格”显示。</div>
+      </section>
+
+      <section class="card">
         <button class="btn" style="width:100%" onclick="saveSettings()">保存设置</button>
       </section>
     </section>
@@ -3312,8 +3433,12 @@
         </div>
         <div class="field">
           <label>饲料</label>
-          <select id="feedName" onchange="renderSheetStockHint(); updateFeedUnitOptions();"></select>
+          <select id="feedName" onchange="updateFeedSpecOptions(false); updateFeedUnitOptions(); renderSheetStockHint();"></select>
           <div id="stockHint" class="stock-hint"></div>
+        </div>
+        <div class="field">
+          <label>规格</label>
+          <select id="feedSpec" onchange="renderSheetStockHint();"></select>
         </div>
         <div class="field">
           <label>单位</label>
@@ -3405,11 +3530,12 @@
     const DEFAULT_PONDS = Array.from({length:11},(_,i)=>({id:'pond'+(i+1),name:(i+1)+'号塘',species:'空置'}));
     const DEFAULT_WAREHOUSES = Array.from({length:10},(_,i)=>({id:'wh'+(i+1),name:(i+1)+'号仓库',active:true}));
     const COMMON_FEEDS = ['生鱼料','鳗鱼料','加州鲈料'];
+    const DEFAULT_FEED_GRADES = ['一号料','二号料','三号料'];
 
     let app, db, firebaseReady = false;
     let ponds = [...DEFAULT_PONDS];
     let warehouses = [...DEFAULT_WAREHOUSES];
-    let feedSpecs = { eelBagJin: 40 };
+    let feedSpecs = { eelBagJin: 40, feedGrades: [...DEFAULT_FEED_GRADES] };
     let feedRecords = [];
     let stockLogs = [];
     let stockTotals = {};
@@ -3477,6 +3603,116 @@
       return String(feedName || '').includes('鳗鱼');
     }
 
+    function normalizeFeedSpec(value) {
+      const raw = String(value || '').trim();
+      if (!raw || raw === '默认规格' || raw === '未分规格') return '';
+      return raw;
+    }
+
+    function feedSpecLabel(value) {
+      const spec = normalizeFeedSpec(value);
+      return spec || '默认规格';
+    }
+
+    function feedDisplayName(feedName, feedSpec='') {
+      const spec = normalizeFeedSpec(feedSpec);
+      return spec ? `${feedName} · ${spec}` : String(feedName || '');
+    }
+
+    function splitFeedGradeText(raw) {
+      if (Array.isArray(raw)) return raw.flatMap(item => splitFeedGradeText(item));
+      return String(raw || '').split(/[，,、\n\r\t\s]+/);
+    }
+
+    function cleanFeedGrades(list) {
+      const out = [];
+      splitFeedGradeText(list).forEach(item => {
+        const spec = normalizeFeedSpec(item);
+        if (!spec || spec === '默认规格' || spec === '未分规格') return;
+        if (!out.includes(spec)) out.push(spec);
+      });
+      return out;
+    }
+
+    function defaultedFeedGrades(list) {
+      const cleaned = cleanFeedGrades(list);
+      return cleaned.length ? cleaned : [...DEFAULT_FEED_GRADES];
+    }
+
+    function getFeedGrades() {
+      const raw = feedSpecs.feedGrades ?? feedSpecs.grades ?? feedSpecs.feedSpecList ?? [];
+      return defaultedFeedGrades(raw);
+    }
+
+    function currentFeedGradeDraft() {
+      const hidden = $('feedGradeList');
+      if (hidden && String(hidden.value || '').trim()) return defaultedFeedGrades(hidden.value);
+      return getFeedGrades();
+    }
+
+    function setFeedGradeDraft(list) {
+      const grades = defaultedFeedGrades(list);
+      const hidden = $('feedGradeList');
+      if (hidden) hidden.value = grades.join('\n');
+      renderFeedGradeChips(grades);
+      updateStockFeedSpecOptions();
+    }
+
+    function renderFeedGradeChips(list) {
+      const wrap = $('feedGradeChips');
+      if (!wrap) return;
+      const grades = defaultedFeedGrades(list || currentFeedGradeDraft());
+      wrap.innerHTML = grades.length
+        ? grades.map(spec => `<span class="spec-chip">${esc(spec)}<button type="button" onclick="removeFeedGrade('${encodeURIComponent(spec)}')">×</button></span>`).join('')
+        : '<div class="spec-empty">暂无自定义规格</div>';
+    }
+
+    window.addFeedGrade = function(name) {
+      const spec = normalizeFeedSpec(name);
+      if (!spec || spec === '默认规格' || spec === '未分规格') return;
+      const grades = currentFeedGradeDraft();
+      if (!grades.includes(spec)) grades.push(spec);
+      setFeedGradeDraft(grades);
+      const input = $('feedGradeInput');
+      if (input && input.value.trim() === spec) input.value = '';
+    };
+
+    window.addFeedGradeFromInput = function() {
+      const input = $('feedGradeInput');
+      const value = normalizeFeedSpec(input?.value || '');
+      if (!value) return alert('请先输入规格名称');
+      window.addFeedGrade(value);
+      if (input) input.value = '';
+    };
+
+    window.removeFeedGrade = function(encodedSpec) {
+      const spec = decodeURIComponent(encodedSpec || '');
+      const grades = currentFeedGradeDraft().filter(item => item !== spec);
+      setFeedGradeDraft(grades);
+    };
+
+    function feedSpecOptionsHtml(selected='') {
+      const selectedSpec = normalizeFeedSpec(selected);
+      const specs = ['', ...getFeedGrades()];
+      if (selectedSpec && !specs.includes(selectedSpec)) specs.push(selectedSpec);
+      return specs.map(spec => `<option value="${esc(spec)}" ${normalizeFeedSpec(spec) === selectedSpec ? 'selected' : ''}>${esc(feedSpecLabel(spec))}</option>`).join('');
+    }
+
+    function setSpecOptions(selectEl, specs, preferredSpec='') {
+      if (!selectEl) return;
+      const preferred = normalizeFeedSpec(preferredSpec);
+      const clean = [];
+      (specs || []).forEach(spec => {
+        const v = normalizeFeedSpec(spec);
+        if (!clean.includes(v)) clean.push(v);
+      });
+      if (!clean.length) clean.push('');
+      if (preferred && !clean.includes(preferred)) clean.push(preferred);
+      selectEl.innerHTML = clean.map(spec => `<option value="${esc(spec)}">${esc(feedSpecLabel(spec))}</option>`).join('');
+      if ([...selectEl.options].some(o => normalizeFeedSpec(o.value) === preferred)) selectEl.value = preferred;
+      else selectEl.selectedIndex = 0;
+    }
+
     function bagJin(feedName) {
       if (isEelFeed(feedName)) return Number(feedSpecs.eelBagJin || 40);
       return 40;
@@ -3486,8 +3722,10 @@
       return isEelFeed(feedName) ? 'jin' : 'bag';
     }
 
-    function stockKey(warehouseId, feedName) {
-      return `${warehouseId}__${encodeURIComponent(feedName || '未命名饲料')}`;
+    function stockKey(warehouseId, feedName, feedSpec='') {
+      const spec = normalizeFeedSpec(feedSpec);
+      const base = `${warehouseId}__${encodeURIComponent(feedName || '未命名饲料')}`;
+      return spec ? `${base}__${encodeURIComponent(spec)}` : base;
     }
 
     function pondById(id) {
@@ -3559,9 +3797,10 @@
       return unit === 'jin' ? amount : amount * bagJin(feed);
     }
 
-    function amountDisplay(feedName, amount, unit='bag') {
-      if (isEelFeed(feedName) && unit === 'jin') return `${fmt(amount)}斤${feedName}`;
-      return `${fmt(amount)}包${feedName}`;
+    function amountDisplay(feedName, amount, unit='bag', feedSpec='') {
+      const name = feedDisplayName(feedName, feedSpec);
+      if (isEelFeed(feedName) && unit === 'jin') return `${fmt(amount)}斤${name}`;
+      return `${fmt(amount)}包${name}`;
     }
 
     function togglePondSummaryPanel(event, button) {
@@ -3601,19 +3840,20 @@
       (records || []).forEach(r => {
         if (!r || r.cancelled) return;
         const feed = r.feedName || '普通饲料';
+        const feedSpec = normalizeFeedSpec(r.feedSpec || r.spec || r.grade || '');
         let unit = r.unit || unitForFeed(feed);
         let amount = originalAmount(r);
         if (!isEelFeed(feed) && unit === 'jin') {
           amount = recordStockJin(r) / bagJin(feed);
           unit = 'bag';
         }
-        const key = feed + '__' + unit;
-        if (!groups[key]) groups[key] = {feed, unit, amount:0};
+        const key = feed + '__' + feedSpec + '__' + unit;
+        if (!groups[key]) groups[key] = {feed, feedSpec, unit, amount:0};
         groups[key].amount += amount;
       });
       const parts = Object.values(groups).sort((a,b)=>String(a.feed).localeCompare(String(b.feed),'zh-CN')).map(g => {
-        if (isEelFeed(g.feed) && g.unit === 'jin') return `${fmt(g.amount)}斤${g.feed}`;
-        return `${fmt(g.amount)}包${g.feed}`;
+        if (isEelFeed(g.feed) && g.unit === 'jin') return `${fmt(g.amount)}斤${feedDisplayName(g.feed, g.feedSpec)}`;
+        return `${fmt(g.amount)}包${feedDisplayName(g.feed, g.feedSpec)}`;
       });
       return parts.length ? parts.join(' + ') : '0包';
     }
@@ -3680,21 +3920,31 @@
         });
         let wh = '';
         let feed = '';
+        let feedIndex = -1;
 
         decoded.forEach(p => {
           const maybeWh = inferWarehouseIdFromText(p);
           if (maybeWh && !wh) wh = maybeWh;
         });
 
-        decoded.forEach(p => {
+        decoded.forEach((p, idx) => {
           if (inferWarehouseIdFromText(p)) return;
-          if (!feed) feed = looksLikeFeedName(p);
+          if (!feed) {
+            feed = looksLikeFeedName(p);
+            feedIndex = idx;
+          }
         });
 
-        if (wh && feed) return {warehouseId: wh, feedName: feed};
+        const spec = decoded
+          .filter((p, idx) => !inferWarehouseIdFromText(p) && idx !== feedIndex)
+          .map(normalizeFeedSpec)
+          .filter(Boolean)
+          .join(' ');
+
+        if (wh && feed) return {warehouseId: wh, feedName: feed, feedSpec: spec};
       }
 
-      return {warehouseId:'', feedName:''};
+      return {warehouseId:'', feedName:'', feedSpec:''};
     }
 
     function stockRows() {
@@ -3725,6 +3975,10 @@
           parsedFallback.feedName ||
           '';
 
+        let feedSpec = normalizeFeedSpec(
+          it.feedSpec || it.spec || it.grade || it.feedGrade || parsed.feedSpec || parsedFallback.feedSpec || ''
+        );
+
         feedName = String(feedName || '未命名饲料').trim();
         warehouseId = normalizeWarehouseId(warehouseId);
 
@@ -3742,6 +3996,7 @@
             warehouseId,
             warehouseName: it.warehouseName || whById(warehouseId).name,
             feedName,
+            feedSpec,
             stockJin: jin
           });
         }
@@ -3769,8 +4024,9 @@
       const merged = {};
       rows.forEach(r => {
         const whId = normalizeWarehouseId(r.warehouseId);
-        const key = whId + '__' + r.feedName;
-        if (!merged[key]) merged[key] = {...r, warehouseId: whId, warehouseName: whById(whId).name, stockJin: 0};
+        const spec = normalizeFeedSpec(r.feedSpec || '');
+        const key = whId + '__' + r.feedName + '__' + spec;
+        if (!merged[key]) merged[key] = {...r, warehouseId: whId, warehouseName: whById(whId).name, feedSpec: spec, stockJin: 0};
         merged[key].stockJin += Number(r.stockJin || 0);
       });
 
@@ -3780,9 +4036,12 @@
     function totalStocks() {
       const map = {};
       stockRows().forEach(i => {
-        map[i.feedName] = (map[i.feedName] || 0) + i.stockJin;
+        const spec = normalizeFeedSpec(i.feedSpec || '');
+        const key = i.feedName + '__' + spec;
+        if (!map[key]) map[key] = {feedName: i.feedName, feedSpec: spec, stockJin: 0};
+        map[key].stockJin += i.stockJin;
       });
-      return Object.entries(map).map(([feedName, stockJin]) => ({feedName, stockJin}));
+      return Object.values(map);
     }
 
     function warehouseFeedRows(warehouseId) {
@@ -3790,9 +4049,10 @@
       return stockRows().filter(i => normalizeWarehouseId(i.warehouseId) === whId && i.stockJin > 0.001);
     }
 
-    function getWarehouseFeedStock(warehouseId, feedName) {
+    function getWarehouseFeedStock(warehouseId, feedName, feedSpec='') {
       const whId = normalizeWarehouseId(warehouseId);
-      const row = stockRows().find(i => normalizeWarehouseId(i.warehouseId) === whId && i.feedName === feedName);
+      const spec = normalizeFeedSpec(feedSpec);
+      const row = stockRows().find(i => normalizeWarehouseId(i.warehouseId) === whId && i.feedName === feedName && normalizeFeedSpec(i.feedSpec || '') === spec);
       return row ? row.stockJin : 0;
     }
 
@@ -3835,6 +4095,7 @@
         stockFeed.innerHTML = feedOptions;
         if (old) stockFeed.value = old;
       }
+      updateStockFeedSpecOptions();
 
       const pondOptions = sortedPonds().filter(isOccupied).map(p => `<option value="${esc(p.id)}">${esc(p.name)} - ${esc(p.species)}</option>`).join('');
       const memoPond = $('memoPond');
@@ -3931,7 +4192,7 @@
         const idx = rs.findIndex(x => x.id === r.id);
         return `<div class="today-row">
           <span class="name">${esc(p.name || r.pondName || '')} · ${esc(p.species || r.species || '')}</span>
-          <span class="feed">${mealLabel(idx < 0 ? i : idx)}：${amountDisplay(r.feedName, originalAmount(r), r.unit || unitForFeed(r.feedName))}</span>
+          <span class="feed">${mealLabel(idx < 0 ? i : idx)}：${amountDisplay(r.feedName, originalAmount(r), r.unit || unitForFeed(r.feedName), r.feedSpec)}</span>
           <span class="time">${nowTime(r.createdAt)}</span>
         </div>`;
       }).join('') || '<div class="record-card"><div class="record-title">今天暂无喂料记录</div><div class="record-meta">点击首页鱼塘方块即可快捷登记。</div></div>';
@@ -3940,12 +4201,12 @@
     function renderInventory() {
       const totals = totalStocks();
       $('inventoryList').innerHTML = totals.map(i => {
-        const whParts = stockRows().filter(x => x.feedName === i.feedName).map(x => `<span>${esc(whById(x.warehouseId).name)}：${stockDisplay(x.feedName, x.stockJin)}</span>`).join('');
+        const whParts = stockRows().filter(x => x.feedName === i.feedName && normalizeFeedSpec(x.feedSpec || '') === normalizeFeedSpec(i.feedSpec || '')).map(x => `<span>${esc(whById(x.warehouseId).name)}：${stockDisplay(x.feedName, x.stockJin)}</span>`).join('');
         return `<article class="stock-card">
           <div class="stock-head">
             <div>
               <div class="stock-name">${esc(i.feedName)}</div>
-              <div class="stock-spec">${isEelFeed(i.feedName) ? `规格：${fmt(bagJin(i.feedName))}斤/包` : '按包显示'}</div>
+              <div class="stock-spec">规格：${esc(feedSpecLabel(i.feedSpec))}${isEelFeed(i.feedName) ? ` · ${fmt(bagJin(i.feedName))}斤/包` : ''}</div>
             </div>
             <div class="stock-total">${stockDisplay(i.feedName, i.stockJin)}</div>
           </div>
@@ -4124,6 +4385,8 @@
       }).join('');
 
       $('eelBagJin').value = fmt(feedSpecs.eelBagJin || 40);
+      if ($('feedGradeList')) $('feedGradeList').value = getFeedGrades().join('\n');
+      renderFeedGradeChips(getFeedGrades());
     }
 
     function mealRows(pond) {
@@ -4133,7 +4396,7 @@
         <div class="meal-index">${index + 1}</div>
         <div>
           <div class="meal-label">${mealLabel(index)}</div>
-          <div class="meal-feed">${amountDisplay(r.feedName, originalAmount(r), r.unit || unitForFeed(r.feedName))}</div>
+          <div class="meal-feed">${amountDisplay(r.feedName, originalAmount(r), r.unit || unitForFeed(r.feedName), r.feedSpec)}</div>
           <div class="meal-time">登记时间：${nowTime(r.createdAt)}</div>
         </div>
       </div>`).join('');
@@ -4151,20 +4414,25 @@
     function rebuildFeedSelectForWarehouse(feedSelect, warehouseId, preferredFeed='') {
       const whId = normalizeWarehouseId(warehouseId);
       const rows = warehouseFeedRows(whId).sort((a,b)=>String(a.feedName).localeCompare(String(b.feedName),'zh-CN'));
+      const grouped = {};
+      rows.forEach(r => {
+        if (!grouped[r.feedName]) grouped[r.feedName] = {feedName: r.feedName, stockJin: 0};
+        grouped[r.feedName].stockJin += Number(r.stockJin || 0);
+      });
+      const feedRows = Object.values(grouped).sort((a,b)=>String(a.feedName).localeCompare(String(b.feedName),'zh-CN'));
 
       feedSelect.innerHTML = '';
 
-      if (rows.length) {
-        rows.forEach(r => {
+      if (feedRows.length) {
+        feedRows.forEach(r => {
           const opt = document.createElement('option');
           opt.value = r.feedName;
-          opt.textContent = `${r.feedName}（${stockDisplay(r.feedName, r.stockJin)}）`;
+          opt.textContent = `${r.feedName}（合计${stockDisplay(r.feedName, r.stockJin)}）`;
           opt.dataset.warehouseId = whId;
-          opt.dataset.stockJin = String(r.stockJin);
           feedSelect.appendChild(opt);
         });
 
-        if (preferredFeed && rows.some(r => r.feedName === preferredFeed)) {
+        if (preferredFeed && feedRows.some(r => r.feedName === preferredFeed)) {
           feedSelect.value = preferredFeed;
         } else {
           feedSelect.selectedIndex = 0;
@@ -4174,9 +4442,34 @@
         opt.value = '';
         opt.textContent = '这个仓库暂无有库存饲料';
         opt.dataset.warehouseId = whId;
-        opt.dataset.stockJin = '0';
         feedSelect.appendChild(opt);
       }
+    }
+
+    function updateStockFeedSpecOptions() {
+      const el = $('stockFeedSpec');
+      if (!el) return;
+      const old = normalizeFeedSpec(el.value);
+      setSpecOptions(el, ['', ...getFeedGrades()], old);
+    }
+
+    function rebuildAvailableSpecOptions(selectEl, warehouseId, feedName, preferredSpec='') {
+      const whId = normalizeWarehouseId(warehouseId);
+      const rows = warehouseFeedRows(whId).filter(r => r.feedName === feedName && r.stockJin > 0.001);
+      const specs = rows.map(r => normalizeFeedSpec(r.feedSpec || ''));
+      setSpecOptions(selectEl, specs, preferredSpec);
+    }
+
+    function updateFeedSpecOptions(keep=true) {
+      const specEl = $('feedSpec');
+      const old = keep ? specEl?.value : '';
+      rebuildAvailableSpecOptions(specEl, $('feedWarehouse')?.value || '', $('feedName')?.value || '', old);
+    }
+
+    function updateExternalSpecOptions(keep=true) {
+      const specEl = $('externalFeedSpec');
+      const old = keep ? specEl?.value : '';
+      rebuildAvailableSpecOptions(specEl, $('externalWarehouse')?.value || '', $('externalFeedName')?.value || '', old);
     }
 
     function onFeedWarehouseChange() {
@@ -4187,6 +4480,7 @@
       const whId = normalizeWarehouseId($('feedWarehouse').value);
       $('feedWarehouse').value = whId;
       rebuildFeedSelectForWarehouse($('feedName'), whId, preferredFeed);
+      updateFeedSpecOptions(false);
       updateFeedUnitOptions();
       renderSheetStockHint();
     }
@@ -4203,6 +4497,7 @@
       whEl.value = whId;
       const old = keep ? feedEl.value : '';
       rebuildFeedSelectForWarehouse(feedEl, whId, old);
+      updateExternalSpecOptions(false);
     }
 
     function updateFeedUnitOptions() {
@@ -4222,17 +4517,18 @@
       const whId = normalizeWarehouseId($('feedWarehouse').value);
       const feed = $('feedName').value;
       const selectedOption = $('feedName').selectedOptions?.[0];
+      const feedSpec = normalizeFeedSpec($('feedSpec')?.value || '');
       const optionWh = normalizeWarehouseId(selectedOption?.dataset?.warehouseId || '');
-      const optionStockJin = Number(selectedOption?.dataset?.stockJin || 0);
+      const optionStockJin = getWarehouseFeedStock(whId, feed, feedSpec);
 
       if (feed && optionWh && optionWh !== whId) {
         updateFeedOptions('');
         return;
       }
 
-      const jin = optionStockJin || getWarehouseFeedStock(whId, feed);
+      const jin = optionStockJin || getWarehouseFeedStock(whId, feed, feedSpec);
       $('stockHint').innerHTML = feed
-        ? `<span class="stock-chip">${esc(whById(whId).name)}</span><span class="stock-chip">库存：${stockDisplay(feed, jin)}</span>`
+        ? `<span class="stock-chip">${esc(whById(whId).name)}</span><span class="stock-chip">${esc(feedSpecLabel(feedSpec))}</span><span class="stock-chip">库存：${stockDisplay(feed, jin)}</span>`
         : '<span class="stock-chip">当前仓库暂无饲料</span>';
     }
 
@@ -4243,7 +4539,11 @@
     window.updateFeedOptions = updateFeedOptions;
     window.updateExternalFeedOptions = updateExternalFeedOptions;
     window.updateFeedUnitOptions = updateFeedUnitOptions;
+    window.updateStockFeedSpecOptions = updateStockFeedSpecOptions;
+    window.updateFeedSpecOptions = updateFeedSpecOptions;
+    window.updateExternalSpecOptions = updateExternalSpecOptions;
     window.renderSheetStockHint = renderSheetStockHint;
+    window.renderExternalSpecHint = function(){};
 
     function preferredFeedBySpecies(species) {
       if ((species || '').includes('鳗')) return '鳗鱼料';
@@ -4296,15 +4596,18 @@
       $('feedAmount').value = n;
     };
 
-    async function adjustStock(warehouseId, feedName, deltaJin) {
-      const key = stockKey(warehouseId, feedName);
+    async function adjustStock(warehouseId, feedName, feedSpecOrDelta, maybeDeltaJin) {
+      const hasSpec = maybeDeltaJin !== undefined;
+      const feedSpec = hasSpec ? normalizeFeedSpec(feedSpecOrDelta) : '';
+      const deltaJin = hasSpec ? maybeDeltaJin : feedSpecOrDelta;
+      const key = stockKey(warehouseId, feedName, feedSpec);
       const sref = ref(db, 'stockTotals/' + key);
       const result = await runTransaction(sref, current => {
-        const old = current || {warehouseId, warehouseName: whById(warehouseId).name, feedName, stockJin:0};
+        const old = current || {warehouseId, warehouseName: whById(warehouseId).name, feedName, feedSpec, stockJin:0};
         const oldJin = Number(old.stockJin ?? old.jin ?? (Number(old.bags || 0) * bagJin(feedName)) ?? 0);
         const next = oldJin + Number(deltaJin || 0);
         if (next < -0.001) return;
-        return {...old, warehouseId, warehouseName: whById(warehouseId).name, feedName, stockJin: next, updatedAt: Date.now()};
+        return {...old, warehouseId, warehouseName: whById(warehouseId).name, feedName, feedSpec, stockJin: next, updatedAt: Date.now()};
       });
       return result.committed;
     }
@@ -4314,6 +4617,7 @@
       const pond = pondById(currentSheetPondId);
       const warehouseId = $('feedWarehouse').value;
       const feedName = $('feedName').value;
+      const feedSpec = normalizeFeedSpec($('feedSpec')?.value || '');
       const unit = $('feedUnit').value;
       const amount = Number($('feedAmount').value || 0);
       const person = '';
@@ -4322,23 +4626,23 @@
 
       const selectedWh = normalizeWarehouseId($('feedName').selectedOptions?.[0]?.dataset?.warehouseId || '');
       if (selectedWh && selectedWh !== normalizeWarehouseId(warehouseId)) return alert('饲料列表不是当前仓库的，请重新选择仓库');
-      const realStockJin = getWarehouseFeedStock(warehouseId, feedName);
+      const realStockJin = getWarehouseFeedStock(warehouseId, feedName, feedSpec)
       if (realStockJin <= 0) return alert('当前仓库没有这个饲料，请重新选择仓库或饲料');
       const stockJin = unit === 'jin' ? amount : amount * bagJin(feedName);
-      const ok = await adjustStock(warehouseId, feedName, -stockJin);
+      const ok = await adjustStock(warehouseId, feedName, feedSpec, -stockJin);
       if (!ok) return alert('这个仓库库存不足，不能扣库');
 
       const now = Date.now();
       const recRef = await push(ref(db, 'feedRecords'), {
         date: todayStr(), pondId: pond.id, pondName: pond.name, species: pond.species || '',
-        warehouseId, warehouseName: whById(warehouseId).name, feedName, amount, unit, stockJin,
+        warehouseId, warehouseName: whById(warehouseId).name, feedName, feedSpec, amount, unit, stockJin,
         person, note, createdAt: now
       });
 
       await push(ref(db, 'stockLogs'), {
         type:'out', sourceType:'feed', feedRecordId: recRef.key,
         date: todayStr(), warehouseId, warehouseName: whById(warehouseId).name,
-        pondId: pond.id, pondName: pond.name, feedName, amount, unit, stockJin,
+        pondId: pond.id, pondName: pond.name, feedName, feedSpec, amount, unit, stockJin,
         person, note, createdAt: now
       });
 
@@ -4351,17 +4655,18 @@
       const date = $('stockDate').value || todayStr();
       const warehouseId = $('stockWarehouse').value;
       const feedName = $('stockFeedName').value;
+      const feedSpec = normalizeFeedSpec($('stockFeedSpec')?.value || '');
       const amount = Number($('stockAmount').value || 0);
       const person = '';
       const note = $('stockNote').value.trim();
       if (!warehouseId || !feedName || amount <= 0) return alert('请填写仓库、饲料和入库数量');
       const unit = 'bag';
       const stockJin = amount * bagJin(feedName);
-      const ok = await adjustStock(warehouseId, feedName, stockJin);
+      const ok = await adjustStock(warehouseId, feedName, feedSpec, stockJin);
       if (!ok) return alert('入库失败，请稍后再试');
       await push(ref(db, 'stockLogs'), {
         type:'in', sourceType:'stockIn', date, warehouseId, warehouseName: whById(warehouseId).name,
-        feedName, amount, unit, stockJin, person, note, createdAt: Date.now()
+        feedName, feedSpec, amount, unit, stockJin, person, note, createdAt: Date.now()
       });
       $('stockAmount').value = '';
       $('stockNote').value = '';
@@ -4372,6 +4677,7 @@
       if (!firebaseReady) return alert('Firebase 尚未连接');
       const warehouseId = $('externalWarehouse').value;
       const feedName = $('externalFeedName').value;
+      const feedSpec = normalizeFeedSpec($('externalFeedSpec')?.value || '');
       const amount = Number($('externalAmount').value || 0);
       const externalPerson = $('externalPerson').value.trim();
       const takenValue = $('externalDateTime').value || currentDateTimeLocal();
@@ -4380,16 +4686,16 @@
       if (!warehouseId || !feedName || amount <= 0 || !externalPerson) return alert('请填写领取时间、仓库、饲料、数量和领料人');
       const selectedWh = normalizeWarehouseId($('externalFeedName').selectedOptions?.[0]?.dataset?.warehouseId || '');
       if (selectedWh && selectedWh !== normalizeWarehouseId(warehouseId)) return alert('饲料列表不是当前仓库的，请重新选择仓库');
-      const realStockJin = getWarehouseFeedStock(warehouseId, feedName);
+      const realStockJin = getWarehouseFeedStock(warehouseId, feedName, feedSpec)
       if (realStockJin <= 0) return alert('当前仓库没有这个饲料，请重新选择仓库或饲料');
       const unit = 'bag';
       const stockJin = amount * bagJin(feedName);
-      const ok = await adjustStock(warehouseId, feedName, -stockJin);
+      const ok = await adjustStock(warehouseId, feedName, feedSpec, -stockJin);
       if (!ok) return alert('这个仓库库存不足，不能出库');
       await push(ref(db, 'stockLogs'), {
         type:'externalOut', sourceType:'externalOut', date, takenAt,
         warehouseId, warehouseName: whById(warehouseId).name,
-        feedName, amount, unit, stockJin,
+        feedName, feedSpec, amount, unit, stockJin,
         externalPerson, person: externalPerson, createdAt: Date.now()
       });
       $('externalAmount').value = '';
@@ -4407,7 +4713,7 @@
       let delta = 0;
       if (log.type === 'in' || log.type === 'stockIn') delta = -jin;
       else delta = jin;
-      const ok = await adjustStock(log.warehouseId, log.feedName, delta);
+      const ok = await adjustStock(log.warehouseId, log.feedName, normalizeFeedSpec(log.feedSpec || ''), delta);
       if (!ok) return alert('撤销失败：库存不足或数据异常');
       await update(ref(db, 'stockLogs/' + logId), {cancelled:true, cancelledAt:Date.now()});
       if (log.feedRecordId) await update(ref(db, 'feedRecords/' + log.feedRecordId), {cancelled:true, cancelledAt:Date.now()});
@@ -4455,9 +4761,10 @@
         active: true
       }));
       const eelBagJin = Number($('eelBagJin').value || 40);
+      const feedGrades = currentFeedGradeDraft();
       await set(ref(db, 'settings/ponds'), Object.fromEntries(newPonds.map(p => [p.id, p])));
       await set(ref(db, 'settings/warehouses'), Object.fromEntries(newWarehouses.map(w => [w.id, w])));
-      await set(ref(db, 'settings/feedSpecs'), {eelBagJin});
+      await set(ref(db, 'settings/feedSpecs'), {eelBagJin, feedGrades: feedGrades.length ? feedGrades : DEFAULT_FEED_GRADES});
       alert('设置已保存');
     };
 
@@ -4513,7 +4820,7 @@
         <div class="meal-index">${i+1}</div>
         <div>
           <div class="meal-label">${mealLabel(i)} · ${nowTime(r.createdAt)}</div>
-          <div class="meal-feed">${amountDisplay(r.feedName, originalAmount(r), r.unit || unitForFeed(r.feedName))}</div>
+          <div class="meal-feed">${amountDisplay(r.feedName, originalAmount(r), r.unit || unitForFeed(r.feedName), r.feedSpec)}</div>
           <div class="meal-time">${r.note ? esc(r.note) : ''}</div>
         </div>
       </div>`).join('') : '<div class="meal-empty">这一天没有喂料记录</div>';
@@ -4582,7 +4889,7 @@
     function stockLogAmountText(log) {
       const amount = Number(log.amount ?? log.bags ?? 0);
       const unit = log.unit || 'bag';
-      return amountDisplay(log.feedName, amount, unit).replace(log.feedName || '', '');
+      return amountDisplay(log.feedName, amount, unit, log.feedSpec).replace(feedDisplayName(log.feedName || '', log.feedSpec), '');
     }
 
     function stockDaySummary(logs) {
@@ -4656,7 +4963,7 @@
       const html = logs.map(l => {
         if (l.type === 'externalOut') {
           return `<div class="record-card out-record">
-            <div class="record-title">别人领料 · ${esc(l.feedName)} -${stockLogAmountText(l)}</div>
+            <div class="record-title">别人领料 · ${esc(feedDisplayName(l.feedName, l.feedSpec))} -${stockLogAmountText(l)}</div>
             <div class="record-meta">${esc(l.date || '')} ${nowTime(l.takenAt || l.createdAt)} · ${esc(l.warehouseName || whById(l.warehouseId).name)} · 领料人：${esc(l.externalPerson || l.person || '')}</div>
             <button class="danger-link" onclick="undoStockLog('${esc(l.id)}')">撤销这条</button>
           </div>`;
@@ -4665,7 +4972,7 @@
         const sign = l.type === 'in' || l.type === 'stockIn' ? '+' : '-';
         const label = l.type === 'in' || l.type === 'stockIn' ? '送货入库' : '喂鱼扣库';
         return `<div class="record-card">
-          <div class="record-title">${label} · ${esc(l.feedName)} ${sign}${stockLogAmountText(l)}</div>
+          <div class="record-title">${label} · ${esc(feedDisplayName(l.feedName, l.feedSpec))} ${sign}${stockLogAmountText(l)}</div>
           <div class="record-meta">${esc(l.date || '')} ${nowTime(l.createdAt)} · ${esc(l.warehouseName || whById(l.warehouseId).name)}${l.pondName ? ' · ' + esc(l.pondName) : ''}</div>
           <button class="danger-link" onclick="undoStockLog('${esc(l.id)}')">撤销这条</button>
         </div>`;
@@ -4792,7 +5099,7 @@
         });
 
         onValue(ref(db, 'settings/feedSpecs'), snap => {
-          feedSpecs = {eelBagJin:40, ...(snap.val() || {})};
+          feedSpecs = {eelBagJin:40, feedGrades:[...DEFAULT_FEED_GRADES], ...(snap.val() || {})};
           saveCache();
           queueRender();
         });
