@@ -1,30 +1,16 @@
-const CACHE_NAME = 'liweifeng-v1';
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
-];
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-  );
+// Offline cache disabled.
+// This file intentionally does not cache anything.
+self.addEventListener("install", function(event) {
   self.skipWaiting();
 });
-
-self.addEventListener('activate', event => {
+self.addEventListener("activate", function(event) {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
+    caches.keys().then(function(keys) {
+      return Promise.all(keys.map(function(key) { return caches.delete(key); }));
+    }).then(function() {
+      return self.registration.unregister();
+    }).then(function() {
+      return self.clients.claim();
+    })
   );
 });
