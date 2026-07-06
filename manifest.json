@@ -1,7 +1,7 @@
 {
-  "name": "李伟锋鱼塘饲料库存系统",
-  "short_name": "鱼塘饲料",
-  "description": "鱼塘饲料库存管理系统",
+  "name": "鱼管家",
+  "short_name": "鱼管家",
+  "description": "鱼管家 - 鱼塘饲料库存管理系统",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
