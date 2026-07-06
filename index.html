@@ -3,848 +3,5565 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>鱼管家</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <title>李伟锋鱼塘饲料库存系统</title>
+  <meta name="theme-color" content="#f6f3ed" />
+  <link rel="icon" href="icon-192.png" />
   <style>
     :root {
-      --bg: #eef6f1;
-      --deck: #f9fcf8;
-      --panel: rgba(255, 255, 255, .86);
-      --panel-solid: #ffffff;
-      --ink: #0d1f17;
-      --muted: #60756a;
-      --quiet: #8a9a90;
-      --line: rgba(13, 31, 23, .1);
-      --line-strong: rgba(13, 31, 23, .18);
-      --deep: #063f2c;
-      --green: #0f7a4c;
-      --aqua: #1aa7a1;
-      --aqua-soft: #e5f8f6;
-      --leaf: #dff3e4;
-      --blue: #285bd4;
-      --blue-soft: #eaf1ff;
-      --amber: #b97615;
-      --amber-soft: #fff1d7;
-      --danger: #bf3b26;
-      --danger-soft: #fff0ed;
-      --shadow: 0 18px 44px rgba(8, 43, 30, .12);
-      --shadow-soft: 0 10px 24px rgba(8, 43, 30, .08);
-      --radius: 22px;
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --bg:#f6f3ed;
+      --paper:#fffdf8;
+      --paper2:#fbf8f1;
+      --line:#e4ded2;
+      --line2:#d5ccb9;
+      --ink:#1d2520;
+      --muted:#7a7468;
+      --muted2:#9a9284;
+      --teal:#0f766e;
+      --teal2:#115e59;
+      --gold:#b48a45;
+      --soft-green:#edf7f4;
+      --soft-gold:#fbf4e4;
+      --danger:#c2410c;
+      --shadow:0 18px 45px rgba(34,29,20,.08);
+      --shadow2:0 10px 26px rgba(34,29,20,.055);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html { background: var(--bg); }
+
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
     body {
-      margin: 0; min-height: 100dvh; color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: radial-gradient(circle at 18% 4%, rgba(26, 167, 161, .16), transparent 30%),
-        radial-gradient(circle at 88% 14%, rgba(185, 118, 21, .12), transparent 27%),
-        linear-gradient(180deg, #f7fbf7 0%, #eef6f1 44%, #eaf2ee 100%);
-      padding-bottom: calc(104px + var(--safe-bottom));
-      overflow-x: hidden;
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 20% -10%,rgba(180,138,69,.12),transparent 30%),
+        linear-gradient(180deg,#f8f5ef 0%,#f2eee6 42%,#f7f4ee 100%);
+      padding-bottom:calc(86px + var(--safe-bottom));
     }
-    button, input, select, textarea { font: inherit; }
-    button { cursor: pointer; border: 0; }
-    .app { width: min(1180px, 100%); margin: 0 auto; padding: 12px 12px 28px; }
+
+    .app {
+      max-width:1180px;
+      margin:0 auto;
+      padding:18px 16px 26px;
+    }
+
+    .page { display:none; }
+    .page.active { display:block; }
+
     .topbar {
-      position: sticky; top: 0; z-index: 30;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      margin: 0 -12px 12px; padding: 10px 12px;
-      background: rgba(238, 246, 241, .86);
-      border-bottom: 1px solid rgba(13, 31, 23, .08);
-      backdrop-filter: blur(18px);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:12px;
     }
-    .brand { display: flex; align-items: center; min-width: 0; gap: 10px; }
-    .brand img { width: 42px; height: 42px; border-radius: 12px; box-shadow: 0 10px 22px rgba(6, 63, 44, .18); }
-    .brand-title { font-size: 20px; font-weight: 950; line-height: 1.05; }
-    .brand-sub { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 800; }
-    .live-chip {
-      display: inline-flex; align-items: center; gap: 8px; min-height: 36px;
-      padding: 0 12px; border: 1px solid rgba(15, 122, 76, .16);
-      border-radius: 999px; background: rgba(255, 255, 255, .72);
-      color: var(--deep); font-size: 12px; font-weight: 900; white-space: nowrap;
-    }
-    .live-chip::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: #20c66b; box-shadow: 0 0 0 5px rgba(32, 198, 107, .13); }
-    .screen { display: none; }
-    .screen.active { display: block; animation: screen-in .22s ease-out; }
-    h1, h2, h3, p { margin: 0; }
-    .status-badge {
-      display: inline-flex; align-items: center; min-height: 26px; padding: 0 9px;
-      border-radius: 999px; background: rgba(255, 241, 215, .94);
-      color: #7c4b08; font-size: 11px; font-weight: 950; white-space: nowrap;
-    }
-    .status-badge.green { background: rgba(232, 244, 237, .94); color: var(--green); }
-    .bottom-sheet {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
-      padding: 9px 10px calc(9px + var(--safe-bottom));
-      background: rgba(255,255,255,.88);
-      border-top: 1px solid rgba(13,31,23,.09);
-      backdrop-filter: blur(18px);
-      box-shadow: 0 -12px 34px rgba(8,43,30,.11);
-    }
-    .nav-shell { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; max-width: 590px; margin: 0 auto; padding: 3px; border: 1px solid var(--line); border-radius: 18px; background: rgba(238,246,241,.86); }
-    .nav-button { min-width: 0; min-height: 46px; border-radius: 14px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 950; transition: all .14s ease; }
-    .nav-button.active { background: var(--deep); color: white; box-shadow: 0 10px 22px rgba(6,63,44,.18); }
-    .nav-button:active { transform: scale(.98); }
-    @keyframes screen-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* 水面指挥台 */
-    .water-console {
-      position: relative; overflow: hidden; min-height: 420px; padding: 16px;
-      border: 1px solid rgba(6, 63, 44, .12); border-radius: 30px;
-      background: linear-gradient(145deg, rgba(6,63,44,.98), rgba(12,105,75,.95) 56%, rgba(28,132,121,.9)),
-        radial-gradient(circle at 70% 78%, rgba(255,255,255,.16), transparent 38%);
-      color: white; box-shadow: var(--shadow);
+    .brand-title {
+      font-size:20px;
+      line-height:1.15;
+      font-weight:950;
+      letter-spacing:-.3px;
     }
-    .map-stage { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: 54px; gap: 8px; margin-top: 18px; }
-    .pond-node {
-      position: relative; min-height: 52px;
-      border: 1px solid rgba(255,255,255,.22); border-radius: 19px;
-      background: rgba(255,255,255,.12); color: white;
-      box-shadow: 0 1px 0 rgba(255,255,255,.16) inset;
-      transition: transform .16s ease, background .16s ease;
-    }
-    .pond-node[data-span="2"] { grid-column: span 2; }
-    .pond-node[data-row="2"] { grid-row: span 2; }
-    .pond-node.active { background: rgba(255,255,255,.92); color: var(--deep); border-color: rgba(255,255,255,.8); transform: translateY(-2px); }
-    .pond-node.warn { background: rgba(255, 241, 215, .18); border-color: rgba(255, 215, 145, .5); }
-    .node-number { position: absolute; top: 9px; left: 10px; font-size: 18px; font-weight: 950; }
-    .node-status { position: absolute; right: 9px; bottom: 8px; opacity: .82; font-size: 10px; font-weight: 950; }
-    .selected-panel { display: grid; gap: 10px; margin-top: 12px; padding: 12px; border: 1px solid rgba(255,255,255,.2); border-radius: 22px; background: rgba(255,255,255,.12); backdrop-filter: blur(12px); position: relative; z-index: 1; }
-    .selected-title { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
-    .selected-title h2 { font-size: 22px; line-height: 1.1; font-weight: 950; }
-    .selected-title p { margin-top: 4px; color: rgba(255,255,255,.76); font-size: 12px; font-weight: 850; }
-    .selected-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-    .glass-metric { min-width: 0; padding: 11px 10px; border-radius: 16px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.16); }
-    .glass-label { color: rgba(255,255,255,.68); font-size: 10px; font-weight: 900; }
-    .glass-value { margin-top: 6px; font-size: 16px; line-height: 1.05; font-weight: 950; }
-    .selected-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .selected-actions button { min-height: 44px; border-radius: 14px; font-size: 14px; font-weight: 950; transition: transform .14s ease; }
-    .selected-actions button:first-child { background: white; color: var(--green); box-shadow: 0 10px 24px rgba(0,0,0,.12); }
-    .selected-actions button:last-child { border: 1px solid rgba(255,255,255,.22); background: rgba(255,255,255,.1); color: white; }
-    .selected-actions button:active { transform: scale(.98); }
 
-    /* 任务卡片 */
-    .mission-rail { display: grid; gap: 12px; }
-    .rail-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); box-shadow: var(--shadow-soft); backdrop-filter: blur(12px); padding: 14px; }
-    .rail-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-    .rail-title { font-size: 18px; line-height: 1.2; font-weight: 950; }
-    .rail-note { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1.35; }
-    .task-list { display: grid; gap: 9px; }
-    .task-card { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 11px; border: 1px solid var(--line); border-radius: var(--radius); background: white; }
-    .task-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px rgba(15,122,76,.1); }
-    .task-dot.warn { background: var(--amber); box-shadow: 0 0 0 5px rgba(185,118,21,.11); }
-    .task-title { font-size: 14px; font-weight: 950; }
-    .task-meta { margin-top: 3px; color: var(--muted); font-size: 12px; font-weight: 800; }
-    .task-time { color: var(--quiet); font-size: 12px; font-weight: 900; white-space: nowrap; }
-
-    /* 库存 */
-    .inventory-card { overflow: hidden; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: white; box-shadow: var(--shadow-soft); }
-    .inventory-top { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-    .inventory-name { font-size: 18px; font-weight: 950; }
-    .inventory-value { color: var(--green); font-size: 18px; font-weight: 950; white-space: nowrap; }
-    .level-track { position: relative; overflow: hidden; height: 16px; border-radius: 999px; background: #e2ece5; }
-    .level-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--green), var(--aqua)); }
-    .warehouse-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
-    .pill { display: inline-flex; align-items: center; min-height: 28px; padding: 0 9px; border: 1px solid rgba(185,118,21,.18); border-radius: 999px; background: var(--amber-soft); color: #835109; font-size: 12px; font-weight: 900; }
-    .pill.low { background: var(--danger-soft); color: var(--danger); border-color: rgba(191,59,38,.18); }
-
-    /* 设置页 */
-    .setting-section { margin-top: 16px; }
-    .setting-section h3 { font-size: 18px; font-weight: 950; margin-bottom: 12px; }
-    .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: white; margin-bottom: 8px; }
-    .setting-item-name { font-weight: 900; }
-    .setting-item-value { color: var(--muted); font-size: 14px; }
-
-    /* 弹窗 */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0; z-index: 100;
-      background: rgba(0,0,0,.5); backdrop-filter: blur(4px);
-      align-items: center; justify-content: center; padding: 20px;
+    .brand-sub {
+      margin-top:5px;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
     }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      width: 100%; max-width: 420px; max-height: 85vh; overflow-y: auto;
-      background: white; border-radius: 24px; box-shadow: 0 24px 60px rgba(0,0,0,.25);
-      animation: modal-in .25s ease-out;
-    }
-    @keyframes modal-in { from { opacity: 0; transform: scale(.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-    .modal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 18px 0;
-    }
-    .modal-header h2 { font-size: 20px; font-weight: 950; }
-    .modal-close { width: 36px; height: 36px; border-radius: 50%; background: var(--line); display: grid; place-items: center; font-size: 18px; color: var(--muted); }
-    .modal-body { padding: 16px 18px 20px; }
-    .form-field { margin-bottom: 14px; }
-    .form-field label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 12px; font-weight: 900; }
-    .form-field input, .form-field select, .form-field textarea {
-      width: 100%; min-height: 44px; padding: 0 12px;
-      border: 1px solid var(--line-strong); border-radius: 14px;
-      background: #f8fbf9; font-size: 15px; outline: 0;
-    }
-    .form-field input:focus, .form-field select:focus { border-color: rgba(15,122,76,.62); box-shadow: 0 0 0 3px rgba(15,122,76,.12); }
-    .choice-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
-    .choice-pill {
-      min-height: 34px; padding: 0 12px;
-      border: 1px solid var(--line-strong); border-radius: 12px;
-      background: #f8fbf9; color: var(--ink); font-size: 14px; font-weight: 900;
-      transition: all .14s ease;
-    }
-    .choice-pill.active { border-color: rgba(15,122,76,.34); background: #e8f4ed; color: var(--green); }
-    .choice-pill:active { transform: scale(.98); }
-    .btn-primary { width: 100%; min-height: 48px; border-radius: 14px; background: var(--green); color: white; font-size: 16px; font-weight: 950; margin-top: 8px; transition: transform .14s ease; }
-    .btn-primary:active { transform: scale(.98); }
-    .btn-cancel { width: 100%; min-height: 44px; border-radius: 14px; background: var(--line); color: var(--muted); font-size: 14px; font-weight: 900; margin-top: 8px; }
 
-    /* 喂料弹窗专属 */
-    .feed-pond-info { padding: 12px; border-radius: 16px; background: #e8f4ed; margin-bottom: 14px; }
-    .feed-pond-name { font-size: 18px; font-weight: 950; }
-    .feed-pond-species { color: var(--muted); font-size: 13px; margin-top: 4px; }
-    .stock-hint { display: flex; gap: 8px; margin-top: 10px; }
-    .stock-chip { padding: 4px 10px; border-radius: 8px; background: white; font-size: 12px; font-weight: 900; }
+    .firebase-status {
+      margin-bottom:14px;
+      padding:9px 12px;
+      border-radius:16px;
+      border:1px solid rgba(213,204,185,.82);
+      background:rgba(255,253,248,.86);
+      color:var(--teal2);
+      font-size:12px;
+      font-weight:900;
+      box-shadow:0 8px 18px rgba(34,29,20,.04);
+    }
 
-    @media (max-width: 520px) {
-      .map-stage { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 52px; }
-      .selected-metrics { gap: 7px; }
-      .glass-value { font-size: 14px; }
+    .firebase-status.warn {
+      color:#8a6426;
+      background:#fbf4e4;
+    }
+
+    .firebase-status.bad {
+      color:#b91c1c;
+      background:#fef2f2;
+      border-color:#fecaca;
+    }
+
+    .hero {
+      background:linear-gradient(135deg,rgba(255,253,248,.98),rgba(247,243,235,.96));
+      border:1px solid rgba(213,204,185,.78);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      margin-bottom:18px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero::before {
+      content:"";
+      position:absolute;
+      width:180px;
+      height:180px;
+      right:-70px;
+      top:-80px;
+      background:radial-gradient(circle,rgba(15,118,110,.10),transparent 68%);
+      pointer-events:none;
+    }
+
+    .hero-kicker {
+      font-size:12px;
+      color:var(--gold);
+      font-weight:950;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      margin-bottom:6px;
+    }
+
+    .hero h1 {
+      margin:0;
+      font-size:24px;
+      line-height:1.15;
+      font-weight:950;
+      letter-spacing:-.45px;
+    }
+
+    .hero p {
+      margin:9px 0 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.55;
+      font-weight:700;
+    }
+
+    .section-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:12px;
+      margin:18px 2px 10px;
+    }
+
+    .section-title {
+      font-size:17px;
+      font-weight:950;
+      letter-spacing:-.1px;
+    }
+
+    .section-desc {
+      margin-top:4px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .hint {
+      color:var(--teal2);
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .pond-grid {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .pond-card {
+      min-height:154px;
+      background:rgba(255,253,248,.92);
+      border:1px solid rgba(213,204,185,.82);
+      border-radius:22px;
+      padding:14px;
+      box-shadow:0 12px 26px rgba(34,29,20,.055);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      position:relative;
+      overflow:hidden;
+      cursor:pointer;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .pond-card:active { transform:scale(.985); }
+
+    .pond-card::after,
+    .stock-card::before,
+    .profile-card::before,
+    .pond-total-card::before {
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      top:0;
+      height:3px;
+      background:linear-gradient(90deg,var(--teal),rgba(180,138,69,.75));
+      opacity:.9;
+    }
+
+    .pond-card.is-no-feed {
+      background:rgba(250,248,243,.76);
+      border-style:dashed;
+      box-shadow:none;
+    }
+
+    .pond-card-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8px;
+      margin-bottom:8px;
+    }
+
+    .pond-name-line {
+      display:flex;
+      align-items:center;
+      gap:7px;
+      min-width:0;
+      flex-wrap:wrap;
+    }
+
+    .pond-name {
+      font-size:18px;
+      font-weight:950;
+      letter-spacing:-.2px;
+      color:var(--ink);
+    }
+
+    .pond-species,
+    .profile-badge {
+      display:inline-flex;
+      align-items:center;
+      min-height:21px;
+      padding:2px 7px;
+      border-radius:999px;
+      background:var(--soft-green);
+      color:var(--teal2);
+      border:1px solid rgba(15,118,110,.14);
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .pond-status {
+      flex:0 0 auto;
+      padding:3px 7px;
+      border-radius:999px;
+      background:var(--soft-gold);
+      color:#8a6426;
+      border:1px solid rgba(180,138,69,.18);
+      font-size:11px;
+      font-weight:900;
+    }
+
+    .pond-total-feed {
+      margin:14px 0 12px;
+      padding:14px 12px;
+      border-radius:18px;
+      background:rgba(237,247,244,.76);
+      border:1px solid rgba(15,118,110,.10);
+      min-height:82px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:6px;
+    }
+
+    .is-no-feed .pond-total-feed {
+      background:rgba(246,243,237,.72);
+      border-color:var(--line);
+    }
+
+    .total-label {
+      color:var(--teal2);
+      font-size:13px;
+      font-weight:950;
+    }
+
+    .total-value {
+      color:var(--ink);
+      font-size:19px;
+      line-height:1.18;
+      font-weight:950;
+      word-break:break-word;
+    }
+
+    .is-no-feed .total-value {
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    .pond-meta {
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      padding-top:10px;
+      border-top:1px solid rgba(228,222,210,.9);
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.25;
+      font-weight:700;
+    }
+
+    .card {
+      background:rgba(255,253,248,.92);
+      border:1px solid rgba(213,204,185,.82);
+      border-radius:24px;
+      box-shadow:0 12px 28px rgba(34,29,20,.055);
+      padding:16px;
+      margin-top:14px;
+    }
+
+    .card h2 {
+      margin:0 0 12px;
+      font-size:18px;
+      line-height:1.25;
+      font-weight:950;
+    }
+
+    .today-row {
+      display:grid;
+      grid-template-columns:92px 1fr auto;
+      gap:10px;
+      align-items:center;
+      padding:12px 0;
+      border-bottom:1px solid rgba(228,222,210,.85);
+      font-size:13px;
+    }
+
+    .today-row:last-child { border-bottom:0; }
+    .today-row .name { font-weight:950; }
+    .today-row .feed { color:var(--teal2); font-weight:900; }
+    .today-row .time { color:var(--muted); font-size:12px; font-weight:800; }
+
+    .stock-grid,
+    .profile-grid,
+    .record-list,
+    .setting-list,
+    .pond-total-grid,
+    .memo-list {
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+
+    .stock-card,
+    .profile-card,
+    .pond-total-card {
+      background:rgba(255,253,248,.92);
+      border:1px solid rgba(213,204,185,.82);
+      border-radius:22px;
+      padding:14px;
+      box-shadow:0 12px 26px rgba(34,29,20,.055);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .stock-head,
+    .profile-head,
+    .pond-total-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+    }
+
+    .stock-name,
+    .profile-name,
+    .pond-total-name {
+      color:var(--ink);
+      font-size:17px;
+      font-weight:950;
+      line-height:1.2;
+    }
+
+    .stock-spec,
+    .profile-sub,
+    .pond-total-sub {
+      margin-top:4px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .stock-total,
+    .pond-total-number {
+      color:var(--teal2);
+      font-size:18px;
+      font-weight:950;
+      line-height:1.15;
+      text-align:right;
+      max-width:48%;
+      word-break:break-word;
+    }
+
+    .pond-total-main {
+      padding:14px 12px;
+      border-radius:18px;
+      background:rgba(237,247,244,.72);
+      border:1px solid rgba(15,118,110,.10);
+      margin:12px 0 10px;
+    }
+
+    .pond-total-label {
+      color:var(--teal2);
+      font-size:13px;
+      font-weight:950;
+      margin-bottom:6px;
+    }
+
+    .pond-total-main .pond-total-number {
+      color:var(--ink);
+      font-size:21px;
+      text-align:left;
+      max-width:none;
+    }
+
+    .pond-total-foot {
+      padding-top:10px;
+      border-top:1px solid rgba(228,222,210,.9);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .pond-total-status {
+      padding:3px 8px;
+      border-radius:999px;
+      background:var(--soft-gold);
+      color:#8a6426;
+      border:1px solid rgba(180,138,69,.18);
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .stock-warehouses {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:12px;
+      padding-top:10px;
+      border-top:1px solid rgba(228,222,210,.9);
+    }
+
+    .stock-warehouses span,
+    .stock-chip {
+      display:inline-flex;
+      padding:5px 8px;
+      border-radius:999px;
+      background:#fbf4e4;
+      color:#8a6426;
+      border:1px solid rgba(180,138,69,.18);
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .toolbar {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .field {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .field.full { grid-column:1/-1; }
+
+    label {
+      color:var(--muted);
+      font-size:13px;
+      font-weight:900;
+    }
+
+    select,input,textarea {
+      width:100%;
+      min-height:42px;
+      border-radius:15px;
+      border:1.5px solid var(--line);
+      background:#fffdf8;
+      color:var(--ink);
+      font-size:14px;
+      padding:8px 10px;
+      outline:none;
+      font-family:inherit;
+      font-weight:800;
+    }
+
+    textarea {
+      min-height:70px;
+      resize:none;
+    }
+
+    input:focus,select:focus,textarea:focus {
+      border-color:rgba(15,118,110,.45);
+      box-shadow:0 0 0 4px rgba(15,118,110,.08);
+    }
+
+    .btn {
+      min-height:44px;
+      border:0;
+      border-radius:17px;
+      background:linear-gradient(135deg,var(--teal),var(--teal2));
+      color:#fff;
+      font-size:15px;
+      font-weight:950;
+      box-shadow:0 10px 20px rgba(15,118,110,.18);
+      cursor:pointer;
+    }
+
+    .ghost-btn {
+      min-height:40px;
+      border-radius:15px;
+      border:1px solid var(--line);
+      background:#fffdf8;
+      color:var(--teal2);
+      font-weight:950;
+      cursor:pointer;
+    }
+
+    .record-card {
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(228,222,210,.9);
+      background:rgba(255,253,248,.88);
+    }
+
+    .record-card.out-record {
+      background:rgba(250,248,243,.74);
+      border-style:dashed;
+    }
+
+    .record-card.out-record .record-title {
+      color:#8a6426;
+    }
+
+    .record-title {
+      font-size:15px;
+      font-weight:950;
+      margin-bottom:5px;
+    }
+
+    .record-meta {
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .danger-link {
+      margin-top:9px;
+      color:#9a3412;
+      font-size:12px;
+      font-weight:900;
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      border-radius:999px;
+      padding:5px 9px;
+      display:inline-flex;
+    }
+
+    .setting-row {
+      display:grid;
+      grid-template-columns:82px 1fr;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border-radius:18px;
+      border:1px solid rgba(228,222,210,.9);
+      background:rgba(255,253,248,.88);
+    }
+
+    .setting-name {
+      font-weight:950;
+      font-size:13px;
+      color:var(--teal2);
+    }
+
+    .memo-card {
+      display:grid;
+      grid-template-columns:62px 1fr;
+      gap:10px;
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(228,222,210,.9);
+      background:rgba(255,253,248,.88);
+    }
+
+    .memo-date {
+      min-height:44px;
+      border-radius:15px;
+      background:rgba(237,247,244,.72);
+      border:1px solid rgba(15,118,110,.10);
+      color:var(--teal2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      font-size:12px;
+      font-weight:950;
+      padding:6px;
+    }
+
+    .memo-title {
+      font-size:15px;
+      font-weight:950;
+      line-height:1.2;
+      margin-bottom:5px;
+    }
+
+    .memo-action {
+      display:inline-flex;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#fbf4e4;
+      color:#8a6426;
+      border:1px solid rgba(180,138,69,.18);
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:6px;
+    }
+
+    .memo-text {
+      color:var(--ink);
+      font-size:13px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .memo-person {
+      margin-top:6px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .mini-chart {
+      display:flex;
+      align-items:end;
+      gap:10px;
+      height:120px;
+      padding:12px;
+      border-radius:20px;
+      border:1px solid rgba(213,204,185,.82);
+      background:rgba(255,253,248,.72);
+      overflow-x:auto;
+    }
+
+    .bar {
+      width:34px;
+      min-width:34px;
+      display:flex;
+      flex-direction:column;
+      justify-content:end;
+      align-items:center;
+      gap:5px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:900;
+    }
+
+    .bar-fill {
+      width:24px;
+      border-radius:999px;
+      background:linear-gradient(180deg,var(--teal),#3aa89e);
+    }
+
+    .minor-out-card {
+      background:rgba(250,248,243,.76);
+      box-shadow:none;
+      border-style:dashed;
+      padding:12px;
+    }
+
+    .minor-title-row {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:8px;
+    }
+
+    .minor-title-row h2 {
+      font-size:16px;
+      margin-bottom:2px;
+    }
+
+    .minor-desc {
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.35;
+      font-weight:800;
+    }
+
+    .minor-badge {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#f2eee6;
+      color:var(--muted);
+      border:1px solid var(--line);
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .compact-out-grid {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+    }
+
+    .minor-out-card label {
+      font-size:12px;
+    }
+
+    .minor-out-card input,
+    .minor-out-card select {
+      min-height:38px;
+      border-radius:13px;
+      font-size:13px;
+      padding:6px 9px;
+    }
+
+    .compact-out-submit {
+      width:100%;
+      min-height:38px;
+      margin-top:8px;
+      font-size:13px;
+      border-radius:14px;
+      background:#fffdf8;
+      color:#8a6426;
+      border-color:rgba(180,138,69,.28);
+    }
+
+    .flow-title-row {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .flow-title-row h2 {
+      margin:0;
+    }
+
+    .flow-tabs {
+      display:flex;
+      gap:6px;
+      background:rgba(246,243,237,.78);
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:4px;
+      flex:0 0 auto;
+    }
+
+    .flow-tab {
+      min-height:30px;
+      border:0;
+      border-radius:999px;
+      padding:0 10px;
+      background:transparent;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+      cursor:pointer;
+    }
+
+    .flow-tab.active {
+      background:linear-gradient(135deg,var(--teal),var(--teal2));
+      color:#fff;
+      box-shadow:0 6px 12px rgba(15,118,110,.14);
+    }
+
+    .hidden-flow,
+    .hidden {
+      display:none !important;
+    }
+
+    .bottom {
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:30;
+      background:rgba(255,253,248,.92);
+      border-top:1px solid rgba(213,204,185,.9);
+      backdrop-filter:blur(18px);
+      box-shadow:0 -12px 30px rgba(34,29,20,.08);
+      padding:8px 12px calc(8px + var(--safe-bottom));
+    }
+
+    .bottom-inner {
+      max-width:600px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+    }
+
+    .nav {
+      height:42px;
+      border:0;
+      border-radius:14px;
+      background:transparent;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .nav.active {
+      color:#fff;
+      background:linear-gradient(135deg,var(--teal),var(--teal2));
+      box-shadow:0 10px 20px rgba(15,118,110,.20);
+    }
+
+    /* 展开窗口 */
+    .sheet-layer {
+      position:fixed;
+      inset:0;
+      z-index:100;
+      display:none;
+    }
+
+    .sheet-layer.open { display:block; }
+
+    .sheet-backdrop {
+      position:absolute;
+      inset:0;
+      background:rgba(29,37,32,.36);
+      backdrop-filter:blur(5px);
+      opacity:0;
+      transition:opacity .22s ease;
+    }
+
+    .sheet-layer.open .sheet-backdrop { opacity:1; }
+
+    .feed-sheet {
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      max-height:min(88vh,780px);
+      overflow:auto;
+      background:linear-gradient(180deg,#fffdf8 0%,#fbf8f1 100%);
+      border-radius:30px 30px 0 0;
+      border:1px solid rgba(213,204,185,.9);
+      box-shadow:0 -24px 60px rgba(34,29,20,.22);
+      padding:10px 16px calc(18px + var(--safe-bottom));
+      transform:translateY(100%);
+      transition:transform .26s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .sheet-layer.open .feed-sheet { transform:translateY(0); }
+
+    .sheet-handle {
+      width:46px;
+      height:5px;
+      border-radius:999px;
+      background:#d8d0c1;
+      margin:0 auto 12px;
+    }
+
+    .sheet-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .sheet-title {
+      font-size:22px;
+      font-weight:950;
+      line-height:1.15;
+    }
+
+    .sheet-sub {
+      margin-top:5px;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .close-btn {
+      width:38px;
+      height:38px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fffdf8;
+      color:var(--ink);
+      font-size:22px;
+      line-height:1;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .sheet-summary {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin:12px 0;
+    }
+
+    .summary-box {
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(213,204,185,.82);
+      background:rgba(255,253,248,.9);
+    }
+
+    .summary-label {
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:5px;
+    }
+
+    .summary-value {
+      color:var(--ink);
+      font-size:16px;
+      line-height:1.2;
+      font-weight:950;
+    }
+
+    .sheet-section-title {
+      color:var(--gold);
+      font-size:12px;
+      letter-spacing:1px;
+      font-weight:950;
+      text-transform:uppercase;
+      margin:16px 0 8px;
+    }
+
+    .meal-list {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .meal-card {
+      display:grid;
+      grid-template-columns:58px 1fr;
+      gap:10px;
+      padding:12px;
+      border-radius:18px;
+      background:rgba(237,247,244,.72);
+      border:1px solid rgba(15,118,110,.10);
+    }
+
+    .meal-index {
+      width:42px;
+      height:42px;
+      border-radius:15px;
+      background:#fffdf8;
+      border:1px solid rgba(15,118,110,.15);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--teal2);
+      font-weight:950;
+      font-size:15px;
+    }
+
+    .meal-label {
+      color:var(--teal2);
+      font-size:12px;
+      font-weight:950;
+      margin-bottom:4px;
+    }
+
+    .meal-feed {
+      color:var(--ink);
+      font-size:17px;
+      line-height:1.2;
+      font-weight:950;
+      word-break:break-word;
+    }
+
+    .meal-time {
+      margin-top:5px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .meal-empty {
+      padding:14px;
+      border-radius:18px;
+      border:1px dashed var(--line2);
+      background:rgba(246,243,237,.62);
+      color:var(--muted);
+      font-size:13px;
+      font-weight:900;
+      text-align:center;
+    }
+
+    .stock-hint {
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:8px;
+    }
+
+    .quick-amounts {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .amount-btn {
+      min-height:38px;
+      border-radius:14px;
+      border:1px solid rgba(15,118,110,.16);
+      background:#edf7f4;
+      color:var(--teal2);
+      font-weight:950;
+      font-size:13px;
+      cursor:pointer;
+    }
+
+    @media (min-width:760px) {
+      .pond-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .stock-grid, .profile-grid, .pond-total-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .feed-sheet {
+        left:50%;
+        right:auto;
+        width:min(680px,calc(100vw - 32px));
+        transform:translate(-50%,100%);
+        border-radius:30px;
+        bottom:18px;
+      }
+      .sheet-layer.open .feed-sheet { transform:translate(-50%,0); }
+    }
+
+    @media (min-width:1040px) {
+      .pond-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+      .stock-grid, .pond-total-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    }
+
+    @media (max-width:430px) {
+      .app { padding:14px 12px 24px; }
+      .brand-title { font-size:18px; }
+      .hero { padding:16px; border-radius:24px; }
+      .hero h1 { font-size:22px; }
+      .section-head { flex-direction:column; align-items:flex-start; gap:3px; }
+      .hint { white-space:normal; }
+      .pond-grid { gap:10px; }
+      .pond-card { min-height:142px; padding:12px; border-radius:20px; }
+      .pond-name { font-size:16px; }
+      .pond-species { font-size:11px; padding:2px 6px; }
+      .pond-status { font-size:10px; padding:3px 6px; }
+      .pond-total-feed { min-height:74px; padding:12px 10px; }
+      .total-value { font-size:17px; }
+      .pond-meta { font-size:11px; }
+      .today-row { grid-template-columns:74px 1fr; }
+      .today-row .time { grid-column:2; }
+      .toolbar { grid-template-columns:1fr; }
+      .sheet-summary { grid-template-columns:1fr 1fr; }
+      .quick-amounts { grid-template-columns:repeat(4,1fr); }
+      .meal-card { grid-template-columns:50px 1fr; padding:11px; }
+      .meal-feed { font-size:16px; }
+      .setting-row { grid-template-columns:74px 1fr; }
+      .compact-out-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
+      .flow-title-row { align-items:flex-start; flex-direction:column; }
+      .flow-tabs { width:100%; display:grid; grid-template-columns:1fr 1fr; }
+      .flow-tab { padding:0 6px; }
+    }
+
+    .pond-total-card {
+      cursor:pointer;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .pond-total-card:active {
+      transform:scale(.985);
+    }
+    .daily-group {
+      border:1px solid rgba(213,204,185,.82);
+      background:rgba(255,253,248,.78);
+      border-radius:20px;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .daily-date {
+      color:var(--gold);
+      font-size:13px;
+      font-weight:950;
+      padding:2px 2px 4px;
+    }
+
+
+    .calendar-head {
+      display:grid;
+      grid-template-columns:74px 1fr 74px;
+      gap:8px;
+      align-items:center;
+      margin:14px 0 8px;
+    }
+
+    .calendar-title {
+      text-align:center;
+      color:var(--ink);
+      font-size:16px;
+      font-weight:950;
+    }
+
+    .calendar-nav-btn {
+      min-height:34px;
+      font-size:12px;
+      border-radius:999px;
+      padding:0 8px;
+    }
+
+    .calendar-week {
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:5px;
+      margin-bottom:5px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:900;
+      text-align:center;
+    }
+
+    .calendar-grid {
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:5px;
+      padding:8px;
+      border-radius:20px;
+      border:1px solid rgba(213,204,185,.82);
+      background:rgba(255,253,248,.72);
+    }
+
+    .calendar-cell {
+      min-height:58px;
+      border-radius:14px;
+      border:1px solid rgba(228,222,210,.9);
+      background:rgba(250,248,243,.72);
+      color:var(--muted);
+      padding:6px 4px;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      align-items:flex-start;
+      justify-content:flex-start;
+      text-align:left;
+      overflow:hidden;
+    }
+
+    .calendar-cell.empty-cell {
+      visibility:hidden;
+    }
+
+    .calendar-cell.has-feed {
+      background:rgba(237,247,244,.82);
+      border-color:rgba(15,118,110,.18);
+      color:var(--teal2);
+      box-shadow:0 6px 14px rgba(15,118,110,.07);
+    }
+
+    .calendar-day {
+      font-size:12px;
+      font-weight:950;
+    }
+
+    .calendar-feed {
+      font-size:10px;
+      font-weight:900;
+      line-height:1.15;
+      word-break:break-all;
+      color:var(--ink);
+    }
+
+    @media (max-width:430px) {
+      .calendar-cell {
+        min-height:52px;
+        border-radius:12px;
+        padding:5px 3px;
+      }
+      .calendar-feed {
+        font-size:9px;
+      }
+    }
+
+
+    .minor-in-card {
+      background:rgba(255,253,248,.9);
+      padding:12px;
+    }
+
+    .compact-in-card .compact-title-row h2 {
+      font-size:16px;
+      margin-bottom:2px;
+    }
+
+    .compact-in-card label {
+      font-size:12px;
+    }
+
+    .compact-in-card input,
+    .compact-in-card select {
+      min-height:38px;
+      border-radius:13px;
+      font-size:13px;
+      padding:6px 9px;
+    }
+
+    .compact-in-submit {
+      width:100%;
+      min-height:38px;
+      margin-top:8px;
+      font-size:13px;
+      border-radius:14px;
+      box-shadow:0 8px 16px rgba(15,118,110,.12);
+    }
+
+    #pageInventory .calendar-grid {
+      margin-bottom:10px;
+    }
+
+    #stockDayTitle {
+      margin-bottom:8px;
+    }
+
+    @media (max-width:430px) {
+      .minor-in-card {
+        padding:12px;
+      }
+    }
+
+
+    .hero h1 {
+      margin-bottom:0 !important;
+    }
+    .section-head {
+      margin-bottom:10px !important;
+    }
+    .minor-title-row h2 {
+      margin-bottom:0 !important;
+    }
+
+
+    .pond-setting-row {
+      grid-template-columns:82px 1fr;
+    }
+
+    .pond-setting-fields {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .pond-setting-fields input,
+    .pond-setting-fields select {
+      min-height:38px;
+      border-radius:13px;
+      font-size:13px;
+      padding:6px 9px;
+    }
+
+    @media (max-width:430px) {
+      .pond-setting-fields {
+        grid-template-columns:1fr;
+      }
+    }
+
+
+    .pond-total-card-v2 {
+      padding:16px;
+    }
+
+    .seed-info-row {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin:14px 0 10px;
+    }
+
+    .seed-info-box {
+      border:1px solid rgba(180,138,69,.18);
+      background:rgba(251,244,228,.58);
+      border-radius:18px;
+      padding:11px 10px;
+      min-height:66px;
+    }
+
+    .seed-label {
+      color:#8a6426;
+      font-size:12px;
+      font-weight:950;
+      margin-bottom:5px;
+    }
+
+    .seed-value {
+      color:var(--ink);
+      font-size:17px;
+      line-height:1.15;
+      font-weight:950;
+      word-break:break-word;
+    }
+
+    .compact-pond-total-main {
+      margin-top:10px;
+      margin-bottom:10px;
+    }
+
+    .pond-setting-row-large {
+      grid-template-columns:82px 1fr;
+      align-items:start;
+    }
+
+    .pond-setting-fields-large {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .pond-setting-fields-large input,
+    .pond-setting-fields-large select {
+      min-height:38px;
+      border-radius:13px;
+      font-size:13px;
+      padding:6px 9px;
+    }
+
+    @media (max-width:430px) {
+      .seed-info-row {
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+      }
+
+      .seed-info-box {
+        min-height:58px;
+        padding:9px 8px;
+        border-radius:16px;
+      }
+
+      .seed-value {
+        font-size:15px;
+      }
+
+      .pond-setting-fields-large {
+        grid-template-columns:1fr;
+      }
+    }
+
+
+    .memo-filter-card {
+      padding:12px;
+    }
+
+    .memo-filter-card h2 {
+      font-size:16px;
+      margin-bottom:10px;
+    }
+
+    .memo-filter-grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .memo-filter-card label {
+      font-size:12px;
+    }
+
+    .memo-filter-card select {
+      min-height:38px;
+      border-radius:13px;
+      font-size:13px;
+      padding:6px 9px;
+    }
+
+    .memo-filter-summary {
+      margin-top:8px;
+      padding:8px 10px;
+      border-radius:14px;
+      background:rgba(237,247,244,.72);
+      border:1px solid rgba(15,118,110,.10);
+      color:var(--teal2);
+      font-size:12px;
+      font-weight:950;
+    }
+
+    .memo-clear-btn {
+      width:100%;
+      min-height:36px;
+      margin-top:8px;
+      font-size:13px;
+      border-radius:14px;
+    }
+
+    @media (max-width:430px) {
+      .memo-filter-grid {
+        grid-template-columns:1fr 1fr;
+        gap:7px;
+      }
+    }
+
+    /* Template 1: Field Ledger */
+    body {
+      background:#fbfaf6;
+      color:#162019;
+      padding-bottom:calc(92px + var(--safe-bottom));
+      overflow-x:hidden;
+    }
+
+    .app {
+      max-width:920px;
+      padding:20px 24px 28px;
+    }
+
+    .topbar {
+      min-height:64px;
+      margin-bottom:12px;
+      padding-bottom:12px;
+      border-bottom:1px solid rgba(21,32,25,.12);
+    }
+
+    .brand-lockup {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .brand-mark {
+      width:38px;
+      height:38px;
+      border-radius:10px;
+      object-fit:cover;
+      flex:0 0 auto;
+    }
+
+    .brand-title {
+      position:relative;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-size:26px;
+      letter-spacing:0;
+      color:#0c5f32;
+      min-width:0;
+    }
+
+    .topbar > div { min-width:0; }
+    .topbar > div:first-child { flex:1 1 auto; }
+
+    .brand-title::before {
+      display:none;
+    }
+
+    .firebase-status {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin:0 0 16px;
+      padding:10px 0;
+      border:0;
+      border-radius:0;
+      box-shadow:none;
+      background:transparent;
+      color:#59635b;
+      font-size:15px;
+      font-weight:800;
+      flex-wrap:wrap;
+      min-width:0;
+      overflow-wrap:anywhere;
+    }
+
+    .firebase-status::before {
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background:#2fb84d;
+      box-shadow:0 0 0 5px rgba(47,184,77,.12);
+      flex:0 0 auto;
+    }
+
+    .firebase-status.warn::before { background:#d69a16; box-shadow:0 0 0 5px rgba(214,154,22,.14); }
+    .firebase-status.bad::before { background:#dc2626; box-shadow:0 0 0 5px rgba(220,38,38,.13); }
+
+    .hero {
+      border:0;
+      border-radius:14px;
+      box-shadow:none;
+      background:#0d6a36;
+      color:#fff;
+      padding:22px 24px;
+      margin-bottom:16px;
+    }
+
+    #pageHome > .hero {
+      display:none;
+    }
+
+    #pagePond {
+      padding-bottom:calc(122px + var(--safe-bottom));
+    }
+
+    .hero::before {
+      width:340px;
+      height:340px;
+      top:-140px;
+      right:-120px;
+      background:radial-gradient(circle,rgba(255,255,255,.16),transparent 64%);
+    }
+
+    .hero-kicker {
+      margin-bottom:8px;
+      color:rgba(255,255,255,.72);
+      letter-spacing:.9px;
+      font-size:11px;
+    }
+
+    .hero h1 {
+      font-size:28px;
+      line-height:1.12;
+      color:#fff;
+    }
+
+    .hero p {
+      color:rgba(255,255,255,.78);
+      font-weight:750;
+    }
+
+    .ops-summary {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:0;
+      margin:0 0 28px;
+      overflow:hidden;
+      border-radius:14px;
+      background:#0d6a36;
+      color:#fff;
+      box-shadow:0 12px 26px rgba(13,106,54,.16);
+    }
+
+    .summary-stat {
+      min-height:132px;
+      padding:22px 18px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:8px;
+      border-right:1px solid rgba(255,255,255,.24);
+      min-width:0;
+    }
+
+    .summary-stat:last-child { border-right:0; }
+
+    .summary-stat-label {
+      color:rgba(255,255,255,.78);
+      font-size:15px;
+      line-height:1.2;
+      font-weight:900;
+      min-width:0;
+      overflow-wrap:anywhere;
+    }
+
+    .summary-stat-value {
+      color:#fff;
+      font-size:38px;
+      line-height:1;
+      font-weight:950;
+      letter-spacing:0;
+      min-width:0;
+      overflow-wrap:anywhere;
+    }
+
+    .summary-stat-unit {
+      margin-left:4px;
+      font-size:18px;
+      font-weight:800;
+      color:rgba(255,255,255,.86);
+    }
+
+    .summary-stat-note {
+      min-height:18px;
+      color:#63e6e2;
+      font-size:14px;
+      line-height:1.25;
+      font-weight:900;
+      min-width:0;
+      overflow-wrap:anywhere;
+    }
+
+    .section-head {
+      margin:22px 0 14px;
+      align-items:center;
+    }
+
+    .section-title {
+      color:#111814;
+      font-size:25px;
+      line-height:1.1;
+      font-weight:950;
+      letter-spacing:0;
+    }
+
+    .section-desc,
+    .hint {
+      color:#667064;
+      font-size:14px;
+      font-weight:850;
+    }
+
+    .hint {
+      padding:7px 10px;
+      border:1px solid rgba(21,32,25,.1);
+      border-radius:999px;
+      background:#fff;
+    }
+
+    .pond-grid {
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:18px;
+    }
+
+    .pond-card {
+      min-height:252px;
+      border:1px solid rgba(21,32,25,.12);
+      border-radius:10px;
+      background:#fff;
+      box-shadow:0 2px 10px rgba(21,32,25,.04);
+      padding:20px;
+      justify-content:flex-start;
+      gap:16px;
+      transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+      min-width:0;
+    }
+
+    .pond-card:hover {
+      transform:translateY(-2px);
+      border-color:rgba(13,106,54,.26);
+      box-shadow:0 12px 28px rgba(21,32,25,.08);
+    }
+
+    .pond-card:active { transform:scale(.992); }
+
+    .pond-card::after,
+    .stock-card::before,
+    .profile-card::before,
+    .pond-total-card::before {
+      display:none;
+    }
+
+    .pond-card.is-no-feed {
+      background:#fff;
+      border-style:solid;
+      box-shadow:0 2px 10px rgba(21,32,25,.035);
+    }
+
+    .pond-card-head {
+      margin-bottom:0;
+      align-items:flex-start;
+    }
+
+    .pond-name-line {
+      align-items:center;
+      gap:9px;
+    }
+
+    .pond-name {
+      color:#111814;
+      font-size:24px;
+      line-height:1.05;
+      letter-spacing:0;
+    }
+
+    .pond-species,
+    .profile-badge {
+      padding:4px 10px;
+      border:0;
+      border-radius:999px;
+      background:#e8f2e9;
+      color:#0d6a36;
+      font-size:13px;
+      font-weight:950;
+    }
+
+    .pond-status {
+      position:relative;
+      padding:0 0 0 20px;
+      border:0;
+      border-radius:0;
+      background:transparent;
+      color:#0d6a36;
+      font-size:15px;
+      font-weight:950;
+    }
+
+    .pond-status::before {
+      content:"";
+      position:absolute;
+      left:0;
+      top:50%;
+      width:12px;
+      height:12px;
+      border-radius:999px;
+      background:#2fb84d;
+      transform:translateY(-50%);
+    }
+
+    .pond-card.is-no-feed .pond-status {
+      color:#d88400;
+    }
+
+    .pond-card.is-no-feed .pond-status::before {
+      background:#f59e0b;
+      box-shadow:inset 0 0 0 3px #fff;
+      outline:2px solid #f59e0b;
+    }
+
+    .pond-total-feed {
+      min-height:58px;
+      margin:0;
+      padding:3px 0 0;
+      border:0;
+      border-radius:0;
+      background:transparent;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      gap:6px;
+    }
+
+    .pond-card.is-no-feed .pond-total-feed {
+      background:transparent;
+      border-color:transparent;
+    }
+
+    .total-label {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin:0;
+      color:#667064;
+      font-size:13px;
+      font-weight:850;
+    }
+
+    .total-label::before {
+      content:"";
+      width:7px;
+      height:7px;
+      border-radius:999px;
+      background:#0d6a36;
+      box-shadow:0 0 0 4px rgba(13,106,54,.08);
+    }
+
+    .pond-card.is-no-feed .total-label::before {
+      background:#f59e0b;
+      box-shadow:0 0 0 4px rgba(245,158,11,.12);
+    }
+
+    .total-value {
+      color:#0d6a36;
+      font-size:25px;
+      line-height:1.08;
+      letter-spacing:0;
+      font-weight:950;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    .pond-card.is-no-feed .total-value {
+      color:#17251b;
+      font-size:18px;
+      line-height:1.2;
+    }
+
+    .pond-meta {
+      display:grid;
+      grid-template-columns:1fr;
+      margin-top:auto;
+      border-top:0;
+      padding-top:0;
+      color:#4d5650;
+      font-size:16px;
+      font-weight:850;
+    }
+
+    .pond-meta::after {
+      content:"+ 记录喂料";
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:48px;
+      margin-top:18px;
+      border-radius:8px;
+      background:#0d6a36;
+      color:#fff;
+      font-size:18px;
+      font-weight:950;
+    }
+
+    .pond-card.is-no-feed .pond-meta::after {
+      background:#fff;
+      color:#0d6a36;
+      border:1.5px solid #0d6a36;
+    }
+
+    .card,
+    .stock-card,
+    .profile-card,
+    .pond-total-card,
+    .record-card,
+    .memo-card,
+    .daily-group,
+    .calendar-grid {
+      border-radius:10px;
+      border-color:rgba(21,32,25,.12);
+      background:#fff;
+      box-shadow:0 2px 10px rgba(21,32,25,.04);
+    }
+
+    .pond-grid > .record-card,
+    .stock-grid > .record-card,
+    .pond-total-grid > .record-card,
+    .memo-list > .record-card {
+      grid-column:1/-1;
+    }
+
+    .pond-board {
+      margin-top:10px;
+    }
+
+    .pond-board-note {
+      margin-top:5px;
+      color:#64748b;
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .pond-table-head {
+      display:grid;
+      grid-template-columns:minmax(112px,.95fr) 116px minmax(158px,1.15fr) minmax(176px,1.45fr) 132px;
+      gap:12px;
+      align-items:center;
+      padding:0 16px 8px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:950;
+    }
+
+    .pond-total-grid {
+      grid-template-columns:1fr;
+      align-items:stretch;
+      gap:10px;
+    }
+
+    .pond-total-card.pond-total-card-v2 {
+      min-height:92px;
+      padding:14px 16px;
+      border-radius:10px;
+      background:#fff;
+      border:1px solid #e6e8ea;
+      box-shadow:none;
+      cursor:default;
+      display:grid;
+      grid-template-columns:minmax(112px,.95fr) 116px minmax(158px,1.15fr) minmax(176px,1.45fr) 132px;
+      gap:12px;
+      align-items:center;
+      height:auto;
+    }
+
+    .pond-total-card.pond-total-card-v2:hover {
+      border-color:#b8d8c6;
+      background:#fcfffd;
+    }
+
+    .pond-total-head {
+      align-items:flex-start;
+      margin:0;
+      min-width:0;
+    }
+
+    .pond-total-title {
+      min-width:0;
+    }
+
+    .pond-total-name-line {
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+      min-width:0;
+    }
+
+    .pond-total-name {
+      color:#0f172a;
+      font-size:19px;
+      line-height:1.12;
+      font-weight:950;
+      text-decoration:none;
+      min-width:0;
+      overflow-wrap:anywhere;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .pond-total-species {
+      display:inline-flex;
+      align-items:center;
+      min-height:22px;
+      padding:2px 8px;
+      border-radius:999px;
+      background:#e8f2e9;
+      color:#0d6a36;
+      font-size:12px;
+      font-weight:950;
+      white-space:nowrap;
+    }
+
+    .pond-total-sub {
+      margin-top:5px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .pond-total-status {
+      flex:0 0 auto;
+      padding:4px 9px;
+      border-radius:999px;
+      border:1px solid rgba(217,132,0,.18);
+      background:#fff4dd;
+      color:#9a5b00;
+      font-size:12px;
+      font-weight:950;
+      white-space:nowrap;
+    }
+
+    .pond-metric-row {
+      display:contents;
+    }
+
+    .pond-metric {
+      min-width:0;
+    }
+
+    .pond-metric-label,
+    .pond-summary-label {
+      margin-bottom:4px;
+      color:#64748b;
+      font-size:11px;
+      font-weight:950;
+    }
+
+    .pond-metric-label {
+      display:none;
+    }
+
+    .pond-metric-value {
+      color:#0f172a;
+      font-size:16px;
+      line-height:1.25;
+      font-weight:950;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .pond-metric.is-total {
+      padding:10px 12px;
+      border-radius:8px;
+      background:#eef8f2;
+      border:1px solid #d8eadf;
+    }
+
+    .pond-metric.is-total .pond-metric-value {
+      color:#05713b;
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2;
+      overflow:hidden;
+    }
+
+    .pond-summary {
+      min-width:0;
+    }
+
+    .pond-summary-label {
+      display:none;
+    }
+
+    .pond-summary-value {
+      color:#334155;
+      font-size:13px;
+      line-height:1.35;
+      font-weight:850;
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2;
+      overflow:hidden;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    .pond-total-extra {
+      grid-column:1/-1;
+      display:grid;
+      grid-template-columns:minmax(180px,1.1fr) minmax(260px,1.65fr) minmax(140px,.9fr);
+      gap:10px;
+      margin:2px 0 0;
+      padding:12px;
+      border-radius:8px;
+      border:1px solid #e6e8ea;
+      background:#f8fafc;
+    }
+
+    .pond-total-extra[hidden] {
+      display:none;
+    }
+
+    .pond-extra-row {
+      min-width:0;
+      color:#101813;
+      font-size:13px;
+      line-height:1.38;
+    }
+
+    .pond-extra-label {
+      display:block;
+      margin-bottom:5px;
+      color:#64748b;
+      font-size:11px;
+      font-weight:950;
+      white-space:nowrap;
+    }
+
+    .pond-extra-value {
+      color:#0f172a;
+      font-weight:900;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    .pond-total-foot {
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      margin:0;
+      padding:0;
+      border-top:0;
+      color:#64748b;
+      font-size:12px;
+      font-weight:850;
+    }
+
+    .pond-total-detail,
+    .pond-total-link {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:44px;
+      min-width:58px;
+      padding:0 12px;
+      border-radius:999px;
+      flex:0 0 auto;
+      font:inherit;
+      font-weight:950;
+      cursor:pointer;
+      transition:background .18s ease,border-color .18s ease,color .18s ease;
+      touch-action:manipulation;
+    }
+
+    .pond-total-detail {
+      border:1px solid #d8eadf;
+      background:#fff;
+      color:#05713b;
+    }
+
+    .pond-total-detail:hover {
+      background:#eef8f2;
+      border-color:#b8d8c6;
+    }
+
+    .pond-total-link {
+      border:1px solid #05713b;
+      background:#05713b;
+      color:#fff;
+    }
+
+    .pond-total-link:hover {
+      background:#045d32;
+      border-color:#045d32;
+    }
+
+    .pond-launch-hero {
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:16px;
+      align-items:start;
+      margin:12px 0 14px;
+      padding:20px;
+      border-radius:22px;
+      background:
+        linear-gradient(135deg,rgba(8,95,50,.98),rgba(12,128,79,.92)),
+        #0d6a36;
+      color:#fff;
+      box-shadow:0 18px 42px rgba(13,106,54,.20);
+    }
+
+    .pond-launch-kicker {
+      margin-bottom:8px;
+      color:rgba(255,255,255,.76);
+      font-size:12px;
+      line-height:1;
+      font-weight:950;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .pond-launch-title {
+      margin:0;
+      color:#fff;
+      font-size:30px;
+      line-height:1.08;
+      font-weight:950;
+      letter-spacing:0;
+    }
+
+    .pond-launch-copy {
+      max-width:520px;
+      margin:10px 0 0;
+      color:rgba(255,255,255,.82);
+      font-size:14px;
+      line-height:1.55;
+      font-weight:780;
+    }
+
+    .pond-launch-status {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      min-height:36px;
+      padding:0 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.24);
+      color:#fff;
+      font-size:12px;
+      font-weight:950;
+      white-space:nowrap;
+    }
+
+    .pond-launch-status::before {
+      content:"";
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#7ee7a6;
+      box-shadow:0 0 0 4px rgba(126,231,166,.18);
+    }
+
+    .pond-board-stats {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+      margin:0 0 16px;
+    }
+
+    .pond-board-stat {
+      min-width:0;
+      padding:14px;
+      border-radius:16px;
+      background:#fff;
+      border:1px solid rgba(21,32,25,.10);
+      box-shadow:0 8px 22px rgba(21,32,25,.05);
+    }
+
+    .pond-board-stat-label {
+      color:#64748b;
+      font-size:12px;
+      font-weight:950;
+    }
+
+    .pond-board-stat-value {
+      margin-top:6px;
+      color:#0f172a;
+      font-size:24px;
+      line-height:1.08;
+      font-weight:950;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .pond-board-stat-note {
+      margin-top:5px;
+      color:#64748b;
+      font-size:11px;
+      line-height:1.35;
+      font-weight:800;
+    }
+
+    .pond-section-strip {
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      margin:4px 0 10px;
+    }
+
+    .pond-section-title {
+      color:#0f172a;
+      font-size:18px;
+      line-height:1.2;
+      font-weight:950;
+    }
+
+    .pond-section-hint {
+      margin-top:4px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:850;
+    }
+
+    .pond-launch-grid {
+      grid-template-columns:repeat(auto-fit,minmax(330px,1fr));
+      grid-auto-rows:1fr;
+      gap:14px;
+      align-items:stretch;
+    }
+
+    .pond-total-card.pond-total-card-v3 {
+      position:relative;
+      min-height:0;
+      height:100%;
+      padding:16px;
+      border-radius:20px;
+      background:#fff;
+      border:1px solid rgba(21,32,25,.10);
+      box-shadow:0 10px 26px rgba(21,32,25,.06);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      overflow:hidden;
+    }
+
+    .pond-total-card.pond-total-card-v3::before {
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:4px;
+      background:#0d6a36;
+    }
+
+    .pond-total-card.pond-total-card-v3:hover {
+      border-color:rgba(13,106,54,.24);
+      box-shadow:0 16px 34px rgba(21,32,25,.09);
+    }
+
+    .pond-card-top {
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      min-width:0;
+      order:0;
+    }
+
+    .pond-identity {
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      min-width:0;
+    }
+
+    .pond-number {
+      width:40px;
+      height:40px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+      background:#eef8f2;
+      color:#05713b;
+      border:1px solid #d8eadf;
+      font-size:14px;
+      font-weight:950;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .pond-title-stack {
+      min-width:0;
+    }
+
+    .pond-total-card-v3 .pond-total-name {
+      font-size:20px;
+      color:#0f172a;
+    }
+
+    .pond-total-card-v3 .pond-total-sub {
+      margin-top:4px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:850;
+    }
+
+    .pond-pill-row {
+      display:flex;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+      gap:6px;
+      flex:0 0 auto;
+    }
+
+    .pond-total-card-v3 .pond-total-species,
+    .pond-total-card-v3 .pond-total-status {
+      min-height:24px;
+      padding:3px 8px;
+      font-size:11px;
+    }
+
+    .pond-card-main {
+      display:grid;
+      grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+      gap:10px;
+      min-width:0;
+      order:2;
+    }
+
+    .pond-feed-panel {
+      min-width:0;
+      min-height:132px;
+      padding:15px;
+      border-radius:17px;
+      background:#0d6a36;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+
+    .pond-feed-label,
+    .pond-info-label,
+    .pond-summary-label {
+      color:#64748b;
+      font-size:11px;
+      line-height:1.15;
+      font-weight:950;
+    }
+
+    .pond-feed-label {
+      color:rgba(255,255,255,.78);
+    }
+
+    .pond-feed-value {
+      margin-top:10px;
+      color:#fff;
+      font-size:22px;
+      line-height:1.18;
+      font-weight:950;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:3;
+      overflow:hidden;
+    }
+
+    .pond-info-stack {
+      display:grid;
+      gap:8px;
+      min-width:0;
+    }
+
+    .pond-info-tile,
+    .pond-summary {
+      min-width:0;
+      padding:12px;
+      border-radius:14px;
+      background:#f8fafc;
+      border:1px solid #e6e8ea;
+    }
+
+    .pond-info-value {
+      margin-top:5px;
+      color:#0f172a;
+      font-size:16px;
+      line-height:1.25;
+      font-weight:950;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      font-variant-numeric:tabular-nums;
+    }
+
+    .pond-summary {
+      background:#fffdfa;
+      border-color:#eadfca;
+      order:3;
+    }
+
+    .pond-summary-label {
+      display:block;
+    }
+
+    .pond-summary-value {
+      margin-top:5px;
+      color:#243328;
+      font-size:13px;
+      line-height:1.42;
+      font-weight:850;
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2;
+      overflow:hidden;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+
+    .pond-total-card-v3 .pond-total-extra {
+      order:4;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:8px;
+      margin:0;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid #d8eadf;
+      background:#f5fbf7;
+    }
+
+    .pond-total-card-v3 .pond-total-extra[hidden] {
+      display:none;
+    }
+
+    .pond-total-card-v3 .pond-extra-row {
+      padding:0;
+      color:#101813;
+      font-size:13px;
+      line-height:1.42;
+    }
+
+    .pond-total-card-v3 .pond-extra-label {
+      display:block;
+      margin-bottom:5px;
+      color:#64748b;
+      font-size:11px;
+      font-weight:950;
+      white-space:nowrap;
+    }
+
+    .pond-total-card-v3 .pond-total-foot {
+      order:1;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:0;
+      padding:0;
+      border:0;
+    }
+
+    .pond-total-card-v3 .pond-total-detail,
+    .pond-total-card-v3 .pond-total-link {
+      min-height:46px;
+      min-width:0;
+      border-radius:14px;
+      font-size:13px;
+    }
+
+    .pond-total-card-v3 .pond-total-detail:focus-visible,
+    .pond-total-card-v3 .pond-total-link:focus-visible {
+      outline:3px solid rgba(13,106,54,.22);
+      outline-offset:2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pond-total-card.pond-total-card-v3,
+      .pond-total-card-v3 .pond-total-detail,
+      .pond-total-card-v3 .pond-total-link {
+        transition:none;
+      }
+    }
+
+    .card {
+      padding:18px;
+      margin-top:20px;
+    }
+
+    .card h2 {
+      color:#111814;
+      font-size:20px;
+      letter-spacing:0;
+    }
+
+    .today-row {
+      grid-template-columns:minmax(80px,.8fr) minmax(0,1.4fr) auto;
+      padding:14px 0;
+      color:#1f2922;
+      font-size:14px;
+    }
+
+    .today-row .feed {
+      color:#0d6a36;
+      font-weight:950;
+    }
+
+    .btn,
+    .flow-tab.active,
+    .nav.active {
+      background:#0d6a36;
+      box-shadow:none;
+    }
+
+    .btn {
+      min-height:46px;
+      border-radius:8px;
+      font-size:16px;
+    }
+
+    .ghost-btn,
+    .amount-btn {
+      border-radius:8px;
+      border-color:rgba(13,106,54,.24);
+      background:#fff;
+      color:#0d6a36;
+    }
+
+    select,
+    input,
+    textarea {
+      border-radius:8px;
+      border-color:rgba(21,32,25,.16);
+      background:#fff;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color:#0d6a36;
+      box-shadow:0 0 0 3px rgba(13,106,54,.1);
+    }
+
+    .bottom {
+      padding:10px 18px calc(10px + var(--safe-bottom));
+      border-top:1px solid rgba(21,32,25,.1);
+      background:rgba(255,255,255,.94);
+      box-shadow:0 -8px 24px rgba(21,32,25,.08);
+    }
+
+    .bottom-inner {
+      max-width:520px;
+      gap:8px;
+    }
+
+    .nav {
+      height:50px;
+      border-radius:10px;
+      color:#59635b;
+      font-size:13px;
+      font-weight:900;
+    }
+
+    .nav.active {
+      color:#fff;
+    }
+
+    .feed-sheet {
+      border-radius:18px 18px 0 0;
+      background:#fff;
+      border-color:rgba(21,32,25,.12);
+      box-shadow:0 -20px 60px rgba(21,32,25,.22);
+    }
+
+    .sheet-title {
+      color:#111814;
+      font-size:24px;
+      letter-spacing:0;
+    }
+
+    .summary-box,
+    .meal-card,
+    .seed-info-box,
+    .memo-filter-summary {
+      border-radius:10px;
+      background:#f3f8f4;
+      border-color:rgba(13,106,54,.12);
+    }
+
+    @media (min-width:760px) {
+      .pond-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+    }
+
+    @media (min-width:1040px) {
+      .pond-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    }
+
+    @media (max-width:640px) {
+      .app {
+        padding:16px 14px 24px;
+      }
+
+      .brand-title {
+        font-size:22px;
+      }
+
+      .hero {
+        padding:18px;
+      }
+
+      .ops-summary {
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+
+      .summary-stat {
+        min-height:118px;
+        padding:16px 10px;
+      }
+
+      .summary-stat-value {
+        font-size:30px;
+      }
+
+      .section-title {
+        font-size:24px;
+      }
+
+      .section-head {
+        align-items:flex-start;
+      }
+
+      .pond-grid {
+        gap:12px;
+      }
+
+      .pond-card {
+        min-height:224px;
+        padding:16px;
+      }
+
+      .pond-name {
+        font-size:21px;
+      }
+
+      .total-value {
+        font-size:34px;
+      }
+
+      .pond-meta {
+        font-size:14px;
+      }
+
+      .pond-meta::after {
+        min-height:44px;
+        font-size:16px;
+      }
+
+      .pond-table-head {
+        display:none;
+      }
+
+      .pond-board-note {
+        font-size:12px;
+      }
+
+      .pond-total-grid {
+        gap:12px;
+      }
+
+      .pond-total-card.pond-total-card-v2 {
+        display:grid;
+        grid-template-columns:1fr;
+        gap:12px;
+        min-height:0;
+        padding:14px;
+        border-radius:12px;
+      }
+
+      .pond-total-head {
+        display:flex;
+        justify-content:space-between;
+        gap:10px;
+      }
+
+      .pond-metric-row {
+        display:grid;
+        grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
+        gap:8px;
+      }
+
+      .pond-metric {
+        min-height:78px;
+        padding:10px;
+        border-radius:10px;
+        border:1px solid #d8eadf;
+        background:#f5fbf7;
+      }
+
+      .pond-metric-label,
+      .pond-summary-label {
+        display:block;
+      }
+
+      .pond-summary {
+        padding:10px;
+        border-radius:10px;
+        border:1px solid #e6e8ea;
+        background:#f8fafc;
+      }
+
+      .pond-total-extra {
+        grid-template-columns:1fr;
+        gap:8px;
+      }
+
+      .pond-total-foot {
+        justify-content:space-between;
+        padding-top:2px;
+      }
+
+      .pond-total-detail,
+      .pond-total-link {
+        min-width:88px;
+      }
+    }
+
+    @media (max-width:430px) {
+      .app {
+        padding:14px 12px 24px;
+      }
+
+      .topbar {
+        align-items:flex-start;
+      }
+
+      .brand-title {
+        font-size:16px;
+        gap:9px;
+      }
+
+      .brand-title::before {
+        width:28px;
+        height:28px;
+      }
+
+      .brand-mark {
+        width:34px;
+        height:34px;
+      }
+
+      .hero {
+        border-radius:12px;
+      }
+
+      .hero h1 {
+        font-size:24px;
+      }
+
+      .ops-summary {
+        border-radius:12px;
+        margin-bottom:22px;
+      }
+
+      .summary-stat-label {
+        font-size:11px;
+      }
+
+      .summary-stat-value {
+        font-size:24px;
+      }
+
+      .summary-stat-unit {
+        font-size:14px;
+      }
+
+      .summary-stat-note {
+        font-size:10px;
+      }
+
+      .pond-grid {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+
+      .pond-card {
+        min-height:202px;
+        padding:13px;
+        gap:12px;
+      }
+
+      .pond-card-head {
+        min-height:52px;
+      }
+
+      .pond-name {
+        font-size:19px;
+      }
+
+      .pond-species,
+      .profile-badge {
+        font-size:11px;
+        padding:3px 7px;
+      }
+
+      .pond-status {
+        font-size:12px;
+        padding-left:16px;
+      }
+
+      .pond-status::before {
+        width:10px;
+        height:10px;
+      }
+
+      .pond-total-feed {
+        min-height:54px;
+        margin:0;
+        padding:2px 0 0;
+        border-radius:0;
+        gap:5px;
+      }
+
+      .total-label {
+        font-size:12px;
+      }
+
+      .total-value {
+        font-size:20px;
+        line-height:1.12;
+      }
+
+      .pond-card.is-no-feed .total-value {
+        font-size:17px;
+      }
+
+      .pond-meta {
+        font-size:12px;
+      }
+
+      .pond-meta::after {
+        min-height:38px;
+        margin-top:12px;
+        font-size:14px;
+      }
+
+      .today-row {
+        grid-template-columns:74px 1fr;
+      }
+
+      .bottom {
+        padding-left:10px;
+        padding-right:10px;
+      }
+
+      .nav {
+        height:46px;
+        font-size:12px;
+      }
+
+      .pond-total-name {
+        font-size:18px;
+      }
+
+      .pond-total-species,
+      .pond-total-status {
+        font-size:11px;
+      }
+
+      .pond-metric-value,
+      .pond-summary-value {
+        font-size:14px;
+        line-height:1.25;
+      }
+
+      .pond-total-foot {
+        gap:8px;
+        flex-wrap:wrap;
+      }
+
+      .pond-extra-row {
+        grid-template-columns:64px minmax(0,1fr);
+      }
+    }
+
+    @media (max-width:760px) {
+      .pond-launch-hero {
+        grid-template-columns:1fr;
+        gap:10px;
+        margin:8px 0 10px;
+        padding:16px;
+        border-radius:18px;
+      }
+
+      .pond-launch-status {
+        justify-self:start;
+        min-height:32px;
+      }
+
+      .pond-launch-title {
+        font-size:26px;
+      }
+
+      .pond-launch-copy {
+        display:none;
+      }
+
+      .pond-board-stats {
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        gap:8px;
+        margin-bottom:10px;
+      }
+
+      .pond-board-stat {
+        padding:9px 8px;
+        border-radius:14px;
+      }
+
+      .pond-board-stat-label {
+        font-size:11px;
+      }
+
+      .pond-board-stat-value {
+        font-size:17px;
+      }
+
+      .pond-board-stat-note {
+        display:none;
+      }
+
+      .pond-section-strip {
+        margin:0 0 8px;
+      }
+
+      .pond-section-title {
+        font-size:17px;
+      }
+
+      .pond-section-hint {
+        display:none;
+      }
+
+      .pond-launch-grid {
+        grid-template-columns:1fr;
+        grid-auto-rows:auto;
+        gap:12px;
+      }
+
+      .pond-total-card.pond-total-card-v3 {
+        height:auto;
+        min-height:0;
+        padding:13px;
+        border-radius:18px;
+        gap:10px;
+      }
+
+      .pond-total-card-v3 .pond-total-name {
+        font-size:18px;
+      }
+
+      .pond-number {
+        width:36px;
+        height:36px;
+        border-radius:12px;
+      }
+
+      .pond-card-main {
+        grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+      }
+
+      .pond-feed-panel {
+        min-height:116px;
+        padding:12px;
+        border-radius:16px;
+      }
+
+      .pond-feed-value {
+        font-size:20px;
+        -webkit-line-clamp:3;
+      }
+
+      .pond-info-stack {
+        grid-template-columns:1fr;
+        gap:8px;
+      }
+
+      .pond-info-tile,
+      .pond-summary {
+        padding:10px;
+      }
+
+      .pond-info-tile,
+      .pond-summary,
+      .pond-total-card-v3 .pond-total-extra {
+        border-radius:14px;
+      }
+
+      .pond-total-card-v3 .pond-total-foot {
+        grid-template-columns:1fr 1fr;
+      }
+
+      .pond-total-card-v3 .pond-total-detail,
+      .pond-total-card-v3 .pond-total-link {
+        min-height:44px;
+        font-size:14px;
+      }
+    }
+
+    @media (max-width:380px) {
+      .pond-board-stats {
+        grid-template-columns:1fr;
+      }
+
+      .pond-board-stat-note {
+        display:block;
+      }
+
+      .pond-info-stack {
+        grid-template-columns:1fr;
+      }
+    }
+    /* UI polish layer - 2026-07-01
+       Purpose: keep the single-file app logic intact while making the
+       operations UI denser, clearer, and more stable on mobile. */
+    :root {
+      --bg:#f5f7f2;
+      --paper:#ffffff;
+      --paper2:#f8faf7;
+      --line:#dfe7dc;
+      --line2:#c9d8c7;
+      --ink:#132118;
+      --muted:#617063;
+      --muted2:#7c8a7d;
+      --teal:#0f6f43;
+      --teal2:#0a5737;
+      --gold:#b7791f;
+      --blue:#2563eb;
+      --soft-green:#eef7f0;
+      --soft-gold:#fff6df;
+      --soft-blue:#eef5ff;
+      --danger:#b42318;
+      --radius-sm:8px;
+      --radius-md:12px;
+      --radius-lg:16px;
+      --shadow:0 12px 30px rgba(19,33,24,.08);
+      --shadow2:0 8px 18px rgba(19,33,24,.055);
+    }
+
+    html {
+      background:var(--bg);
+    }
+
+    body {
+      color:var(--ink);
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.62),rgba(255,255,255,0) 240px),
+        repeating-linear-gradient(0deg,rgba(19,33,24,.026) 0,rgba(19,33,24,.026) 1px,transparent 1px,transparent 32px),
+        var(--bg);
+      text-rendering:optimizeLegibility;
+    }
+
+    .app {
+      max-width:1080px;
+      padding:18px 18px 32px;
+    }
+
+    .topbar {
+      position:sticky;
+      top:0;
+      z-index:15;
+      min-height:58px;
+      margin:0 -18px 12px;
+      padding:10px 18px;
+      border-bottom:1px solid rgba(19,33,24,.08);
+      background:rgba(245,247,242,.88);
+      backdrop-filter:blur(14px);
+    }
+
+    .brand-lockup {
+      gap:10px;
+    }
+
+    .brand-mark {
+      width:40px;
+      height:40px;
+      border-radius:9px;
+      box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 8px 18px rgba(15,87,55,.13);
+    }
+
+    .brand-title {
+      color:var(--ink);
+      font-size:22px;
+      line-height:1.1;
+      font-weight:950;
+    }
+
+    .brand-sub {
+      margin-top:3px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .firebase-status {
+      width:max-content;
+      max-width:100%;
+      margin:0 0 14px;
+      padding:8px 11px;
+      border:1px solid rgba(15,111,67,.13);
+      border-radius:999px;
+      background:rgba(255,255,255,.74);
+      color:var(--muted);
+      box-shadow:0 1px 0 rgba(255,255,255,.8) inset;
+      font-size:12px;
+      line-height:1.35;
+    }
+
+    .firebase-status.warn {
+      background:var(--soft-gold);
+      color:#7a4e08;
+      border-color:rgba(183,121,31,.2);
+    }
+
+    .firebase-status.bad {
+      color:var(--danger);
+      background:#fff1f0;
+      border-color:rgba(180,35,24,.2);
+    }
+
+    .hero,
+    .pond-launch-hero {
+      border:1px solid rgba(15,87,55,.12);
+      border-radius:var(--radius-lg);
+      background:
+        linear-gradient(135deg,#0b5c3a 0%,#0f6f43 62%,#2f7b68 100%);
+      box-shadow:var(--shadow);
+    }
+
+    .hero h1,
+    .pond-launch-title {
+      letter-spacing:0;
+      text-wrap:pretty;
+    }
+
+    .hero-kicker,
+    .pond-launch-kicker {
+      letter-spacing:.08em;
+    }
+
+    .section-head,
+    .pond-section-strip,
+    .flow-title-row,
+    .minor-title-row {
+      align-items:flex-end;
+      gap:12px;
+      margin:18px 0 10px;
+    }
+
+    .section-title,
+    .pond-section-title,
+    .card h2 {
+      color:var(--ink);
+      font-size:19px;
+      line-height:1.2;
+      font-weight:950;
+      letter-spacing:0;
+    }
+
+    .hint,
+    .pond-section-hint,
+    .pond-board-note {
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .ops-summary,
+    .card,
+    .record-card,
+    .memo-card,
+    .summary-box,
+    .meal-card,
+    .seed-info-box,
+    .memo-filter-summary {
+      border:1px solid rgba(19,33,24,.09);
+      border-radius:var(--radius-md);
+      background:rgba(255,255,255,.92);
+      box-shadow:0 1px 0 rgba(255,255,255,.78) inset;
+    }
+
+    .card {
+      margin-top:16px;
+      padding:16px;
+    }
+
+    .ops-summary {
+      overflow:hidden;
+      margin:2px 0 16px;
+      background:linear-gradient(180deg,#fff,#f9fbf7);
+    }
+
+    .summary-stat {
+      min-width:0;
+      padding:14px 12px;
+      border-color:rgba(19,33,24,.08);
+    }
+
+    .summary-stat-label,
+    .pond-board-stat-label,
+    .pond-metric-label,
+    .pond-summary-label,
+    .pond-info-label,
+    .pond-feed-label {
+      color:var(--muted);
+      letter-spacing:0;
+    }
+
+    .summary-stat-value,
+    .pond-board-stat-value {
+      color:var(--ink);
+      font-variant-numeric:tabular-nums;
+    }
+
+    .pond-grid,
+    .stock-grid,
+    .profile-grid,
+    .pond-total-grid,
+    .memo-filter-grid,
+    .compact-out-grid,
+    .toolbar {
+      gap:12px;
+    }
+
+    .pond-card,
+    .stock-card,
+    .profile-card {
+      border:1px solid rgba(19,33,24,.09);
+      border-radius:var(--radius-md);
+      background:linear-gradient(180deg,#fff,#fbfdf9);
+      box-shadow:var(--shadow2);
+      transition:border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+    }
+
+    .pond-card:hover,
+    .stock-card:hover,
+    .profile-card:hover {
+      border-color:rgba(15,111,67,.25);
+      box-shadow:0 14px 28px rgba(19,33,24,.09);
+      transform:translateY(-1px);
+    }
+
+    .pond-card:active,
+    .stock-card:active,
+    .profile-card:active {
+      transform:translateY(0);
+    }
+
+    .pond-name,
+    .pond-total-name,
+    .stock-name,
+    .profile-name {
+      color:var(--ink);
+      letter-spacing:0;
+      overflow-wrap:anywhere;
+    }
+
+    .pond-species,
+    .profile-badge,
+    .pond-total-species,
+    .minor-badge {
+      border:1px solid rgba(15,111,67,.12);
+      background:var(--soft-green);
+      color:var(--teal2);
+    }
+
+    .pond-status,
+    .pond-total-status,
+    .pond-launch-status {
+      border:1px solid rgba(183,121,31,.18);
+      background:var(--soft-gold);
+      color:#86570f;
+    }
+
+    .pond-card.is-no-feed .pond-status,
+    .pond-card.is-no-feed .pond-total-feed {
+      color:var(--muted);
+    }
+
+    .pond-total-feed,
+    .pond-feed-panel,
+    .pond-metric.is-total {
+      border:1px solid rgba(15,111,67,.12);
+      background:linear-gradient(180deg,#f4fbf5,#eaf6ed);
+    }
+
+    .total-value,
+    .pond-feed-value,
+    .pond-metric.is-total .pond-metric-value {
+      color:var(--teal2);
+      font-variant-numeric:tabular-nums;
+      text-wrap:balance;
+    }
+
+    .pond-board-stats {
+      gap:10px;
+      margin:0 0 12px;
+    }
+
+    .pond-board-stat {
+      border:1px solid rgba(19,33,24,.09);
+      border-radius:var(--radius-md);
+      background:linear-gradient(180deg,#fff,#f9fbf7);
+      box-shadow:0 1px 0 rgba(255,255,255,.7) inset;
+    }
+
+    .pond-total-card.pond-total-card-v3 {
+      border:1px solid rgba(19,33,24,.1);
+      border-radius:var(--radius-lg);
+      background:linear-gradient(180deg,#fff,#fbfdf9);
+      box-shadow:var(--shadow2);
+    }
+
+    .pond-total-card.pond-total-card-v3:hover {
+      border-color:rgba(15,111,67,.24);
+      box-shadow:0 16px 32px rgba(19,33,24,.1);
+    }
+
+    .pond-number {
+      border-radius:var(--radius-md);
+      background:var(--soft-blue);
+      color:#1d4ed8;
+      box-shadow:none;
+    }
+
+    .pond-info-tile,
+    .pond-summary,
+    .pond-total-card-v3 .pond-total-extra {
+      border:1px solid rgba(19,33,24,.08);
+      background:#fff;
+    }
+
+    .pond-summary-value,
+    .pond-info-value,
+    .pond-extra-value {
+      color:var(--ink);
+      overflow-wrap:anywhere;
+    }
+
+    .today-row,
+    .record-card,
+    .memo-card {
+      border-bottom-color:rgba(19,33,24,.08);
+      text-wrap:pretty;
+    }
+
+    .flow-tabs {
+      padding:3px;
+      border:1px solid rgba(19,33,24,.09);
+      border-radius:999px;
+      background:#f2f6f0;
+    }
+
+    .flow-tab {
+      min-height:36px;
+      border-radius:999px;
+      color:var(--muted);
+      font-weight:900;
+    }
+
+    .flow-tab.active {
+      background:var(--teal);
+      color:#fff;
+    }
+
+    .field label {
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+    }
+
+    input,
+    select,
+    textarea {
+      min-height:44px;
+      border:1px solid rgba(19,33,24,.13);
+      border-radius:var(--radius-sm);
+      background:#fff;
+      color:var(--ink);
+      font-size:15px;
+    }
+
+    textarea {
+      min-height:86px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color:rgba(15,111,67,.62);
+      box-shadow:0 0 0 3px rgba(15,111,67,.12);
+      outline:0;
+    }
+
+    .btn,
+    .ghost-btn,
+    .amount-btn,
+    .danger-link,
+    .pond-total-card-v3 .pond-total-detail,
+    .pond-total-card-v3 .pond-total-link {
+      min-height:44px;
+      border-radius:var(--radius-sm);
+      font-weight:950;
+      transition:transform .12s ease, border-color .12s ease, background .12s ease, box-shadow .12s ease;
+    }
+
+    .btn {
+      background:var(--teal);
+      box-shadow:0 8px 18px rgba(15,111,67,.16);
+    }
+
+    .btn:hover {
+      background:var(--teal2);
+    }
+
+    .ghost-btn,
+    .amount-btn,
+    .pond-total-card-v3 .pond-total-link,
+    .pond-total-card-v3 .pond-total-detail {
+      border-color:rgba(15,111,67,.2);
+      background:#fff;
+      color:var(--teal2);
+    }
+
+    .ghost-btn:hover,
+    .amount-btn:hover,
+    .pond-total-card-v3 .pond-total-link:hover,
+    .pond-total-card-v3 .pond-total-detail:hover {
+      border-color:rgba(15,111,67,.34);
+      background:var(--soft-green);
+    }
+
+    .calendar-grid {
+      gap:6px;
+    }
+
+    .calendar-cell {
+      border-radius:var(--radius-sm);
+      border:1px solid rgba(19,33,24,.08);
+      background:#fff;
+    }
+
+    .calendar-cell.has-feed {
+      border-color:rgba(15,111,67,.24);
+      background:var(--soft-green);
+    }
+
+    .bottom {
+      padding:9px 12px calc(9px + var(--safe-bottom));
+      border-top:1px solid rgba(19,33,24,.09);
+      background:rgba(255,255,255,.9);
+      backdrop-filter:blur(16px);
+      box-shadow:0 -10px 28px rgba(19,33,24,.1);
+    }
+
+    .bottom-inner {
+      max-width:560px;
+      gap:6px;
+      padding:3px;
+      border:1px solid rgba(19,33,24,.08);
+      border-radius:14px;
+      background:rgba(245,247,242,.76);
+    }
+
+    .nav {
+      height:46px;
+      border-radius:10px;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:0;
+    }
+
+    .nav.active {
+      background:var(--teal);
+      color:#fff;
+      box-shadow:0 8px 18px rgba(15,111,67,.18);
+    }
+
+    .sheet-layer {
+      padding-bottom:var(--safe-bottom);
+    }
+
+    .feed-sheet {
+      border:1px solid rgba(19,33,24,.1);
+      border-radius:20px 20px 0 0;
+      background:#fff;
+      box-shadow:0 -24px 60px rgba(19,33,24,.24);
+    }
+
+    .sheet-title {
+      color:var(--ink);
+      letter-spacing:0;
+    }
+
+    @media (min-width:760px) {
+      .app {
+        padding-left:24px;
+        padding-right:24px;
+      }
+
+      .topbar {
+        margin-left:-24px;
+        margin-right:-24px;
+        padding-left:24px;
+        padding-right:24px;
+      }
+
+      .pond-grid {
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+
+      .stock-grid,
+      .pond-launch-grid {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+
+      .compact-out-grid,
+      .toolbar {
+        grid-template-columns:repeat(4,minmax(0,1fr));
+      }
+    }
+
+    @media (min-width:1080px) {
+      .pond-grid {
+        grid-template-columns:repeat(4,minmax(0,1fr));
+      }
+
+      .stock-grid {
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:760px) {
+      body {
+        padding-bottom:calc(98px + var(--safe-bottom));
+      }
+
+      .app {
+        padding:12px 12px 24px;
+      }
+
+      .topbar {
+        margin:0 -12px 10px;
+        padding:8px 12px;
+      }
+
+      .brand-title {
+        font-size:19px;
+      }
+
+      .brand-sub {
+        font-size:11px;
+      }
+
+      .firebase-status {
+        width:100%;
+        border-radius:12px;
+      }
+
+      .hero,
+      .pond-launch-hero {
+        padding:16px;
+        border-radius:14px;
+      }
+
+      .hero h1,
+      .pond-launch-title {
+        font-size:24px;
+      }
+
+      .section-head,
+      .pond-section-strip,
+      .flow-title-row,
+      .minor-title-row {
+        align-items:flex-start;
+        margin:16px 0 9px;
+      }
+
+      .flow-title-row,
+      .minor-title-row {
+        flex-direction:column;
+      }
+
+      .flow-tabs {
+        width:100%;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+      }
+
+      .ops-summary {
+        display:grid;
+        grid-template-columns:repeat(3,minmax(0,1fr));
+        border-radius:14px;
+      }
+
+      .summary-stat {
+        padding:11px 8px;
+      }
+
+      .summary-stat-value {
+        font-size:22px;
+      }
+
+      .summary-stat-note {
+        display:none;
+      }
+
+      .pond-grid {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:10px;
+      }
+
+      .pond-card {
+        min-height:174px;
+        padding:12px;
+        border-radius:14px;
+      }
+
+      .pond-card-head {
+        min-height:0;
+        gap:7px;
+      }
+
+      .pond-name {
+        font-size:18px;
+      }
+
+      .pond-total-feed {
+        min-height:62px;
+      }
+
+      .total-value {
+        font-size:19px;
+        line-height:1.18;
+      }
+
+      .pond-meta::after {
+        min-height:34px;
+        margin-top:8px;
+        font-size:13px;
+      }
+
+      .card {
+        padding:14px;
+      }
+
+      .compact-out-grid,
+      .toolbar,
+      .memo-filter-grid {
+        grid-template-columns:1fr;
+      }
+
+      .pond-board-stats {
+        grid-template-columns:repeat(3,minmax(0,1fr));
+      }
+
+      .pond-total-card.pond-total-card-v3 {
+        padding:13px;
+        border-radius:16px;
+      }
+
+      .pond-card-main {
+        grid-template-columns:1fr;
+      }
+
+      .pond-feed-panel {
+        min-height:88px;
+      }
+
+      .pond-info-stack {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+
+      .pond-total-card-v3 .pond-total-foot {
+        grid-template-columns:1fr 1fr;
+      }
+
+      .pond-total-card-v3 .pond-total-detail,
+      .pond-total-card-v3 .pond-total-link {
+        width:100%;
+      }
+
+      .bottom {
+        padding-left:8px;
+        padding-right:8px;
+      }
+
+      .bottom-inner {
+        max-width:none;
+      }
+
+      .nav {
+        height:44px;
+        font-size:12px;
+      }
+    }
+
+    @media (max-width:380px) {
+      .pond-grid {
+        grid-template-columns:1fr;
+      }
+
+      .ops-summary,
+      .pond-board-stats {
+        grid-template-columns:1fr;
+      }
+
+      .summary-stat-note,
+      .pond-board-stat-note {
+        display:block;
+      }
+
+      .pond-card {
+        min-height:0;
+      }
+
+      .pond-info-stack,
+      .pond-total-card-v3 .pond-total-foot {
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
 <body>
   <main class="app">
     <header class="topbar">
-      <div class="brand">
-        <img src="icon-192.png" alt="鱼管家" />
+      <div class="brand-lockup">
+        <img class="brand-mark" src="icon-192.png" alt="" />
         <div>
-          <div class="brand-title">鱼管家</div>
-          <div class="brand-sub">水面指挥台 · 喂料库存联动</div>
+          <div class="brand-title">渔管家</div>
+          <div class="brand-sub">鱼塘喂料与库存管理</div>
         </div>
       </div>
-      <div class="live-chip" id="syncStatus">在线同步</div>
     </header>
 
-    <!-- 首页 -->
-    <section class="screen active" data-screen="home">
-      <section class="water-console">
-        <div class="console-head">
-          <div style="color:rgba(255,255,255,.7); font-size:11px; font-weight:950; letter-spacing:.1em; text-transform:uppercase;">今日概览</div>
-          <h1 style="max-width:12em; margin-top:8px; font-size:32px; line-height:1.03; font-weight:950;">鱼塘处理</h1>
-        </div>
+    <div id="firebaseStatus" class="firebase-status warn">正在连接 Firebase...</div>
 
-        <div class="map-stage" id="pondMap"></div>
+    <section id="pageHome" class="page active">
+      <section class="hero">
+        <div class="hero-kicker">Daily Feeding Ledger</div>
+        <h1>鱼塘今日喂料</h1>
 
-        <section class="selected-panel">
-          <div class="selected-title">
-            <div>
-              <h2 id="selectedTitle">选择鱼塘</h2>
-              <p id="selectedSubtitle">点击上方鱼塘查看详情</p>
-            </div>
-            <span class="status-badge green" id="selectedBadge">正常</span>
-          </div>
-          <div class="selected-actions">
-            <button onclick="openFeedModal()">记录喂料</button>
-            <button onclick="jumpToCalendar()">查看日历</button>
-          </div>
-          <div class="selected-metrics">
-            <article class="glass-metric">
-              <div class="glass-label">今日喂料</div>
-              <div class="glass-value" id="selectedFeed">-</div>
-            </article>
-            <article class="glass-metric">
-              <div class="glass-label">最后登记</div>
-              <div class="glass-value" id="selectedTime">-</div>
-            </article>
-            <article class="glass-metric">
-              <div class="glass-label">库存状态</div>
-              <div class="glass-value" id="selectedStock">-</div>
-            </article>
-          </div>
-        </section>
       </section>
 
-      <aside class="mission-rail" style="margin-top:12px;">
-        <section class="rail-card">
-          <div class="rail-head">
-            <div>
-              <h2 class="rail-title">今日任务流</h2>
-              <p class="rail-note">把"待登记、库存低、资料缺"放在同一条工作流里。</p>
-            </div>
-            <div style="display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at center,white 0 56%,transparent 57%),conic-gradient(var(--green) 0 78%,#dce9df 78% 100%);color:var(--deep);font-size:16px;font-weight:950;" id="taskScore">0</div>
-          </div>
-          <div class="task-list" id="taskList"></div>
-        </section>
-
-        <section style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
-          <article style="padding:13px 12px;border:1px solid var(--line);border-radius:18px;background:white;">
-            <div style="color:var(--muted);font-size:11px;font-weight:900;">已登记</div>
-            <div style="margin-top:8px;font-size:23px;font-weight:950;" id="statFed">0</div>
-          </article>
-          <article style="padding:13px 12px;border:1px solid var(--line);border-radius:18px;background:white;">
-            <div style="color:var(--muted);font-size:11px;font-weight:900;">显示塘</div>
-            <div style="margin-top:8px;font-size:23px;font-weight:950;" id="statPonds">0</div>
-          </article>
-          <article style="padding:13px 12px;border:1px solid var(--line);border-radius:18px;background:white;">
-            <div style="color:var(--muted);font-size:11px;font-weight:900;">预警</div>
-            <div style="margin-top:8px;font-size:23px;font-weight:950;color:var(--amber);" id="statWarn">0</div>
-          </article>
-        </section>
-      </aside>
-    </section>
-
-    <!-- 库存页 -->
-    <section class="screen" data-screen="inventory">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title">当前库存</h2>
+      <section id="homeOpsSummary" class="ops-summary" aria-label="今日喂料概览">
+        <div class="summary-stat">
+          <div class="summary-stat-label">登记鱼塘</div>
+          <div class="summary-stat-value">0</div>
+          <div class="summary-stat-note">待登记 0</div>
         </div>
-      </div>
-      <div id="inventoryList" style="display:grid;gap:12px;"></div>
-    </section>
-
-    <!-- 周期页 -->
-    <section class="screen" data-screen="pond">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title" id="pondDetailTitle">选择鱼塘</h2>
-          <p class="section-note" id="pondDetailSub">点击首页鱼塘查看周期详情</p>
+        <div class="summary-stat">
+          <div class="summary-stat-label">今日记录</div>
+          <div class="summary-stat-value">0</div>
+          <div class="summary-stat-note">自动统计</div>
         </div>
-        <span class="status-badge green" id="pondDetailBadge">同步正常</span>
-      </div>
-      <section class="cycle-grid" id="pondCycleGrid" style="margin-top:14px;display:grid;gap:12px;"></section>
-    </section>
-
-    <!-- 日志页 -->
-    <section class="screen" data-screen="memo">
-      <section style="display:grid;gap:12px;">
-        <div style="padding:14px;border:1px solid var(--line);border-radius:var(--radius);background:white;">
-          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
-            <h2 class="rail-title">新增现场日志</h2>
-            <span class="status-badge">记录</span>
-          </div>
-          <div style="display:grid;gap:10px;">
-            <div class="form-field">
-              <label>日期</label>
-              <input type="date" id="memoDate" />
-            </div>
-            <div class="form-field">
-              <label>鱼塘</label>
-              <div class="choice-row" id="memoPondRow"></div>
-            </div>
-            <div class="form-field">
-              <label>动作</label>
-              <div class="choice-row">
-                <button class="choice-pill active" type="button" data-group="memoAction" data-value="换水" onclick="selectChoice(this)">换水</button>
-                <button class="choice-pill" type="button" data-group="memoAction" data-value="消毒" onclick="selectChoice(this)">消毒</button>
-                <button class="choice-pill" type="button" data-group="memoAction" data-value="投药" onclick="selectChoice(this)">投药</button>
-                <button class="choice-pill" type="button" data-group="memoAction" data-value="测水质" onclick="selectChoice(this)">测水质</button>
-              </div>
-            </div>
-            <div class="form-field">
-              <label>备注</label>
-              <textarea id="memoText" placeholder="例如：上午换水一次，鱼状态正常" style="min-height:90px;padding:12px;border:1px solid var(--line-strong);border-radius:14px;resize:vertical;font-size:15px;"></textarea>
-            </div>
-            <button class="btn-primary" onclick="saveMemo()">保存日志</button>
-          </div>
+        <div class="summary-stat">
+          <div class="summary-stat-label">库存预警</div>
+          <div class="summary-stat-value">0</div>
+          <div class="summary-stat-note">点击库存查看</div>
         </div>
-        <div id="memoList" style="display:grid;gap:8px;"></div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <div>
+            <div class="section-title">鱼塘看板</div>
+          </div>
+          <div class="hint">全部鱼塘 · 按编号</div>
+        </div>
+        <div id="homePondGrid" class="pond-grid"></div>
+      </section>
+
+      <section class="card">
+        <h2>今日登记明细</h2>
+        <div id="homeTodayList"></div>
       </section>
     </section>
 
-    <!-- 设置页 -->
-    <section class="screen" data-screen="settings">
+    <section id="pageInventory" class="page">
+      <section class="hero">
+        <div class="hero-kicker">Feed Inventory</div>
+        <h1>饲料库存</h1>
+
+      </section>
+
       <div class="section-head">
         <div>
-          <h2 class="section-title">控制室</h2>
-          <p class="section-note">管理鱼塘、仓库、饲料规格</p>
+          <div class="section-title">饲料库存</div>
         </div>
       </div>
-      <div style="display:grid;gap:16px;">
-        <section class="setting-section">
-          <h3>鱼塘资料</h3>
-          <div id="pondSettings" style="display:grid;gap:8px;"></div>
-        </section>
-        <section class="setting-section">
-          <h3>仓库资料</h3>
-          <div id="warehouseSettings" style="display:grid;gap:8px;"></div>
-        </section>
-        <section class="setting-section">
-          <h3>饲料规格</h3>
-          <div id="feedSettings" style="display:grid;gap:8px;"></div>
-        </section>
+      <div id="inventoryList" class="stock-grid"></div>
+
+      <section class="card minor-in-card compact-in-card">
+        <div class="minor-title-row compact-title-row">
+          <div>
+            <h2>送货入库</h2>
+          </div>
+          <span class="minor-badge">入库</span>
+        </div>
+
+        <div class="compact-out-grid">
+          <div class="field"><label>日期</label><input type="date" id="stockDate" /></div>
+          <div class="field"><label>仓库</label><select id="stockWarehouse"></select></div>
+          <div class="field"><label>饲料</label><select id="stockFeedName"></select></div>
+          <div class="field"><label>数量</label><input id="stockAmount" type="number" step="0.5" inputmode="decimal" placeholder="20包" /></div>
+          <input id="stockNote" type="hidden" value="" />
+        </div>
+
+        <button class="btn compact-in-submit" onclick="saveStockIn()">保存入库</button>
+      </section>
+
+<section class="card minor-out-card compact-out-card">
+        <div class="minor-title-row compact-title-row">
+          <div>
+            <h2>领料出库</h2>
+          </div>
+          <span class="minor-badge">辅助</span>
+        </div>
+
+        <div class="compact-out-grid">
+          <div class="field"><label>领取时间</label><input id="externalDateTime" type="datetime-local" /></div>
+          <div class="field"><label>仓库</label><select id="externalWarehouse" onchange="onExternalWarehouseChange()" oninput="onExternalWarehouseChange()"></select></div>
+          <div class="field"><label>饲料</label><select id="externalFeedName"></select></div>
+          <div class="field"><label>数量</label><input id="externalAmount" type="number" step="0.5" inputmode="decimal" placeholder="2包" /></div>
+          <div class="field full"><label>领料人</label><input id="externalPerson" placeholder="谁拿走" /></div>
+        </div>
+
+        <button class="ghost-btn out-submit compact-out-submit" onclick="saveExternalOut()">保存领料出库</button>
+      </section>
+
+      <section class="card">
+        <div class="flow-title-row">
+          <h2>库存流水</h2>
+          <div class="flow-tabs">
+            <button id="flowTabNormal" class="flow-tab active" onclick="showFlow('normal')">正常出入库</button>
+            <button id="flowTabOther" class="flow-tab" onclick="showFlow('other')">别人领料</button>
+          </div>
+        </div>
+
+        <div class="calendar-head">
+          <button class="ghost-btn calendar-nav-btn" onclick="changeStockCalendarMonth(-1)">上月</button>
+          <div id="stockCalendarTitle" class="calendar-title">本月</div>
+          <button class="ghost-btn calendar-nav-btn" onclick="changeStockCalendarMonth(1)">下月</button>
+        </div>
+
+        <div class="calendar-week">
+          <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+        </div>
+        <div id="stockCalendarGrid" class="calendar-grid"></div>
+
+        <div class="sheet-section-title">当天库存流水</div>
+        <div id="stockDayTitle" class="daily-date">请选择有流水的日期</div>
+        <div id="flowNormal" class="record-list"></div>
+        <div id="flowOther" class="record-list hidden-flow"></div>
+      </section>
+
+</section>
+
+    <section id="pagePond" class="page">
+      <section class="pond-launch-hero">
+        <div>
+          <div class="pond-launch-kicker">Pond Workspace</div>
+          <h1 class="pond-launch-title">鱼塘用料看板</h1>
+          <p class="pond-launch-copy">按鱼塘查看当前养殖周期、落苗资料和用料明细，默认展示关键字段，展开后看完整记录。</p>
+        </div>
+        <div class="pond-launch-status">同步正常</div>
+      </section>
+
+      <div id="pondBoardStats" class="pond-board-stats"></div>
+
+      <div class="pond-board">
+        <div class="pond-section-strip">
+          <div>
+            <div class="pond-section-title">当前养殖鱼塘</div>
+            <div class="pond-section-hint">点展开查看完整落苗和用料明细</div>
+          </div>
+        </div>
+        <div id="pondTotalGrid" class="pond-total-grid pond-launch-grid"></div>
       </div>
+    </section>
+
+    <section id="pageRecords" class="page">
+      <section class="hero">
+        <div class="hero-kicker">Pond Memo</div>
+        <h1>鱼塘备忘录</h1>
+
+      </section>
+
+      <section class="card">
+        <h2>新增备忘录</h2>
+        <div class="toolbar">
+          <div class="field"><label>日期</label><input type="date" id="memoDate" /></div>
+          <div class="field"><label>鱼塘</label><select id="memoPond"></select></div>
+          <div class="field"><label>动作</label><select id="memoAction"><option>换水</option><option>消毒</option><option>拉网检查</option><option>投药</option><option>测水质</option><option>清塘</option><option>其他</option></select></div>
+          <div class="field full"><label>备注</label><textarea id="memoText" placeholder="例如：上午换水一次，鱼状态正常"></textarea></div>
+        </div>
+        <button class="btn" style="width:100%" onclick="saveMemo()">保存备忘录</button>
+      </section>
+
+      <section class="card memo-filter-card">
+        <h2>备忘筛选</h2>
+        <div class="memo-filter-grid">
+          <div class="field">
+            <label>鱼塘</label>
+            <select id="memoFilterPond" onchange="renderMemos()" oninput="renderMemos()">
+              <option value="">全部鱼塘</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>动作</label>
+            <select id="memoFilterAction" onchange="renderMemos()" oninput="renderMemos()">
+              <option value="">全部动作</option>
+              <option>换水</option>
+              <option>消毒</option>
+              <option>拉网检查</option>
+              <option>投药</option>
+              <option>测水质</option>
+              <option>清塘</option>
+              <option>其他</option>
+            </select>
+          </div>
+        </div>
+        <div id="memoFilterSummary" class="memo-filter-summary">显示全部备忘录</div>
+        <button class="ghost-btn memo-clear-btn" onclick="clearMemoFilter()">清空筛选</button>
+      </section>
+
+      <section class="card">
+        <h2>备忘录列表</h2>
+        <div id="memoList" class="memo-list"></div>
+      </section>
+    </section>
+
+    <section id="pageSettings" class="page">
+      <section class="hero">
+        <div class="hero-kicker">System Settings</div>
+        <h1>系统设置</h1>
+
+      </section>
+
+      <section class="card">
+        <h2>鱼塘设置</h2>
+        <div id="pondSettings" class="setting-list"></div>
+      </section>
+
+      <section class="card">
+        <h2>仓库设置</h2>
+        <div id="warehouseSettings" class="setting-list"></div>
+      </section>
+
+      <section class="card">
+        <h2>鳗鱼料规格</h2>
+        <div class="setting-row">
+          <div class="setting-name">每包斤数</div>
+          <input id="eelBagJin" type="number" step="0.5" min="1" value="40" />
+        </div>
+      </section>
+
+      <section class="card">
+        <button class="btn" style="width:100%" onclick="saveSettings()">保存设置</button>
+      </section>
     </section>
   </main>
 
-  <!-- 喂料弹窗 -->
-  <div class="modal-overlay" id="feedModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h2>记录喂料</h2>
-        <button class="modal-close" onclick="closeFeedModal()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="feed-pond-info">
-          <div class="feed-pond-name" id="modalPondName">-</div>
-          <div class="feed-pond-species" id="modalPondSpecies">-</div>
-          <div class="stock-hint">
-            <span class="stock-chip" id="modalWarehouse">-</span>
-            <span class="stock-chip" id="modalStock">-</span>
-          </div>
+  <div id="feedSheetLayer" class="sheet-layer" aria-hidden="true">
+    <div class="sheet-backdrop" onclick="closeFeedSheet()"></div>
+    <section class="feed-sheet" role="dialog" aria-modal="true">
+      <div class="sheet-handle"></div>
+
+      <div class="sheet-head">
+        <div>
+          <div id="sheetTitle" class="sheet-title">快捷喂鱼</div>
+          <div id="sheetSub" class="sheet-sub">当前鱼塘</div>
         </div>
-        <div class="form-field">
+        <button class="close-btn" onclick="closeFeedSheet()">×</button>
+      </div>
+
+      <div class="sheet-summary">
+        <div class="summary-box">
+          <div class="summary-label">今日合计</div>
+          <div id="sheetTodayTotal" class="summary-value">—</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">最后登记</div>
+          <div id="sheetLastTime" class="summary-value">—</div>
+        </div>
+      </div>
+
+      <div class="sheet-section-title">今日餐次明细</div>
+      <div id="sheetMealList" class="meal-list"></div>
+
+      <div class="sheet-section-title">快捷喂鱼</div>
+      <div class="toolbar">
+        <div class="field">
+          <label>仓库</label>
+          <select id="feedWarehouse" onchange="onFeedWarehouseChange()" oninput="onFeedWarehouseChange()"></select>
+        </div>
+        <div class="field">
           <label>饲料</label>
-          <div class="choice-row" id="feedNameRow"></div>
+          <select id="feedName" onchange="renderSheetStockHint(); updateFeedUnitOptions();"></select>
+          <div id="stockHint" class="stock-hint"></div>
         </div>
-        <div class="form-field">
-          <label>数量（包/斤）</label>
-          <input type="number" id="feedAmount" placeholder="请输入数量" inputmode="decimal" />
-        </div>
-        <div class="form-field">
+        <div class="field">
           <label>单位</label>
-          <div class="choice-row">
-            <button class="choice-pill active" type="button" data-group="feedUnit" data-value="bag" onclick="selectChoice(this)">包</button>
-            <button class="choice-pill" type="button" data-group="feedUnit" data-value="jin" onclick="selectChoice(this)">斤</button>
+          <select id="feedUnit"></select>
+        </div>
+        <div class="field full">
+          <label>数量</label>
+          <input id="feedAmount" type="number" step="0.5" min="0" placeholder="例如：4" inputmode="decimal" />
+          <div class="quick-amounts">
+            <button class="amount-btn" onclick="setAmount(1)">1包</button>
+            <button class="amount-btn" onclick="setAmount(2)">2包</button>
+            <button class="amount-btn" onclick="setAmount(4)">4包</button>
+            <button class="amount-btn" onclick="setAmount(8)">8包</button>
           </div>
         </div>
-        <div class="form-field">
+        <div class="field full">
           <label>备注</label>
-          <input type="text" id="feedNote" placeholder="选填" />
+          <textarea id="feedNote" placeholder="可不填"></textarea>
         </div>
-        <button class="btn-primary" onclick="saveFeed()">保存并扣库存</button>
-        <button class="btn-cancel" onclick="closeFeedModal()">取消</button>
       </div>
-    </div>
+
+      <button class="btn" style="width:100%;margin-top:14px" onclick="saveFeedFromSheet()">保存本次喂料</button>
+    </section>
+  </div>
+  <div id="pondDetailLayer" class="sheet-layer" aria-hidden="true">
+    <div class="sheet-backdrop" onclick="closePondDetail()"></div>
+    <section class="feed-sheet" role="dialog" aria-modal="true">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div>
+          <div id="pondDetailTitle" class="sheet-title">鱼塘喂料记录</div>
+          <div id="pondDetailSub" class="sheet-sub">月历查看每日喂料</div>
+        </div>
+        <button class="close-btn" onclick="closePondDetail()">×</button>
+      </div>
+      <div class="sheet-summary">
+        <div class="summary-box">
+          <div class="summary-label">总用料</div>
+          <div id="pondDetailTotal" class="summary-value">—</div>
+        </div>
+        <div class="summary-box">
+          <div class="summary-label">记录天数</div>
+          <div id="pondDetailDays" class="summary-value">—</div>
+        </div>
+      </div>
+
+      <div class="calendar-head">
+        <button class="ghost-btn calendar-nav-btn" onclick="changePondCalendarMonth(-1)">上月</button>
+        <div id="pondCalendarTitle" class="calendar-title">本月</div>
+        <button class="ghost-btn calendar-nav-btn" onclick="changePondCalendarMonth(1)">下月</button>
+      </div>
+
+      <div class="calendar-week">
+        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+      </div>
+      <div id="pondCalendarGrid" class="calendar-grid"></div>
+
+      <div class="sheet-section-title">当天餐次明细</div>
+      <div id="pondDayTitle" class="daily-date">请选择有喂料的日期</div>
+      <div id="pondDailyList" class="meal-list"></div>
+    </section>
   </div>
 
-  <nav class="bottom-sheet">
-    <div class="nav-shell">
-      <button class="nav-button active" data-target="home" onclick="showPage('home')">指挥台</button>
-      <button class="nav-button" data-target="inventory" onclick="showPage('inventory')">库存</button>
-      <button class="nav-button" data-target="pond" onclick="showPage('pond')">周期</button>
-      <button class="nav-button" data-target="memo" onclick="showPage('memo')">日志</button>
-      <button class="nav-button" data-target="settings" onclick="showPage('settings')">控制室</button>
+  <nav class="bottom">
+    <div class="bottom-inner">
+      <button id="navHome" class="nav active" onclick="showPage('home')">首页</button>
+      <button id="navInventory" class="nav" onclick="showPage('inventory')">库存</button>
+      <button id="navPond" class="nav" onclick="showPage('pond')">鱼塘</button>
+      <button id="navRecords" class="nav" onclick="showPage('records')">备忘</button>
+      <button id="navSettings" class="nav" onclick="showPage('settings')">设置</button>
     </div>
   </nav>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script>
-    // === 数据变量 ===
-    let ponds = [], warehouses = [], feedSpecs = { eelBagJin: 40 };
-    let feedRecords = [], stockLogs = [], stockTotals = {}, pondMemos = [], cycleStarts = {};
-    let selectedPondId = '1';
-    let currentFeedPondId = '';
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, onValue, push, set, update, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    const CACHE_KEY = 'fishpond_cache';
-    const CACHE_VERSION = 1;
+    const USE_FIREBASE = true;
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJeTuuBP_1h1Igfz4W_03a38avmrssqjM",
+      authDomain: "lwfsl-a0c62.firebaseapp.com",
+      databaseURL: "https://lwfsl-a0c62-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "lwfsl-a0c62",
+      storageBucket: "lwfsl-a0c62.firebasestorage.app",
+      messagingSenderId: "463268145457",
+      appId: "1:463268145457:web:51287c11eef1829010e810"
+    };
 
-    const COMMON_FEEDS = ['生鱼料', '鳗鱼料', '加州鲈料', '普通饲料'];
+    const DEFAULT_PONDS = Array.from({length:11},(_,i)=>({id:'pond'+(i+1),name:(i+1)+'号塘',species:'空置'}));
+    const DEFAULT_WAREHOUSES = Array.from({length:10},(_,i)=>({id:'wh'+(i+1),name:(i+1)+'号仓库',active:true}));
+    const COMMON_FEEDS = ['生鱼料','鳗鱼料','加州鲈料'];
 
-    // === 缓存 ===
-    function saveCache() {
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ v: CACHE_VERSION, ponds, warehouses, feedSpecs, feedRecords, stockLogs, stockTotals, pondMemos, cycleStarts })); } catch(e) {}
+    let app, db, firebaseReady = false;
+    let ponds = [...DEFAULT_PONDS];
+    let warehouses = [...DEFAULT_WAREHOUSES];
+    let feedSpecs = { eelBagJin: 40 };
+    let feedRecords = [];
+    let stockLogs = [];
+    let stockTotals = {};
+    let pondMemos = [];
+    let cycleStarts = {};
+    let currentSheetPondId = 'pond1';
+    let renderQueued = false;
+
+    const $ = id => document.getElementById(id);
+    const esc = v => String(v ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    const fmt = (n, d=2) => {
+      const x = Number(n || 0);
+      if (!Number.isFinite(x)) return '0';
+      return Number(x.toFixed(d)).toString();
+    };
+    const todayStr = () => {
+      const d = new Date();
+      const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    };
+
+    function prettyDate(dateStr) {
+      if (!dateStr) return '未设置';
+      const parts = String(dateStr).split('-');
+      if (parts.length === 3) {
+        return `${Number(parts[0])}/${Number(parts[1])}/${Number(parts[2])}`;
+      }
+      return String(dateStr);
     }
-    function loadCache() {
-      try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        if (!raw) return false;
-        const c = JSON.parse(raw);
-        if (c.v !== CACHE_VERSION) return false;
-        ponds = c.ponds || ponds; warehouses = c.warehouses || warehouses;
-        feedSpecs = c.feedSpecs || feedSpecs; feedRecords = c.feedRecords || feedRecords;
-        stockLogs = c.stockLogs || stockLogs; stockTotals = c.stockTotals || stockTotals;
-        pondMemos = c.pondMemos || pondMemos; cycleStarts = c.cycleStarts || cycleStarts;
-        return true;
-      } catch(e) { return false; }
+    const nowTime = ts => {
+      if (!ts) return '—';
+      const d = new Date(Number(ts));
+      if (Number.isNaN(d.getTime())) return '—';
+      return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    };
+    const dateShort = date => {
+      if (!date) return '未填日期';
+      if (date === todayStr()) return '今天';
+      const d = new Date(date + 'T00:00:00');
+      const now = new Date(todayStr() + 'T00:00:00');
+      const diff = Math.round((now - d) / 86400000);
+      if (diff === 1) return '昨天';
+      if (diff === 2) return '前天';
+      return String(date).slice(5).replace('-','/');
+    };
+
+    function setStatus(text, cls='') {
+      const el = $('firebaseStatus');
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'firebase-status' + (cls ? ' ' + cls : '');
     }
 
-    // === 工具函数 ===
     function objectList(val) {
       if (!val) return [];
-      if (Array.isArray(val)) return val;
-      return Object.entries(val).map(([id, v]) => ({ id, ...(v || {}) }));
-    }
-    function todayStr() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-    function nowTime(ts) { if (!ts) return '-'; const d = new Date(Number(ts)); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
-    function isEelFeed(name) { return (name || '').includes('鳗鱼'); }
-    function bagJin(name) { return isEelFeed(name) ? (feedSpecs.eelBagJin || 40) : 40; }
-    function fmt(n, d=0) { return Number(n || 0).toFixed(d).replace(/\.0+$/, ''); }
-    function stockKey(whId, feed) { return `${whId}__${feed}`; }
-
-    // === 页面导航 ===
-    function showPage(name) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.dataset.screen === name));
-      document.querySelectorAll('.nav-button').forEach(b => b.classList.toggle('active', b.dataset.target === name));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (Array.isArray(val)) return val.filter(Boolean);
+      return Object.entries(val).map(([id, v]) => ({id, ...(v || {})}));
     }
 
-    // === 选择按钮 ===
-    function selectChoice(btn) {
-      const group = btn.dataset.group;
-      btn.parentElement.querySelectorAll('.choice-pill').forEach(p => p.classList.toggle('active', p === btn));
-    }
-    function getChoiceValue(group) {
-      const active = document.querySelector(`.choice-pill[data-group="${group}"].active`);
-      return active ? active.dataset.value : '';
+    function objectMap(val) {
+      return val && typeof val === 'object' ? val : {};
     }
 
-    // === 渲染鱼塘地图 ===
-    function renderPondMap() {
-      const map = document.getElementById('pondMap');
-      const today = todayStr();
-      const todayRecords = feedRecords.filter(r => r.date === today && !r.cancelled);
-      
-      const activePonds = ponds.filter(p => p.species && p.species !== '空塘');
-      
-      map.innerHTML = activePonds.map(p => {
-        const pondRecords = todayRecords.filter(r => r.pondId === p.id);
-        const hasFed = pondRecords.length > 0;
-        const statusText = hasFed ? '已登记' : '待登记';
-        const isActive = p.id === selectedPondId;
-        const isWarn = !hasFed;
-        
-        return `<button class="pond-node ${isActive ? 'active' : ''} ${isWarn ? 'warn' : ''}" 
-          data-pond="${p.id}" onclick="selectPond('${p.id}')">
-          <span class="node-number">${p.name || p.id}</span>
-          <span class="node-status">${statusText}</span>
-        </button>`;
-      }).join('');
-
-      // 更新统计
-      const fedCount = new Set(todayRecords.map(r => r.pondId)).size;
-      document.getElementById('statFed').textContent = fedCount;
-      document.getElementById('statPonds').textContent = activePonds.length;
-      document.getElementById('statWarn').textContent = activePonds.length - fedCount;
+    function isEelFeed(feedName) {
+      return String(feedName || '').includes('鳗鱼');
     }
 
-    // === 选择鱼塘 ===
-    function selectPond(pondId) {
-      selectedPondId = pondId;
-      const pond = ponds.find(p => p.id === pondId);
-      if (!pond) return;
+    function bagJin(feedName) {
+      if (isEelFeed(feedName)) return Number(feedSpecs.eelBagJin || 40);
+      return 40;
+    }
 
-      document.getElementById('selectedTitle').textContent = `${pond.name || pond.id}号塘`;
-      document.getElementById('selectedSubtitle').textContent = `${pond.species || '未知'} · ${pond.id}`;
+    function unitForFeed(feedName) {
+      return isEelFeed(feedName) ? 'jin' : 'bag';
+    }
 
-      const today = todayStr();
-      const todayRecords = feedRecords.filter(r => r.date === today && !r.cancelled && r.pondId === pondId);
-      
-      if (todayRecords.length > 0) {
-        const total = todayRecords.reduce((s, r) => s + Number(r.amount || 0), 0);
-        const unit = isEelFeed(pond.species) ? '斤' : '包';
-        document.getElementById('selectedFeed').textContent = `${fmt(total)}${unit}`;
-        document.getElementById('selectedBadge').textContent = '正常';
-        document.getElementById('selectedBadge').className = 'status-badge green';
-        document.getElementById('selectedTime').textContent = nowTime(todayRecords[todayRecords.length - 1].createdAt);
-      } else {
-        document.getElementById('selectedFeed').textContent = '今日未登记';
-        document.getElementById('selectedBadge').textContent = '需处理';
-        document.getElementById('selectedBadge').className = 'status-badge';
-        document.getElementById('selectedTime').textContent = '待登记';
+    function stockKey(warehouseId, feedName) {
+      return `${warehouseId}__${encodeURIComponent(feedName || '未命名饲料')}`;
+    }
+
+    function pondById(id) {
+      return ponds.find(p => p.id === id || p.name === id) || ponds[0] || {id:'pond1', name:'1号塘', species:'空置'};
+    }
+
+    function whById(id) {
+      return warehouses.find(w => w.id === id) || warehouses[0] || {id:'wh1', name:'1号仓库'};
+    }
+
+    function normalizeWarehouseId(value) {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      const byId = warehouses.find(w => String(w.id) === raw);
+      if (byId) return byId.id;
+      const byName = warehouses.find(w => String(w.name) === raw);
+      if (byName) return byName.id;
+      const num = raw.match(/(\d+)/)?.[1];
+      if (num) {
+        const byNum = warehouses.find(w =>
+          String(w.id) === 'wh' + num ||
+          String(w.id) === 'warehouse' + num ||
+          String(w.name).includes(num + '号')
+        );
+        if (byNum) return byNum.id;
       }
-      
-      document.getElementById('selectedStock').textContent = '查看库存';
-
-      // 更新周期页
-      document.getElementById('pondDetailTitle').textContent = `${pond.name || pond.id}号塘`;
-      document.getElementById('pondDetailSub').textContent = `${pond.species || '未知'} · 养殖中`;
-
-      renderPondMap();
+      return raw;
     }
 
-    // === 渲染任务列表 ===
-    function renderTasks() {
-      const today = todayStr();
-      const todayRecords = feedRecords.filter(r => r.date === today && !r.cancelled);
-      const activePonds = ponds.filter(p => p.species && p.species !== '空塘');
-      const unfedPonds = activePonds.filter(p => !todayRecords.some(r => r.pondId === p.id));
-      
-      const lowStockItems = Object.entries(stockTotals).filter(([key, val]) => {
-        const stock = typeof val === 'object' ? val.stockJin || 0 : val;
-        return stock > 0 && stock < 500; // 低于500斤预警
+    function isOccupied(p) {
+      return p && p.species && p.species !== '空置';
+    }
+
+    function sortedPonds() {
+      return [...ponds].sort((a,b)=>{
+        const ao = isOccupied(a) ? 0 : 1;
+        const bo = isOccupied(b) ? 0 : 1;
+        if (ao !== bo) return ao - bo;
+        return String(a.name || '').localeCompare(String(b.name || ''), 'zh-CN', {numeric:true});
       });
-
-      let score = 100 - unfedPonds.length * 5 - lowStockItems.length * 5;
-      score = Math.max(0, Math.min(100, score));
-      document.getElementById('taskScore').textContent = score;
-
-      const tasks = [];
-      unfedPonds.slice(0, 3).forEach(p => {
-        tasks.push(`<article class="task-card">
-          <span class="task-dot warn"></span>
-          <div><div class="task-title">${p.name || p.id}号塘未登记</div><div class="task-meta">建议先补今日喂料</div></div>
-          <div class="task-time">现在</div>
-        </article>`);
-      });
-      
-      if (todayRecords.length > 0) {
-        tasks.push(`<article class="task-card">
-          <span class="task-dot"></span>
-          <div><div class="task-title">${todayRecords.length} 条记录已同步</div><div class="task-meta">Firebase 在线，数据正常</div></div>
-          <div class="task-time">${nowTime(todayRecords[0].createdAt)}</div>
-        </article>`);
-      }
-
-      document.getElementById('taskList').innerHTML = tasks.join('') || '<div class="task-card"><div class="task-title">暂无任务</div></div>';
     }
 
-    // === 渲染库存 ===
-    function renderInventory() {
-      const list = document.getElementById('inventoryList');
-      const feedMap = {};
-      
-      Object.entries(stockTotals).forEach(([key, val]) => {
-        const stock = typeof val === 'object' ? val.stockJin || 0 : val;
-        const feedName = typeof val === 'object' ? (val.feedName || key.split('__')[1] || key) : key.split('__')[1] || key;
-        if (!feedMap[feedName]) feedMap[feedName] = 0;
-        feedMap[feedName] += stock;
-      });
-
-      if (Object.keys(feedMap).length === 0) {
-        list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);">暂无库存数据</div>';
-        return;
-      }
-
-      const maxStock = Math.max(...Object.values(feedMap), 1);
-
-      list.innerHTML = Object.entries(feedMap).map(([name, stock]) => {
-        const pct = Math.min(100, (stock / maxStock) * 100);
-        const isLow = stock < 500;
-        return `<article class="inventory-card">
-          <div class="inventory-top">
-            <h3 class="inventory-name">${name}</h3>
-            <div class="inventory-value" style="${isLow ? 'color:var(--amber)' : ''}">${fmt(stock, 1)}斤</div>
-          </div>
-          <div class="level-track"><span style="width:${pct}%;${isLow ? 'background:linear-gradient(90deg,#b97615,#e7a62f)' : ''}"></span></div>
-          <div class="warehouse-row">
-            <span class="pill ${isLow ? 'low' : ''}">${isLow ? '低库存' : '正常'}</span>
-          </div>
-        </article>`;
-      }).join('');
+    function activeWarehouses() {
+      return warehouses.filter(w => w.active !== false);
     }
 
-    // === 渲染设置页 ===
-    function renderSettings() {
-      // 鱼塘
-      document.getElementById('pondSettings').innerHTML = ponds.map(p => 
-        `<div class="setting-item">
-          <div class="setting-item-name">${p.name || p.id}号塘</div>
-          <div class="setting-item-value">${p.species || '未设置'}</div>
-        </div>`
-      ).join('') || '<div style="padding:14px;color:var(--muted);">暂无鱼塘数据</div>';
-
-      // 仓库
-      document.getElementById('warehouseSettings').innerHTML = warehouses.map(w => 
-        `<div class="setting-item">
-          <div class="setting-item-name">${w.name || w.id}</div>
-          <div class="setting-item-value">${w.active !== false ? '启用' : '停用'}</div>
-        </div>`
-      ).join('') || '<div style="padding:14px;color:var(--muted);">暂无仓库数据</div>';
-
-      // 饲料规格
-      document.getElementById('feedSettings').innerHTML = `
-        <div class="setting-item">
-          <div class="setting-item-name">鳗鱼料每包斤数</div>
-          <div class="setting-item-value">${feedSpecs.eelBagJin || 40}斤/包</div>
-        </div>`;
+    function originalAmount(record) {
+      const feed = record?.feedName || '';
+      const unit = record?.unit || unitForFeed(feed);
+      const jin = recordStockJin(record);
+      return Number(record?.amount ?? record?.bags ?? (unit === 'jin' ? jin : jin / bagJin(feed)) ?? 0);
     }
 
-    // === 渲染日志 ===
-    function renderMemos() {
-      document.getElementById('memoDate').value = todayStr();
-      
-      // 鱼塘选择
-      const pondRow = document.getElementById('memoPondRow');
-      const activePonds = ponds.filter(p => p.species && p.species !== '空塘');
-      pondRow.innerHTML = activePonds.map((p, i) => 
-        `<button class="choice-pill ${i === 0 ? 'active' : ''}" type="button" data-group="memoPond" data-value="${p.id}" onclick="selectChoice(this)">${p.name || p.id}号塘</button>`
-      ).join('');
-
-      // 日志列表
-      document.getElementById('memoList').innerHTML = pondMemos.slice(0, 10).map(m => 
-        `<div style="padding:12px;border:1px solid var(--line);border-radius:16px;background:white;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-weight:950;">${m.pondName || m.pondId || '-'}</span>
-            <span style="color:var(--muted);font-size:12px;">${m.date || ''}</span>
-          </div>
-          <div style="margin-top:6px;color:var(--muted);font-size:13px;">${m.action || ''} ${m.text || ''}</div>
-        </div>`
-      ).join('') || '<div style="padding:20px;text-align:center;color:var(--muted);">暂无日志</div>';
+    function recordStockJin(record) {
+      const feed = record?.feedName || '';
+      const unit = record?.unit || unitForFeed(feed);
+      const amount = Number(record?.amount ?? record?.bags ?? 0);
+      if (record?.stockJin !== undefined) return Number(record.stockJin || 0);
+      if (record?.jin !== undefined) return Number(record.jin || 0);
+      return unit === 'jin' ? amount : amount * bagJin(feed);
     }
 
-    // === 喂料弹窗 ===
-    function openFeedModal() {
-      currentFeedPondId = selectedPondId;
-      const pond = ponds.find(p => p.id === currentFeedPondId);
-      if (!pond) return alert('请先选择一个鱼塘');
-
-      document.getElementById('modalPondName').textContent = `${pond.name || pond.id}号塘`;
-      document.getElementById('modalPondSpecies').textContent = pond.species || '未知';
-
-      // 饲料选择
-      const feedRow = document.getElementById('feedNameRow');
-      const feeds = COMMON_FEEDS.filter(f => {
-        if (isEelFeed(pond.species)) return f.includes('鳗鱼');
-        return !f.includes('鳗鱼');
-      });
-      feedRow.innerHTML = feeds.map((f, i) => 
-        `<button class="choice-pill ${i === 0 ? 'active' : ''}" type="button" data-group="feedName" data-value="${f}" onclick="selectChoice(this)">${f}</button>`
-      ).join('');
-
-      // 库存信息
-      const defaultWh = warehouses[0];
-      document.getElementById('modalWarehouse').textContent = defaultWh ? defaultWh.name : '仓库';
-      document.getElementById('modalStock').textContent = '加载中...';
-
-      document.getElementById('feedModal').classList.add('open');
-      document.body.style.overflow = 'hidden';
+    function logStockJin(log) {
+      const feed = log?.feedName || '';
+      const unit = log?.unit || 'bag';
+      const amount = Number(log?.amount ?? log?.bags ?? 0);
+      if (log?.stockJin !== undefined) return Number(log.stockJin || 0);
+      if (log?.jin !== undefined) return Number(log.jin || 0);
+      return unit === 'jin' ? amount : amount * bagJin(feed);
     }
 
-    function closeFeedModal() {
-      document.getElementById('feedModal').classList.remove('open');
-      document.body.style.overflow = '';
+    function amountDisplay(feedName, amount, unit='bag') {
+      if (isEelFeed(feedName) && unit === 'jin') return `${fmt(amount)}斤${feedName}`;
+      return `${fmt(amount)}包${feedName}`;
     }
 
-    function saveFeed() {
-      const feedName = getChoiceValue('feedName');
-      const amount = Number(document.getElementById('feedAmount').value);
-      const unit = getChoiceValue('feedUnit') || 'bag';
-      const note = document.getElementById('feedNote').value.trim();
-
-      if (!feedName || !amount || amount <= 0) return alert('请选择饲料并输入数量');
-
-      const pond = ponds.find(p => p.id === currentFeedPondId);
-      const now = Date.now();
-
-      // 保存到 Firebase
-      const db = firebase.database();
-      db.ref('feedRecords').push({
-        date: todayStr(),
-        pondId: currentFeedPondId,
-        pondName: pond ? (pond.name || pond.id) : currentFeedPondId,
-        species: pond ? pond.species : '',
-        feedName, amount, unit,
-        person: '', note,
-        createdAt: now
-      });
-
-      alert('喂料已记录！');
-      closeFeedModal();
-      document.getElementById('feedAmount').value = '';
-      document.getElementById('feedNote').value = '';
-    }
-
-    function saveMemo() {
-      const pondId = getChoiceValue('memoPond');
-      const action = getChoiceValue('memoAction');
-      const text = document.getElementById('memoText').value.trim();
-      const date = document.getElementById('memoDate').value;
-
-      if (!pondId || !action) return alert('请选择鱼塘和动作');
-
-      const pond = ponds.find(p => p.id === pondId);
-      const db = firebase.database();
-      db.ref('pondMemos').push({
-        date, pondId,
-        pondName: pond ? (pond.name || pond.id) : pondId,
-        species: pond ? pond.species : '',
-        action, text, createdAt: Date.now()
-      });
-
-      alert('日志已保存！');
-      document.getElementById('memoText').value = '';
-    }
-
-    function jumpToCalendar() {
-      showPage('pond');
-    }
-
-    // === Firebase 初始化 ===
-    function initFirebase() {
-      try {
-        firebase.initializeApp({
-          apiKey: "AIzaSyBJeTuuBP_1h1Igfz4W_03a38avmrssqjM",
-          authDomain: "lwfsl-a0c62.firebaseapp.com",
-          databaseURL: "https://lwfsl-a0c62-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "lwfsl-a0c62",
-          storageBucket: "lwfsl-a0c62.firebasestorage.app",
-          messagingSenderId: "103577638673",
-          appId: "1:103577638673:web:0586e34f56c0f278336d46"
+    function togglePondSummaryPanel(event, button) {
+      event?.stopPropagation();
+      const card = button?.closest('.pond-total-card');
+      const panel = card ? card.querySelector('.pond-total-extra') : null;
+      if (!panel) return;
+      const shouldOpen = panel.hidden;
+      panel.hidden = !shouldOpen;
+      button.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+      button.textContent = shouldOpen ? '收起' : '展开';
+      if (shouldOpen) {
+        requestAnimationFrame(() => {
+          const nav = document.querySelector('.bottom');
+          const navTop = nav ? nav.getBoundingClientRect().top : window.innerHeight;
+          const panelBottom = panel.getBoundingClientRect().bottom;
+          const overlap = panelBottom - navTop + 16;
+          if (overlap > 0) {
+            window.scrollBy({ top: overlap, behavior:'smooth' });
+          } else {
+            const panelTop = panel.getBoundingClientRect().top;
+            if (panelTop < 76) window.scrollBy({ top: panelTop - 76, behavior:'smooth' });
+          }
         });
-        const db = firebase.database();
+      }
+    }
 
-        loadCache();
+    window.togglePondSummary = togglePondSummaryPanel;
+
+    function stockDisplay(feedName, jin) {
+      const n = Number(jin || 0);
+      if (isEelFeed(feedName)) return `${fmt(n,1)}斤 / 约${fmt(n / bagJin(feedName),1)}包`;
+      return `${fmt(n / bagJin(feedName),1)}包`;
+    }
+
+    function usageText(records) {
+      const groups = {};
+      (records || []).forEach(r => {
+        if (!r || r.cancelled) return;
+        const feed = r.feedName || '普通饲料';
+        let unit = r.unit || unitForFeed(feed);
+        let amount = originalAmount(r);
+        if (!isEelFeed(feed) && unit === 'jin') {
+          amount = recordStockJin(r) / bagJin(feed);
+          unit = 'bag';
+        }
+        const key = feed + '__' + unit;
+        if (!groups[key]) groups[key] = {feed, unit, amount:0};
+        groups[key].amount += amount;
+      });
+      const parts = Object.values(groups).sort((a,b)=>String(a.feed).localeCompare(String(b.feed),'zh-CN')).map(g => {
+        if (isEelFeed(g.feed) && g.unit === 'jin') return `${fmt(g.amount)}斤${g.feed}`;
+        return `${fmt(g.amount)}包${g.feed}`;
+      });
+      return parts.length ? parts.join(' + ') : '0包';
+    }
+
+    function isBackfill(record) {
+      return record?.sourceType === 'backfill' || record?.stockAffect === false || record?.warehouseId === 'backfill';
+    }
+
+    function belongs(record, pond) {
+      return record?.pondId === pond?.id || record?.pondName === pond?.name;
+    }
+
+    function currentCycleRecords(pond) {
+      const startAt = Number(cycleStarts[pond.id] || 0);
+      return feedRecords.filter(r => !r.cancelled && belongs(r, pond) && Number(r.createdAt || 0) >= startAt);
+    }
+
+    function todayRecords() {
+      return feedRecords.filter(r => !r.cancelled && !isBackfill(r) && r.date === todayStr());
+    }
+
+    function inferWarehouseIdFromText(text) {
+      const raw = String(text || '').trim();
+      if (!raw) return '';
+      const byId = warehouses.find(w => String(w.id) === raw);
+      if (byId) return byId.id;
+      const byName = warehouses.find(w => String(w.name) === raw);
+      if (byName) return byName.id;
+      const num = raw.match(/(\d+)/)?.[1];
+      if (num) {
+        const byNum = warehouses.find(w =>
+          String(w.id) === 'wh' + num ||
+          String(w.id) === 'warehouse' + num ||
+          String(w.name).includes(num + '号')
+        );
+        if (byNum) return byNum.id;
+      }
+      return '';
+    }
+
+    function looksLikeFeedName(text) {
+      const raw = String(text || '').trim();
+      if (!raw) return '';
+      const decoded = (() => {
+        try { return decodeURIComponent(raw); } catch(e) { return raw; }
+      })();
+      const feeds = [...COMMON_FEEDS, ...stockLogs.map(l => l.feedName).filter(Boolean), ...feedRecords.map(r => r.feedName).filter(Boolean)];
+      return feeds.find(f => decoded.includes(f) || String(f).includes(decoded)) || decoded;
+    }
+
+    function splitStockKey(keyText) {
+      const raw = String(keyText || '');
+      const candidates = [];
+      ['__','|','/','_','-'].forEach(sep => {
+        if (raw.includes(sep)) {
+          const parts = raw.split(sep).filter(Boolean);
+          if (parts.length >= 2) candidates.push(parts);
+        }
+      });
+
+      for (const parts of candidates) {
+        const decoded = parts.map(p => {
+          try { return decodeURIComponent(p); } catch(e) { return p; }
+        });
+        let wh = '';
+        let feed = '';
+
+        decoded.forEach(p => {
+          const maybeWh = inferWarehouseIdFromText(p);
+          if (maybeWh && !wh) wh = maybeWh;
+        });
+
+        decoded.forEach(p => {
+          if (inferWarehouseIdFromText(p)) return;
+          if (!feed) feed = looksLikeFeedName(p);
+        });
+
+        if (wh && feed) return {warehouseId: wh, feedName: feed};
+      }
+
+      return {warehouseId:'', feedName:''};
+    }
+
+    function stockRows() {
+      const rows = [];
+
+      function addRow(raw, fallbackKey='', fallbackWh='', fallbackFeed='') {
+        const it = raw || {};
+        const keyText = String(fallbackKey || '');
+        const parsed = splitStockKey(keyText);
+        const parsedFallback = splitStockKey(String(fallbackWh || ''));
+
+        let warehouseId =
+          inferWarehouseIdFromText(it.warehouseId) ||
+          inferWarehouseIdFromText(it.whId) ||
+          inferWarehouseIdFromText(it.warehouse) ||
+          inferWarehouseIdFromText(it.warehouseName) ||
+          inferWarehouseIdFromText(fallbackWh) ||
+          parsed.warehouseId ||
+          parsedFallback.warehouseId ||
+          '';
+
+        let feedName =
+          it.feedName ||
+          it.feed ||
+          it.name ||
+          fallbackFeed ||
+          parsed.feedName ||
+          parsedFallback.feedName ||
+          '';
+
+        feedName = String(feedName || '未命名饲料').trim();
+        warehouseId = normalizeWarehouseId(warehouseId);
+
+        const jin = it.stockJin !== undefined
+          ? Number(it.stockJin || 0)
+          : it.jin !== undefined
+            ? Number(it.jin || 0)
+            : it.totalJin !== undefined
+              ? Number(it.totalJin || 0)
+              : Number(it.bags || it.stockBags || it.stock || 0) * bagJin(feedName);
+
+        if (warehouseId && feedName && jin > 0.001) {
+          rows.push({
+            ...it,
+            warehouseId,
+            warehouseName: it.warehouseName || whById(warehouseId).name,
+            feedName,
+            stockJin: jin
+          });
+        }
+      }
+
+      Object.entries(stockTotals || {}).forEach(([key, raw]) => {
+        if (raw && typeof raw === 'object' && (
+          raw.feedName || raw.feed || raw.name || raw.stockJin !== undefined || raw.jin !== undefined || raw.bags !== undefined || raw.stock !== undefined
+        )) {
+          addRow(raw, key);
+          return;
+        }
+
+        if (raw && typeof raw === 'object') {
+          Object.entries(raw).forEach(([feedKey, item]) => {
+            if (item && typeof item === 'object') {
+              addRow(item, feedKey, key, item.feedName || item.feed || item.name || '');
+            } else {
+              addRow({bags: item}, feedKey, key, '');
+            }
+          });
+        }
+      });
+
+      const merged = {};
+      rows.forEach(r => {
+        const whId = normalizeWarehouseId(r.warehouseId);
+        const key = whId + '__' + r.feedName;
+        if (!merged[key]) merged[key] = {...r, warehouseId: whId, warehouseName: whById(whId).name, stockJin: 0};
+        merged[key].stockJin += Number(r.stockJin || 0);
+      });
+
+      return Object.values(merged).filter(i => i.stockJin > 0.001);
+    }
+
+    function totalStocks() {
+      const map = {};
+      stockRows().forEach(i => {
+        map[i.feedName] = (map[i.feedName] || 0) + i.stockJin;
+      });
+      return Object.entries(map).map(([feedName, stockJin]) => ({feedName, stockJin}));
+    }
+
+    function warehouseFeedRows(warehouseId) {
+      const whId = normalizeWarehouseId(warehouseId);
+      return stockRows().filter(i => normalizeWarehouseId(i.warehouseId) === whId && i.stockJin > 0.001);
+    }
+
+    function getWarehouseFeedStock(warehouseId, feedName) {
+      const whId = normalizeWarehouseId(warehouseId);
+      const row = stockRows().find(i => normalizeWarehouseId(i.warehouseId) === whId && i.feedName === feedName);
+      return row ? row.stockJin : 0;
+    }
+
+    function queueRender() {
+      if (renderQueued) return;
+      renderQueued = true;
+      requestAnimationFrame(() => {
+        renderQueued = false;
         renderAll();
-
-        db.ref('settings/ponds').on('value', snap => {
-          ponds = objectList(snap.val());
-          if (ponds.length === 0) ponds = [{id:'1',name:'1',species:'鳗鱼'},{id:'2',name:'2',species:'鳗鱼'},{id:'3',name:'3',species:'生鱼'}];
-          saveCache(); renderAll();
-        });
-
-        db.ref('settings/warehouses').on('value', snap => {
-          warehouses = objectList(snap.val());
-          if (warehouses.length === 0) warehouses = [{id:'wh1',name:'1号仓库'}];
-          saveCache(); renderAll();
-        });
-
-        db.ref('settings/feedSpecs').on('value', snap => {
-          feedSpecs = { eelBagJin: 40, ...(snap.val() || {}) };
-          saveCache();
-        });
-
-        db.ref('feedRecords').on('value', snap => {
-          feedRecords = objectList(snap.val()).sort((a,b) => Number(b.createdAt||0) - Number(a.createdAt||0));
-          saveCache(); renderAll();
-        });
-
-        db.ref('stockTotals').on('value', snap => {
-          stockTotals = snap.val() || {};
-          saveCache(); renderAll();
-        });
-
-        db.ref('stockLogs').on('value', snap => {
-          stockLogs = objectList(snap.val()).sort((a,b) => Number(b.createdAt||0) - Number(a.createdAt||0));
-          saveCache();
-        });
-
-        db.ref('pondMemos').on('value', snap => {
-          pondMemos = objectList(snap.val());
-          saveCache(); renderMemos();
-        });
-
-        document.getElementById('syncStatus').textContent = '在线同步 ' + new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'});
-      } catch(err) {
-        console.error('Firebase 连接失败：', err);
-        document.getElementById('syncStatus').textContent = '连接失败';
-      }
+      });
     }
 
     function renderAll() {
-      renderPondMap();
-      renderTasks();
+      renderSelects();
+      renderHome();
       renderInventory();
-      renderSettings();
+      renderPondTotals();
       renderMemos();
-      selectPond(selectedPondId);
+      renderSettings();
+      bindWarehouseFeedEvents();
+      if (firebaseReady) {
+        setStatus(`已连接　数据同步正常　最后同步 ${new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}`);
+      }
     }
 
-    // === 启动 ===
-    document.addEventListener('DOMContentLoaded', () => {
-      if (ponds.length === 0) {
-        ponds = [
-          {id:'1',name:'1',species:'鳗鱼'},{id:'2',name:'2',species:'鳗鱼'},
-          {id:'3',name:'3',species:'生鱼'},{id:'4',name:'4',species:'鳗鱼'},
-          {id:'5',name:'5',species:'生鱼'},{id:'8',name:'8',species:'生鱼'},
-          {id:'9',name:'9',species:'生鱼'},{id:'10',name:'10',species:'鳗鱼'},
-          {id:'11',name:'11',species:'鳗鱼'}
-        ];
-        warehouses = [{id:'wh1',name:'1号仓库'},{id:'wh2',name:'2号仓库'}];
+    function renderSelects() {
+      const whOptions = activeWarehouses().map(w => `<option value="${esc(w.id)}">${esc(w.name)}</option>`).join('');
+      ['stockWarehouse','externalWarehouse','feedWarehouse'].forEach(id => {
+        const el = $(id);
+        if (!el) return;
+        const old = el.value;
+        el.innerHTML = whOptions;
+        if (old) el.value = old;
+      });
+
+      const feedOptions = COMMON_FEEDS.map(f => `<option>${esc(f)}</option>`).join('');
+      const stockFeed = $('stockFeedName');
+      if (stockFeed) {
+        const old = stockFeed.value;
+        stockFeed.innerHTML = feedOptions;
+        if (old) stockFeed.value = old;
       }
-      initFirebase();
+
+      const pondOptions = sortedPonds().filter(isOccupied).map(p => `<option value="${esc(p.id)}">${esc(p.name)} - ${esc(p.species)}</option>`).join('');
+      const memoPond = $('memoPond');
+      if (memoPond) {
+        const old = memoPond.value;
+        memoPond.innerHTML = pondOptions || sortedPonds().map(p => `<option value="${esc(p.id)}">${esc(p.name)} - ${esc(p.species||'空置')}</option>`).join('');
+        if (old) memoPond.value = old;
+      }
+
+      const memoFilterPond = $('memoFilterPond');
+      if (memoFilterPond) {
+        const oldFilter = memoFilterPond.value;
+        memoFilterPond.innerHTML = '<option value="">全部鱼塘</option>' + sortedPonds().filter(isOccupied).map(p => `<option value="${esc(p.id)}">${esc(p.name)} · ${esc(p.species || '')}</option>`).join('');
+        if (oldFilter && [...memoFilterPond.options].some(o => o.value === oldFilter)) memoFilterPond.value = oldFilter;
+      }
+
+      if ($('feedWarehouse')) updateFeedOptions($('feedName')?.value || '');
+      if ($('externalWarehouse')) updateExternalFeedOptions(true);
+    }
+
+    function mealLabel(index) {
+      const names = ['一','二','三','四','五','六','七','八','九','十'];
+      return index < names.length ? `今日${names[index]}餐` : `今日第${index+1}餐`;
+    }
+
+    function renderHome() {
+      const today = todayRecords().sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));
+      const byP = {};
+      today.forEach(r => {
+        const id = r.pondId || r.pondName || '';
+        if (!id) return;
+        (byP[id] ||= []).push(r);
+      });
+
+      const activePonds = sortedPonds().filter(isOccupied);
+      const registeredPondIds = new Set();
+      today.forEach(r => {
+        const p = pondById(r.pondId || r.pondName);
+        const id = p?.id || r.pondId || r.pondName || '';
+        if (id) registeredPondIds.add(id);
+      });
+      const pendingPonds = Math.max(activePonds.length - registeredPondIds.size, 0);
+      const lowStockCount = stockRows().filter(row => {
+        const stockJin = Number(row.stockJin || 0);
+        if (!Number.isFinite(stockJin)) return false;
+        return stockJin <= Math.max(bagJin(row.feedName) * 2, 80);
+      }).length;
+      const summary = $('homeOpsSummary');
+      if (summary) {
+        summary.innerHTML = `
+          <div class="summary-stat">
+            <div class="summary-stat-label">登记鱼塘</div>
+            <div class="summary-stat-value">${registeredPondIds.size}</div>
+            <div class="summary-stat-note">待登记 ${pendingPonds}</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-label">今日记录</div>
+            <div class="summary-stat-value">${today.length}</div>
+            <div class="summary-stat-note">${activePonds.length} 个养殖塘</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-label">库存预警</div>
+            <div class="summary-stat-value">${lowStockCount}</div>
+            <div class="summary-stat-note">点击库存查看</div>
+          </div>
+        `;
+      }
+      $('homePondGrid').innerHTML = activePonds.map(p => {
+        const rs = (byP[p.id] || byP[p.name] || []).slice().sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));
+        const total = rs.length ? usageText(rs) : '今日未登记';
+        const last = rs.length ? nowTime(rs[rs.length-1].createdAt) : '—';
+        const owner = rs.length ? esc(rs[rs.length-1].person || '—') : '—';
+        return `<article class="pond-card ${rs.length?'':'is-no-feed'}" onclick="openFeedSheet('${esc(p.id)}')">
+          <div class="pond-card-head">
+            <div class="pond-name-line">
+              <span class="pond-name">${esc(p.name)}</span>
+              <span class="pond-species">${esc(p.species || '空置')}</span>
+            </div>
+            <span class="pond-status">${rs.length?'已登记':'待登记'}</span>
+          </div>
+          <div class="pond-total-feed">
+            <div class="total-label">今日喂料</div>
+            <div class="total-value">${esc(total)}</div>
+          </div>
+          <div class="pond-meta">
+            <span>最后登记：${last}</span>
+          </div>
+        </article>`;
+      }).join('') || '<div class="record-card"><div class="record-title">暂无已养殖鱼塘</div><div class="record-meta">请先到设置里填写鱼种。</div></div>';
+
+      $('homeTodayList').innerHTML = today.map((r,i) => {
+        const p = pondById(r.pondId || r.pondName);
+        const rs = byP[r.pondId || r.pondName || ''] || [];
+        const idx = rs.findIndex(x => x.id === r.id);
+        return `<div class="today-row">
+          <span class="name">${esc(p.name || r.pondName || '')} · ${esc(p.species || r.species || '')}</span>
+          <span class="feed">${mealLabel(idx < 0 ? i : idx)}：${amountDisplay(r.feedName, originalAmount(r), r.unit || unitForFeed(r.feedName))}</span>
+          <span class="time">${nowTime(r.createdAt)}</span>
+        </div>`;
+      }).join('') || '<div class="record-card"><div class="record-title">今天暂无喂料记录</div><div class="record-meta">点击首页鱼塘方块即可快捷登记。</div></div>';
+    }
+
+    function renderInventory() {
+      const totals = totalStocks();
+      $('inventoryList').innerHTML = totals.map(i => {
+        const whParts = stockRows().filter(x => x.feedName === i.feedName).map(x => `<span>${esc(whById(x.warehouseId).name)}：${stockDisplay(x.feedName, x.stockJin)}</span>`).join('');
+        return `<article class="stock-card">
+          <div class="stock-head">
+            <div>
+              <div class="stock-name">${esc(i.feedName)}</div>
+              <div class="stock-spec">${isEelFeed(i.feedName) ? `规格：${fmt(bagJin(i.feedName))}斤/包` : '按包显示'}</div>
+            </div>
+            <div class="stock-total">${stockDisplay(i.feedName, i.stockJin)}</div>
+          </div>
+          <div class="stock-warehouses">${whParts}</div>
+        </article>`;
+      }).join('') || '<div class="record-card"><div class="record-title">暂无库存</div><div class="record-meta">可以先在“送货入库”里登记饲料。</div></div>';
+
+      renderStockCalendar();
+    }
+
+    function renderPondTotals() {
+      const activePonds = sortedPonds().filter(isOccupied);
+      const missingProfileCount = activePonds.filter(p => !p.seedDate || !p.seedQty).length;
+      const latestSeedDate = activePonds.map(p => p.seedDate).filter(Boolean).sort().pop();
+      const statsEl = $('pondBoardStats');
+      if (statsEl) {
+        statsEl.innerHTML = `
+          <div class="pond-board-stat">
+            <div class="pond-board-stat-label">养殖中鱼塘</div>
+            <div class="pond-board-stat-value">${activePonds.length}塘</div>
+            <div class="pond-board-stat-note">当前有鱼的鱼塘数量</div>
+          </div>
+          <div class="pond-board-stat">
+            <div class="pond-board-stat-label">资料待补</div>
+            <div class="pond-board-stat-value">${missingProfileCount}塘</div>
+            <div class="pond-board-stat-note">落苗时间或数量未完整</div>
+          </div>
+          <div class="pond-board-stat">
+            <div class="pond-board-stat-label">最近落苗</div>
+            <div class="pond-board-stat-value">${esc(latestSeedDate ? prettyDate(latestSeedDate) : '未设置')}</div>
+            <div class="pond-board-stat-note">来自当前养殖鱼塘资料</div>
+          </div>`;
+      }
+
+      $('pondTotalGrid').innerHTML = activePonds.map(p => {
+        const rs = currentCycleRecords(p);
+        const total = usageText(rs);
+        const start = cycleStarts[p.id] ? new Date(Number(cycleStarts[p.id])).toLocaleDateString('zh-CN') : '系统开始';
+        const seedDate = p.seedDate ? prettyDate(p.seedDate) : (cycleStarts[p.id] ? start : '未设置');
+        const seedQty = p.seedQty || '未设置';
+        const summary = seedQty === '未设置' ? '落苗数量未设置' : seedQty;
+        const pondNo = (String(p.name || '').match(/\d+/) || [p.name || '塘'])[0];
+        const panelId = 'pondExtra_' + String(p.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+
+        return `<article class="pond-total-card pond-total-card-v3">
+          <div class="pond-card-top">
+            <div class="pond-identity">
+              <div class="pond-number">${esc(pondNo)}</div>
+              <div class="pond-title-stack">
+                <div class="pond-total-name-line">
+                  <span class="pond-total-name">${esc(p.name)}</span>
+                </div>
+                <div class="pond-total-sub">当前这塘鱼</div>
+              </div>
+            </div>
+            <div class="pond-pill-row">
+              <span class="pond-total-species">${esc(p.species)}</span>
+              <span class="pond-total-status">养殖中</span>
+            </div>
+          </div>
+
+          <div class="pond-card-main">
+            <div class="pond-feed-panel">
+              <div class="pond-feed-label">这塘鱼总用料</div>
+              <div class="pond-feed-value">${esc(total)}</div>
+            </div>
+            <div class="pond-info-stack">
+              <div class="pond-info-tile">
+                <div class="pond-info-label">落苗时间</div>
+                <div class="pond-info-value">${esc(seedDate)}</div>
+              </div>
+              <div class="pond-info-tile">
+                <div class="pond-info-label">本轮开始</div>
+                <div class="pond-info-value">${esc(start)}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pond-summary">
+            <div class="pond-summary-label">落苗摘要</div>
+            <div class="pond-summary-value">${esc(summary)}</div>
+          </div>
+
+          <div class="pond-total-foot">
+            <button type="button" class="pond-total-detail" aria-expanded="false" aria-controls="${esc(panelId)}" onclick="window.togglePondSummary(event,this)">展开</button>
+            <button type="button" class="pond-total-link" onclick="event.stopPropagation();window.openPondDetail('${esc(p.id)}')">日历</button>
+          </div>
+
+          <div id="${esc(panelId)}" class="pond-total-extra" hidden>
+            <div class="pond-extra-row">
+              <span class="pond-extra-label">用料明细</span>
+              <span class="pond-extra-value">${esc(total)}</span>
+            </div>
+            <div class="pond-extra-row">
+              <span class="pond-extra-label">落苗数量</span>
+              <span class="pond-extra-value">${esc(seedQty)}</span>
+            </div>
+            <div class="pond-extra-row">
+              <span class="pond-extra-label">本轮开始</span>
+              <span class="pond-extra-value">${esc(start)}</span>
+            </div>
+          </div>
+        </article>`;
+      }).join('') || '<div class="record-card"><div class="record-title">暂无已养殖鱼塘</div><div class="record-meta">请先到设置里填写鱼种。</div></div>';
+    }
+
+    function renderMemos() {
+      const pondFilter = $('memoFilterPond')?.value || '';
+      const actionFilter = $('memoFilterAction')?.value || '';
+
+      let list = pondMemos.slice();
+
+      if (pondFilter) {
+        const pond = pondById(pondFilter);
+        list = list.filter(m => m.pondId === pondFilter || m.pondName === pond.name);
+      }
+
+      if (actionFilter) {
+        list = list.filter(m => m.action === actionFilter);
+      }
+
+      const sorted = list.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')) || Number(b.createdAt||0)-Number(a.createdAt||0));
+
+      const summary = $('memoFilterSummary');
+      if (summary) {
+        const pondName = pondFilter ? (pondById(pondFilter).name || '指定鱼塘') : '全部鱼塘';
+        const actionName = actionFilter || '全部动作';
+        summary.textContent = `${pondName} · ${actionName} · 共${sorted.length}条`;
+      }
+
+      $('memoList').innerHTML = sorted.slice(0,200).map(m => `<article class="memo-card">
+        <div class="memo-date">${dateShort(m.date)}</div>
+        <div>
+          <div class="memo-title">${esc(m.pondName || '')} · ${esc(m.species || '')}</div>
+          <div class="memo-action">${esc(m.action || '备忘')}</div>
+          <div class="memo-text">${esc(m.text || '')}</div>
+        </div>
+      </article>`).join('') || '<div class="record-card"><div class="record-title">没有找到对应备忘录</div><div class="record-meta">可以换一个鱼塘或清空筛选。</div></div>';
+    }
+
+    window.renderMemos = renderMemos;
+
+    function renderSettings() {
+      const whOptions = activeWarehouses().map(w => `<option value="${esc(w.id)}">${esc(w.name)}</option>`).join('');
+
+      $('pondSettings').innerHTML = DEFAULT_PONDS.map((d,i)=>{
+        const p = ponds.find(x => x.id === d.id) || d;
+        return `<div class="setting-row pond-setting-row pond-setting-row-large">
+          <div class="setting-name">${esc(p.name || d.name)}</div>
+          <div class="pond-setting-fields pond-setting-fields-large">
+            <input id="pondSpecies_${i}" value="${esc(p.species || '空置')}" placeholder="鱼种，不填=空置" />
+            <select id="pondDefaultWh_${i}">
+              <option value="">默认仓库：不指定</option>
+              ${whOptions}
+            </select>
+            <input id="pondSeedDate_${i}" type="date" value="${esc(p.seedDate || '')}" />
+            <input id="pondSeedQty_${i}" value="${esc(p.seedQty || '')}" placeholder="落苗数量，例如：30000尾" />
+          </div>
+        </div>`;
+      }).join('');
+
+      DEFAULT_PONDS.forEach((d,i)=>{
+        const p = ponds.find(x => x.id === d.id) || d;
+        const sel = $('pondDefaultWh_' + i);
+        if (sel && p.defaultWarehouseId && [...sel.options].some(o => o.value === p.defaultWarehouseId)) {
+          sel.value = p.defaultWarehouseId;
+        }
+      });
+
+      $('warehouseSettings').innerHTML = DEFAULT_WAREHOUSES.map((d,i)=>{
+        const w = warehouses.find(x => x.id === d.id) || d;
+        return `<div class="setting-row">
+          <div class="setting-name">仓库${i+1}</div>
+          <input id="warehouseName_${i}" value="${esc(w.name || d.name)}" />
+        </div>`;
+      }).join('');
+
+      $('eelBagJin').value = fmt(feedSpecs.eelBagJin || 40);
+    }
+
+    function mealRows(pond) {
+      const rs = todayRecords().filter(r => belongs(r, pond)).sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));
+      if (!rs.length) return '<div class="meal-empty">今天还没有登记喂料</div>';
+      return rs.map((r, index) => `<div class="meal-card">
+        <div class="meal-index">${index + 1}</div>
+        <div>
+          <div class="meal-label">${mealLabel(index)}</div>
+          <div class="meal-feed">${amountDisplay(r.feedName, originalAmount(r), r.unit || unitForFeed(r.feedName))}</div>
+          <div class="meal-time">登记时间：${nowTime(r.createdAt)}</div>
+        </div>
+      </div>`).join('');
+    }
+
+    function updateWarehouseOptions(selectId) {
+      const el = $(selectId);
+      if (!el) return;
+      const old = el.value;
+      el.innerHTML = activeWarehouses().map(w => `<option value="${esc(w.id)}">${esc(w.name)}</option>`).join('');
+      if (old && [...el.options].some(o => o.value === old)) el.value = old;
+      else if (el.options.length) el.selectedIndex = 0;
+    }
+
+    function rebuildFeedSelectForWarehouse(feedSelect, warehouseId, preferredFeed='') {
+      const whId = normalizeWarehouseId(warehouseId);
+      const rows = warehouseFeedRows(whId).sort((a,b)=>String(a.feedName).localeCompare(String(b.feedName),'zh-CN'));
+
+      feedSelect.innerHTML = '';
+
+      if (rows.length) {
+        rows.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.feedName;
+          opt.textContent = `${r.feedName}（${stockDisplay(r.feedName, r.stockJin)}）`;
+          opt.dataset.warehouseId = whId;
+          opt.dataset.stockJin = String(r.stockJin);
+          feedSelect.appendChild(opt);
+        });
+
+        if (preferredFeed && rows.some(r => r.feedName === preferredFeed)) {
+          feedSelect.value = preferredFeed;
+        } else {
+          feedSelect.selectedIndex = 0;
+        }
+      } else {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = '这个仓库暂无有库存饲料';
+        opt.dataset.warehouseId = whId;
+        opt.dataset.stockJin = '0';
+        feedSelect.appendChild(opt);
+      }
+    }
+
+    function onFeedWarehouseChange() {
+      updateFeedOptions('');
+    }
+
+    function updateFeedOptions(preferredFeed='') {
+      const whId = normalizeWarehouseId($('feedWarehouse').value);
+      $('feedWarehouse').value = whId;
+      rebuildFeedSelectForWarehouse($('feedName'), whId, preferredFeed);
+      updateFeedUnitOptions();
+      renderSheetStockHint();
+    }
+
+    function onExternalWarehouseChange() {
+      updateExternalFeedOptions(false);
+    }
+
+    function updateExternalFeedOptions(keep=true) {
+      const whEl = $('externalWarehouse');
+      const feedEl = $('externalFeedName');
+      if (!whEl || !feedEl) return;
+      const whId = normalizeWarehouseId(whEl.value);
+      whEl.value = whId;
+      const old = keep ? feedEl.value : '';
+      rebuildFeedSelectForWarehouse(feedEl, whId, old);
+    }
+
+    function updateFeedUnitOptions() {
+      const feed = $('feedName').value;
+      const unit = $('feedUnit');
+      if (!unit) return;
+      if (isEelFeed(feed)) {
+        const old = unit.value || 'jin';
+        unit.innerHTML = '<option value="jin">斤</option><option value="bag">包</option>';
+        unit.value = old === 'bag' ? 'bag' : 'jin';
+      } else {
+        unit.innerHTML = '<option value="bag">包</option>';
+      }
+    }
+
+    function renderSheetStockHint() {
+      const whId = normalizeWarehouseId($('feedWarehouse').value);
+      const feed = $('feedName').value;
+      const selectedOption = $('feedName').selectedOptions?.[0];
+      const optionWh = normalizeWarehouseId(selectedOption?.dataset?.warehouseId || '');
+      const optionStockJin = Number(selectedOption?.dataset?.stockJin || 0);
+
+      if (feed && optionWh && optionWh !== whId) {
+        updateFeedOptions('');
+        return;
+      }
+
+      const jin = optionStockJin || getWarehouseFeedStock(whId, feed);
+      $('stockHint').innerHTML = feed
+        ? `<span class="stock-chip">${esc(whById(whId).name)}</span><span class="stock-chip">库存：${stockDisplay(feed, jin)}</span>`
+        : '<span class="stock-chip">当前仓库暂无饲料</span>';
+    }
+
+    // 重要：脚本是 type="module"，普通函数不会自动暴露给 HTML 的 onchange。
+    // 必须挂到 window，仓库切换后饲料下拉才能稳定联动。
+    window.onFeedWarehouseChange = onFeedWarehouseChange;
+    window.onExternalWarehouseChange = onExternalWarehouseChange;
+    window.updateFeedOptions = updateFeedOptions;
+    window.updateExternalFeedOptions = updateExternalFeedOptions;
+    window.updateFeedUnitOptions = updateFeedUnitOptions;
+    window.renderSheetStockHint = renderSheetStockHint;
+
+    function preferredFeedBySpecies(species) {
+      if ((species || '').includes('鳗')) return '鳗鱼料';
+      if ((species || '').includes('加州')) return '加州鲈料';
+      return '生鱼料';
+    }
+
+    function chooseBestWarehouseForFeed(feedName) {
+      const row = stockRows().find(r => r.feedName === feedName);
+      return row ? whById(row.warehouseId) : activeWarehouses()[0];
+    }
+
+    window.openFeedSheet = function(pondId) {
+      const pond = pondById(pondId);
+      currentSheetPondId = pond.id;
+      const preferredFeed = preferredFeedBySpecies(pond.species);
+
+      $('sheetTitle').textContent = pond.name + ' · 快捷喂鱼';
+      $('sheetSub').textContent = '鱼种：' + (pond.species || '空置');
+      const today = todayRecords().filter(r => belongs(r, pond));
+      $('sheetTodayTotal').textContent = usageText(today);
+      $('sheetLastTime').textContent = today.length ? nowTime(today[today.length-1].createdAt) : '—';
+      $('sheetMealList').innerHTML = mealRows(pond);
+
+      updateWarehouseOptions('feedWarehouse');
+
+      const defaultWarehouseId = normalizeWarehouseId(pond.defaultWarehouseId || '');
+      if (defaultWarehouseId && [...$('feedWarehouse').options].some(o => o.value === defaultWarehouseId)) {
+        $('feedWarehouse').value = defaultWarehouseId;
+      } else if (!$('feedWarehouse').value) {
+        $('feedWarehouse').value = activeWarehouses()[0]?.id || '';
+      }
+
+      updateFeedOptions(preferredFeed);
+
+      $('feedAmount').value = '';
+      $('feedNote').value = '';
+      $('feedSheetLayer').classList.add('open');
+      $('feedSheetLayer').setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeFeedSheet = function() {
+      $('feedSheetLayer').classList.remove('open');
+      $('feedSheetLayer').setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+    };
+
+    window.setAmount = function(n) {
+      $('feedAmount').value = n;
+    };
+
+    async function adjustStock(warehouseId, feedName, deltaJin) {
+      const key = stockKey(warehouseId, feedName);
+      const sref = ref(db, 'stockTotals/' + key);
+      const result = await runTransaction(sref, current => {
+        const old = current || {warehouseId, warehouseName: whById(warehouseId).name, feedName, stockJin:0};
+        const oldJin = Number(old.stockJin ?? old.jin ?? (Number(old.bags || 0) * bagJin(feedName)) ?? 0);
+        const next = oldJin + Number(deltaJin || 0);
+        if (next < -0.001) return;
+        return {...old, warehouseId, warehouseName: whById(warehouseId).name, feedName, stockJin: next, updatedAt: Date.now()};
+      });
+      return result.committed;
+    }
+
+    window.saveFeedFromSheet = async function() {
+      if (!firebaseReady) return alert('Firebase 尚未连接');
+      const pond = pondById(currentSheetPondId);
+      const warehouseId = $('feedWarehouse').value;
+      const feedName = $('feedName').value;
+      const unit = $('feedUnit').value;
+      const amount = Number($('feedAmount').value || 0);
+      const person = '';
+      const note = $('feedNote').value.trim();
+      if (!pond?.id || !warehouseId || !feedName || amount <= 0) return alert('请填写鱼塘、仓库、饲料和数量');
+
+      const selectedWh = normalizeWarehouseId($('feedName').selectedOptions?.[0]?.dataset?.warehouseId || '');
+      if (selectedWh && selectedWh !== normalizeWarehouseId(warehouseId)) return alert('饲料列表不是当前仓库的，请重新选择仓库');
+      const realStockJin = getWarehouseFeedStock(warehouseId, feedName);
+      if (realStockJin <= 0) return alert('当前仓库没有这个饲料，请重新选择仓库或饲料');
+      const stockJin = unit === 'jin' ? amount : amount * bagJin(feedName);
+      const ok = await adjustStock(warehouseId, feedName, -stockJin);
+      if (!ok) return alert('这个仓库库存不足，不能扣库');
+
+      const now = Date.now();
+      const recRef = await push(ref(db, 'feedRecords'), {
+        date: todayStr(), pondId: pond.id, pondName: pond.name, species: pond.species || '',
+        warehouseId, warehouseName: whById(warehouseId).name, feedName, amount, unit, stockJin,
+        person, note, createdAt: now
+      });
+
+      await push(ref(db, 'stockLogs'), {
+        type:'out', sourceType:'feed', feedRecordId: recRef.key,
+        date: todayStr(), warehouseId, warehouseName: whById(warehouseId).name,
+        pondId: pond.id, pondName: pond.name, feedName, amount, unit, stockJin,
+        person, note, createdAt: now
+      });
+
+      closeFeedSheet();
+      alert('喂料已保存，并已扣库存');
+    };
+
+    window.saveStockIn = async function() {
+      if (!firebaseReady) return alert('Firebase 尚未连接');
+      const date = $('stockDate').value || todayStr();
+      const warehouseId = $('stockWarehouse').value;
+      const feedName = $('stockFeedName').value;
+      const amount = Number($('stockAmount').value || 0);
+      const person = '';
+      const note = $('stockNote').value.trim();
+      if (!warehouseId || !feedName || amount <= 0) return alert('请填写仓库、饲料和入库数量');
+      const unit = 'bag';
+      const stockJin = amount * bagJin(feedName);
+      const ok = await adjustStock(warehouseId, feedName, stockJin);
+      if (!ok) return alert('入库失败，请稍后再试');
+      await push(ref(db, 'stockLogs'), {
+        type:'in', sourceType:'stockIn', date, warehouseId, warehouseName: whById(warehouseId).name,
+        feedName, amount, unit, stockJin, person, note, createdAt: Date.now()
+      });
+      $('stockAmount').value = '';
+      $('stockNote').value = '';
+      alert('入库已保存');
+    };
+
+    window.saveExternalOut = async function() {
+      if (!firebaseReady) return alert('Firebase 尚未连接');
+      const warehouseId = $('externalWarehouse').value;
+      const feedName = $('externalFeedName').value;
+      const amount = Number($('externalAmount').value || 0);
+      const externalPerson = $('externalPerson').value.trim();
+      const takenValue = $('externalDateTime').value || currentDateTimeLocal();
+      const takenAt = new Date(takenValue).getTime();
+      const date = takenValue.slice(0,10) || todayStr();
+      if (!warehouseId || !feedName || amount <= 0 || !externalPerson) return alert('请填写领取时间、仓库、饲料、数量和领料人');
+      const selectedWh = normalizeWarehouseId($('externalFeedName').selectedOptions?.[0]?.dataset?.warehouseId || '');
+      if (selectedWh && selectedWh !== normalizeWarehouseId(warehouseId)) return alert('饲料列表不是当前仓库的，请重新选择仓库');
+      const realStockJin = getWarehouseFeedStock(warehouseId, feedName);
+      if (realStockJin <= 0) return alert('当前仓库没有这个饲料，请重新选择仓库或饲料');
+      const unit = 'bag';
+      const stockJin = amount * bagJin(feedName);
+      const ok = await adjustStock(warehouseId, feedName, -stockJin);
+      if (!ok) return alert('这个仓库库存不足，不能出库');
+      await push(ref(db, 'stockLogs'), {
+        type:'externalOut', sourceType:'externalOut', date, takenAt,
+        warehouseId, warehouseName: whById(warehouseId).name,
+        feedName, amount, unit, stockJin,
+        externalPerson, person: externalPerson, createdAt: Date.now()
+      });
+      $('externalAmount').value = '';
+      $('externalPerson').value = '';
+      $('externalDateTime').value = currentDateTimeLocal();
+      alert('领料出库已保存，只扣库存，不计入鱼塘喂料');
+    };
+
+    window.undoStockLog = async function(logId) {
+      if (!firebaseReady) return alert('Firebase 尚未连接');
+      const log = stockLogs.find(l => l.id === logId);
+      if (!log || log.cancelled) return;
+      if (!confirm('确定撤销这条库存流水吗？')) return;
+      const jin = logStockJin(log);
+      let delta = 0;
+      if (log.type === 'in' || log.type === 'stockIn') delta = -jin;
+      else delta = jin;
+      const ok = await adjustStock(log.warehouseId, log.feedName, delta);
+      if (!ok) return alert('撤销失败：库存不足或数据异常');
+      await update(ref(db, 'stockLogs/' + logId), {cancelled:true, cancelledAt:Date.now()});
+      if (log.feedRecordId) await update(ref(db, 'feedRecords/' + log.feedRecordId), {cancelled:true, cancelledAt:Date.now()});
+      alert('已撤销');
+    };
+
+
+    window.clearMemoFilter = function() {
+      if ($('memoFilterPond')) $('memoFilterPond').value = '';
+      if ($('memoFilterAction')) $('memoFilterAction').value = '';
+      renderMemos();
+    };
+
+    window.saveMemo = async function() {
+      if (!firebaseReady) return alert('Firebase 尚未连接');
+      const pond = pondById($('memoPond').value);
+      const date = $('memoDate').value || todayStr();
+      const action = $('memoAction').value;
+      const person = '';
+      const text = $('memoText').value.trim();
+      if (!pond?.id || !action) return alert('请选择鱼塘和动作');
+      await push(ref(db, 'pondMemos'), {
+        date, pondId: pond.id, pondName: pond.name, species: pond.species || '',
+        action, person, text, createdAt: Date.now()
+      });
+      $('memoText').value = '';
+      if ($('memoFilterPond')) $('memoFilterPond').value = pond.id;
+      if ($('memoFilterAction')) $('memoFilterAction').value = action;
+      renderMemos();
+      alert('备忘录已保存');
+    };
+
+    window.saveSettings = async function() {
+      if (!firebaseReady) return alert('Firebase 尚未连接');
+      const newPonds = DEFAULT_PONDS.map((d,i)=>({
+        ...d,
+        species: ($('pondSpecies_'+i)?.value || '').trim() || '空置',
+        defaultWarehouseId: $('pondDefaultWh_'+i)?.value || '',
+        seedDate: $('pondSeedDate_'+i)?.value || '',
+        seedQty: ($('pondSeedQty_'+i)?.value || '').trim()
+      }));
+      const newWarehouses = DEFAULT_WAREHOUSES.map((d,i)=>({
+        ...d,
+        name: ($('warehouseName_'+i)?.value || d.name).trim() || d.name,
+        active: true
+      }));
+      const eelBagJin = Number($('eelBagJin').value || 40);
+      await set(ref(db, 'settings/ponds'), Object.fromEntries(newPonds.map(p => [p.id, p])));
+      await set(ref(db, 'settings/warehouses'), Object.fromEntries(newWarehouses.map(w => [w.id, w])));
+      await set(ref(db, 'settings/feedSpecs'), {eelBagJin});
+      alert('设置已保存');
+    };
+
+
+    let pondDetailState = { pondId:'', records:[], byDate:{}, month:'' };
+
+    function monthFromDate(dateStr) {
+      return String(dateStr || todayStr()).slice(0,7);
+    }
+
+    function monthAdd(month, delta) {
+      const [y,m] = month.split('-').map(Number);
+      const d = new Date(y, m - 1 + delta, 1);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    }
+
+    function renderPondCalendar() {
+      const month = pondDetailState.month || monthFromDate(todayStr());
+      const [y,m] = month.split('-').map(Number);
+      const first = new Date(y, m-1, 1);
+      const days = new Date(y, m, 0).getDate();
+      const startWeek = first.getDay();
+      const cells = [];
+
+      $('pondCalendarTitle').textContent = `${y}年${m}月`;
+
+      for (let i=0; i<startWeek; i++) cells.push('<div class="calendar-cell empty-cell"></div>');
+
+      for (let d=1; d<=days; d++) {
+        const date = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const rs = pondDetailState.byDate[date] || [];
+        const total = rs.length ? usageText(rs) : '';
+        cells.push(`<button class="calendar-cell ${rs.length ? 'has-feed' : ''}" onclick="window.showPondDay('${date}')">
+          <span class="calendar-day">${d}</span>
+          <span class="calendar-feed">${esc(total)}</span>
+        </button>`);
+      }
+
+      $('pondCalendarGrid').innerHTML = cells.join('');
+    }
+
+    window.changePondCalendarMonth = function(delta) {
+      pondDetailState.month = monthAdd(pondDetailState.month, delta);
+      renderPondCalendar();
+      $('pondDayTitle').textContent = '请选择有喂料的日期';
+      $('pondDailyList').innerHTML = '';
+    };
+
+    window.showPondDay = function(date) {
+      const rs = (pondDetailState.byDate[date] || []).slice().sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));
+      $('pondDayTitle').textContent = `${date} · ${usageText(rs)}`;
+      $('pondDailyList').innerHTML = rs.length ? rs.map((r,i)=>`<div class="meal-card">
+        <div class="meal-index">${i+1}</div>
+        <div>
+          <div class="meal-label">${mealLabel(i)} · ${nowTime(r.createdAt)}</div>
+          <div class="meal-feed">${amountDisplay(r.feedName, originalAmount(r), r.unit || unitForFeed(r.feedName))}</div>
+          <div class="meal-time">${r.note ? esc(r.note) : ''}</div>
+        </div>
+      </div>`).join('') : '<div class="meal-empty">这一天没有喂料记录</div>';
+    };
+
+    window.openPondDetail = function(pondId) {
+      const pond = pondById(pondId);
+      const records = currentCycleRecords(pond).slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')) || Number(a.createdAt||0)-Number(b.createdAt||0));
+      const byDate = {};
+      records.forEach(r => {
+        const d = r.date || todayStr();
+        (byDate[d] ||= []).push(r);
+      });
+
+      const dates = Object.keys(byDate).sort();
+      pondDetailState = {
+        pondId: pond.id,
+        records,
+        byDate,
+        month: dates.length ? monthFromDate(dates[dates.length - 1]) : monthFromDate(todayStr())
+      };
+
+      $('pondDetailTitle').textContent = `${pond.name} · ${pond.species || ''}`;
+      $('pondDetailSub').textContent = `落苗：${pond.seedDate ? prettyDate(pond.seedDate) : '未设置'} · 数量：${pond.seedQty || '未设置'}`;
+      $('pondDetailTotal').textContent = usageText(records);
+      $('pondDetailDays').textContent = dates.length ? `${dates.length}天` : '0天';
+
+      renderPondCalendar();
+
+      if (dates.length) {
+        window.showPondDay(dates[dates.length - 1]);
+      } else {
+        $('pondDayTitle').textContent = '当前这塘鱼还没有喂料记录';
+        $('pondDailyList').innerHTML = '';
+      }
+
+      $('pondDetailLayer').classList.add('open');
+      $('pondDetailLayer').setAttribute('aria-hidden','false');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closePondDetail = function() {
+      $('pondDetailLayer').classList.remove('open');
+      $('pondDetailLayer').setAttribute('aria-hidden','true');
+      document.body.style.overflow = '';
+    };
+
+
+    let stockFlowState = { type:'normal', month:'', selectedDate:'' };
+
+    function stockFlowLogsForType(type) {
+      return stockLogs
+        .filter(l => !l.cancelled)
+        .filter(l => type === 'other' ? l.type === 'externalOut' : l.type !== 'externalOut')
+        .sort((a,b)=>Number(b.takenAt || b.createdAt || 0)-Number(a.takenAt || a.createdAt || 0));
+    }
+
+    function stockLogDate(log) {
+      if (log.date) return String(log.date);
+      const ts = Number(log.takenAt || log.createdAt || 0);
+      if (!ts) return todayStr();
+      const d = new Date(ts);
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function stockLogAmountText(log) {
+      const amount = Number(log.amount ?? log.bags ?? 0);
+      const unit = log.unit || 'bag';
+      return amountDisplay(log.feedName, amount, unit).replace(log.feedName || '', '');
+    }
+
+    function stockDaySummary(logs) {
+      let inCount = 0, outCount = 0, externalCount = 0;
+      logs.forEach(l => {
+        if (l.type === 'externalOut') externalCount += 1;
+        else if (l.type === 'in' || l.type === 'stockIn') inCount += 1;
+        else outCount += 1;
+      });
+      const parts = [];
+      if (inCount) parts.push(`入${inCount}`);
+      if (outCount) parts.push(`扣${outCount}`);
+      if (externalCount) parts.push(`领${externalCount}`);
+      return parts.join(' ');
+    }
+
+    function renderStockCalendar() {
+      const type = stockFlowState.type || 'normal';
+      const logs = stockFlowLogsForType(type);
+      const latestDate = logs.length ? stockLogDate(logs[0]) : todayStr();
+
+      if (!stockFlowState.month) stockFlowState.month = monthFromDate(latestDate);
+      const month = stockFlowState.month;
+      const [y,m] = month.split('-').map(Number);
+      const first = new Date(y, m-1, 1);
+      const days = new Date(y, m, 0).getDate();
+      const startWeek = first.getDay();
+
+      const byDate = {};
+      logs.forEach(l => {
+        const d = stockLogDate(l);
+        (byDate[d] ||= []).push(l);
+      });
+
+      if ($('stockCalendarTitle')) $('stockCalendarTitle').textContent = `${y}年${m}月`;
+
+      const cells = [];
+      for (let i=0; i<startWeek; i++) cells.push('<div class="calendar-cell empty-cell"></div>');
+      for (let d=1; d<=days; d++) {
+        const date = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const rs = byDate[date] || [];
+        const summary = rs.length ? stockDaySummary(rs) : '';
+        cells.push(`<button class="calendar-cell ${rs.length ? 'has-feed' : ''}" onclick="showStockDay('${date}')">
+          <span class="calendar-day">${d}</span>
+          <span class="calendar-feed">${esc(summary)}</span>
+        </button>`);
+      }
+      if ($('stockCalendarGrid')) $('stockCalendarGrid').innerHTML = cells.join('');
+
+      const preferred = stockFlowState.selectedDate && byDate[stockFlowState.selectedDate] ? stockFlowState.selectedDate : Object.keys(byDate).sort().reverse()[0] || '';
+      if (preferred) showStockDay(preferred);
+      else {
+        $('stockDayTitle').textContent = type === 'other' ? '暂无别人领料记录' : '暂无正常出入库流水';
+        $('flowNormal').innerHTML = type === 'normal' ? '<div class="record-card"><div class="record-title">暂无记录</div><div class="record-meta">这类库存流水会显示在这里。</div></div>' : '';
+        $('flowOther').innerHTML = type === 'other' ? '<div class="record-card"><div class="record-title">暂无记录</div><div class="record-meta">别人领料会显示在这里。</div></div>' : '';
+      }
+    }
+
+    window.changeStockCalendarMonth = function(delta) {
+      stockFlowState.month = monthAdd(stockFlowState.month || monthFromDate(todayStr()), delta);
+      stockFlowState.selectedDate = '';
+      renderStockCalendar();
+    };
+
+    window.showStockDay = function(date) {
+      stockFlowState.selectedDate = date;
+      const type = stockFlowState.type || 'normal';
+      const logs = stockFlowLogsForType(type).filter(l => stockLogDate(l) === date);
+      $('stockDayTitle').textContent = `${date} · ${logs.length}条${type === 'other' ? '别人领料' : '正常出入库'}`;
+
+      const html = logs.map(l => {
+        if (l.type === 'externalOut') {
+          return `<div class="record-card out-record">
+            <div class="record-title">别人领料 · ${esc(l.feedName)} -${stockLogAmountText(l)}</div>
+            <div class="record-meta">${esc(l.date || '')} ${nowTime(l.takenAt || l.createdAt)} · ${esc(l.warehouseName || whById(l.warehouseId).name)} · 领料人：${esc(l.externalPerson || l.person || '')}</div>
+            <button class="danger-link" onclick="undoStockLog('${esc(l.id)}')">撤销这条</button>
+          </div>`;
+        }
+
+        const sign = l.type === 'in' || l.type === 'stockIn' ? '+' : '-';
+        const label = l.type === 'in' || l.type === 'stockIn' ? '送货入库' : '喂鱼扣库';
+        return `<div class="record-card">
+          <div class="record-title">${label} · ${esc(l.feedName)} ${sign}${stockLogAmountText(l)}</div>
+          <div class="record-meta">${esc(l.date || '')} ${nowTime(l.createdAt)} · ${esc(l.warehouseName || whById(l.warehouseId).name)}${l.pondName ? ' · ' + esc(l.pondName) : ''}</div>
+          <button class="danger-link" onclick="undoStockLog('${esc(l.id)}')">撤销这条</button>
+        </div>`;
+      }).join('') || '<div class="record-card"><div class="record-title">这天没有记录</div><div class="record-meta">请选择月历里有标记的日期。</div></div>';
+
+      if (type === 'normal') {
+        $('flowNormal').innerHTML = html;
+        $('flowOther').innerHTML = '';
+      } else {
+        $('flowOther').innerHTML = html;
+        $('flowNormal').innerHTML = '';
+      }
+    };
+
+    window.showFlow = function(type) {
+      stockFlowState.type = type;
+      stockFlowState.month = '';
+      stockFlowState.selectedDate = '';
+      $('flowNormal').classList.toggle('hidden-flow', type !== 'normal');
+      $('flowOther').classList.toggle('hidden-flow', type !== 'other');
+      $('flowTabNormal').classList.toggle('active', type === 'normal');
+      $('flowTabOther').classList.toggle('active', type === 'other');
+      renderStockCalendar();
+    };
+
+    window.openFirstActivePond = function() {
+      const first = sortedPonds().find(isOccupied);
+      if (first) {
+        window.showPage('home');
+        openFeedSheet(first.id);
+      }
+    };
+
+    window.showPage = function(name) {
+      ['home','inventory','pond','records','settings'].forEach(p => {
+        $('page' + p.charAt(0).toUpperCase() + p.slice(1)).classList.toggle('active', p === name);
+        $('nav' + p.charAt(0).toUpperCase() + p.slice(1)).classList.toggle('active', p === name);
+      });
+      window.scrollTo({top:0, behavior:'smooth'});
+    };
+
+    function bindAppNavigation() {
+      const navTargets = {
+        navHome:'home',
+        navInventory:'inventory',
+        navPond:'pond',
+        navRecords:'records',
+        navSettings:'settings'
+      };
+      Object.entries(navTargets).forEach(([id, page]) => {
+        const btn = $(id);
+        if (!btn || btn.dataset.boundNav) return;
+        btn.dataset.boundNav = '1';
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          window.showPage(page);
+        });
+      });
+    }
+
+    function applyInitialPageFromUrl() {
+      const page = new URLSearchParams(location.search).get('page') || location.hash.replace(/^#/, '');
+      if (['home','inventory','pond','records','settings'].includes(page)) {
+        window.showPage(page);
+      }
+    }
+
+    function initFirebase() {
+      try {
+        app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        firebaseReady = true;
+        setStatus('Firebase 已连接，正在同步数据...');
+
+        onValue(ref(db, 'settings/ponds'), snap => {
+          const list = objectList(snap.val());
+          ponds = DEFAULT_PONDS.map(d => ({...d, ...(list.find(p => p.id === d.id) || {})}));
+          queueRender();
+        });
+
+        onValue(ref(db, 'settings/warehouses'), snap => {
+          const list = objectList(snap.val());
+          warehouses = DEFAULT_WAREHOUSES.map(d => ({...d, ...(list.find(w => w.id === d.id) || {})}));
+          queueRender();
+        });
+
+        onValue(ref(db, 'settings/feedSpecs'), snap => {
+          feedSpecs = {eelBagJin:40, ...(snap.val() || {})};
+          queueRender();
+        });
+
+        onValue(ref(db, 'feedRecords'), snap => {
+          feedRecords = objectList(snap.val()).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+          queueRender();
+        });
+
+        onValue(ref(db, 'stockLogs'), snap => {
+          stockLogs = objectList(snap.val()).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+          queueRender();
+        });
+
+        onValue(ref(db, 'stockTotals'), snap => {
+          stockTotals = objectMap(snap.val());
+          queueRender();
+        });
+
+        onValue(ref(db, 'pondMemos'), snap => {
+          pondMemos = objectList(snap.val());
+          queueRender();
+        });
+
+        onValue(ref(db, 'cycleStarts'), snap => {
+          cycleStarts = objectMap(snap.val());
+          queueRender();
+        });
+      } catch (err) {
+        console.error(err);
+        setStatus('Firebase 连接失败：' + err.message, 'bad');
+      }
+    }
+
+    function currentDateTimeLocal() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const day = String(d.getDate()).padStart(2,'0');
+      const h = String(d.getHours()).padStart(2,'0');
+      const min = String(d.getMinutes()).padStart(2,'0');
+      return `${y}-${m}-${day}T${h}:${min}`;
+    }
+
+
+    function bindWarehouseFeedEvents() {
+      const feedWh = $('feedWarehouse');
+      if (feedWh && !feedWh.dataset.boundWarehouseFeed) {
+        feedWh.dataset.boundWarehouseFeed = '1';
+        feedWh.addEventListener('change', () => updateFeedOptions(''));
+        feedWh.addEventListener('input', () => updateFeedOptions(''));
+      }
+
+      const externalWh = $('externalWarehouse');
+      if (externalWh && !externalWh.dataset.boundWarehouseFeed) {
+        externalWh.dataset.boundWarehouseFeed = '1';
+        externalWh.addEventListener('change', () => updateExternalFeedOptions(false));
+        externalWh.addEventListener('input', () => updateExternalFeedOptions(false));
+      }
+
+      const feedName = $('feedName');
+      if (feedName && !feedName.dataset.boundFeedName) {
+        feedName.dataset.boundFeedName = '1';
+        feedName.addEventListener('change', () => { updateFeedUnitOptions(); renderSheetStockHint(); });
+        feedName.addEventListener('input', () => { updateFeedUnitOptions(); renderSheetStockHint(); });
+      }
+    }
+
+    function setDefaults() {
+      ['stockDate','memoDate'].forEach(id => { if ($(id)) $(id).value = todayStr(); });
+      if ($('externalDateTime')) $('externalDateTime').value = currentDateTimeLocal();
+    }
+
+    async function cleanupOffline(){
+      if('serviceWorker' in navigator){
+        try{
+          const regs = await navigator.serviceWorker.getRegistrations();
+          regs.forEach(r => r.unregister());
+        }catch(e){ console.log(e); }
+      }
+      if(window.caches){
+        try{
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        }catch(e){ console.log(e); }
+      }
+    }
+
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { window.closeFeedSheet(); window.closePondDetail(); }
     });
+
+    setDefaults();
+    bindAppNavigation();
+    bindWarehouseFeedEvents();
+    renderAll();
+    applyInitialPageFromUrl();
+    initFirebase();
+    cleanupOffline();
   </script>
 </body>
 </html>
