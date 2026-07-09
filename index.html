@@ -835,6 +835,169 @@
       border-color:rgba(180,138,69,.28);
     }
 
+    .external-overview-card {
+      margin:8px 0 10px;
+      padding:10px;
+      border-radius:16px;
+      background:linear-gradient(135deg,rgba(237,247,244,.86),rgba(255,253,248,.96));
+      border:1px solid rgba(15,118,110,.12);
+    }
+
+    .external-overview-grid {
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:7px;
+    }
+
+    .external-overview-item {
+      min-height:58px;
+      padding:9px 8px;
+      border-radius:14px;
+      background:#fffdf8;
+      border:1px solid rgba(213,204,185,.78);
+    }
+
+    .external-overview-label {
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.2;
+      font-weight:900;
+      margin-bottom:5px;
+      white-space:nowrap;
+    }
+
+    .external-overview-value {
+      color:var(--teal2);
+      font-size:17px;
+      line-height:1.12;
+      font-weight:950;
+      overflow-wrap:anywhere;
+    }
+
+    .external-overview-sub {
+      margin-top:3px;
+      color:var(--muted2);
+      font-size:10px;
+      line-height:1.15;
+      font-weight:800;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .external-recent-list {
+      margin-top:8px;
+      display:grid;
+      gap:6px;
+    }
+
+    .external-recent-row {
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:8px;
+      align-items:center;
+      min-height:34px;
+      padding:7px 8px;
+      border-radius:12px;
+      background:rgba(255,253,248,.76);
+      border:1px solid rgba(213,204,185,.62);
+      color:var(--ink);
+      font-size:12px;
+      line-height:1.25;
+      font-weight:850;
+    }
+
+    .external-recent-meta {
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .external-recent-amount {
+      color:#8a6426;
+      font-weight:950;
+      white-space:nowrap;
+    }
+
+    .external-person-summary {
+      margin:0 0 10px;
+      padding:10px;
+      border-radius:16px;
+      background:linear-gradient(135deg,rgba(237,247,244,.82),rgba(255,253,248,.96));
+      border:1px solid rgba(15,118,110,.12);
+    }
+
+    .external-person-title {
+      color:var(--teal2);
+      font-size:13px;
+      font-weight:950;
+      margin-bottom:8px;
+    }
+
+    .external-person-grid {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:7px;
+    }
+
+    .external-person-card {
+      min-height:58px;
+      padding:9px 8px;
+      border-radius:14px;
+      background:#fffdf8;
+      border:1px solid rgba(213,204,185,.78);
+    }
+
+    .external-person-name {
+      color:var(--ink);
+      font-size:13px;
+      line-height:1.15;
+      font-weight:950;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      margin-bottom:5px;
+    }
+
+    .external-person-amount {
+      color:#8a6426;
+      font-size:17px;
+      line-height:1.12;
+      font-weight:950;
+      overflow-wrap:anywhere;
+    }
+
+    .external-person-sub {
+      margin-top:4px;
+      color:var(--muted2);
+      font-size:10px;
+      line-height:1.15;
+      font-weight:850;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .external-detail-title {
+      margin:10px 0 6px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:950;
+    }
+
+    @media (max-width:430px) {
+      .external-person-grid {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+
+    @media (max-width:430px) {
+      .external-overview-grid {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+
     .flow-title-row {
       display:flex;
       justify-content:space-between;
@@ -3221,6 +3384,31 @@
           <span class="minor-badge">辅助</span>
         </div>
 
+        <div id="externalOutOverview" class="external-overview-card">
+          <div class="external-overview-grid">
+            <div class="external-overview-item">
+              <div class="external-overview-label">今日领料</div>
+              <div class="external-overview-value">0条</div>
+              <div class="external-overview-sub">暂无记录</div>
+            </div>
+            <div class="external-overview-item">
+              <div class="external-overview-label">今日数量</div>
+              <div class="external-overview-value">0包</div>
+              <div class="external-overview-sub">只显示合计数量</div>
+            </div>
+            <div class="external-overview-item">
+              <div class="external-overview-label">本月领料</div>
+              <div class="external-overview-value">0条</div>
+              <div class="external-overview-sub">按领取时间</div>
+            </div>
+            <div class="external-overview-item">
+              <div class="external-overview-label">最近领取</div>
+              <div class="external-overview-value">—</div>
+              <div class="external-overview-sub">暂无记录</div>
+            </div>
+          </div>
+        </div>
+
         <div class="compact-out-grid">
           <div class="field"><label>领取时间</label><input id="externalDateTime" type="datetime-local" /></div>
           <div class="field"><label>仓库</label><select id="externalWarehouse" onchange="onExternalWarehouseChange()" oninput="onExternalWarehouseChange()"></select></div>
@@ -3252,6 +3440,8 @@
           <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
         </div>
         <div id="stockCalendarGrid" class="calendar-grid"></div>
+
+        <div id="externalMonthPersonSummary"></div>
 
         <div class="sheet-section-title">当天库存流水</div>
         <div id="stockDayTitle" class="daily-date">请选择有流水的日期</div>
@@ -4215,6 +4405,7 @@
         </article>`;
       }).join('') || '<div class="record-card"><div class="record-title">暂无库存</div><div class="record-meta">可以先在“送货入库”里登记饲料。</div></div>';
 
+      renderExternalOutOverview();
       renderStockCalendar();
     }
 
@@ -4898,6 +5089,9 @@
     }
 
     function stockDaySummary(logs) {
+      if (logs.length && logs.every(l => l.type === 'externalOut')) {
+        return externalOutAmountSummary(logs);
+      }
       let inCount = 0, outCount = 0, externalCount = 0;
       logs.forEach(l => {
         if (l.type === 'externalOut') externalCount += 1;
@@ -4909,6 +5103,145 @@
       if (outCount) parts.push(`扣${outCount}`);
       if (externalCount) parts.push(`领${externalCount}`);
       return parts.join(' ');
+    }
+
+
+    function externalOutAmountSummary(logs) {
+      const groups = {};
+      logs.forEach(l => {
+        const unit = l.unit || 'bag';
+        if (!groups[unit]) groups[unit] = {unit, amount:0};
+        groups[unit].amount += Number(l.amount ?? l.bags ?? 0);
+      });
+      const parts = Object.values(groups).map(g => {
+        const label = g.unit === 'jin' ? '斤' : '包';
+        return `${fmt(g.amount)}${label}`;
+      });
+      return parts.length ? parts.join(' + ') : '0包';
+    }
+
+
+    function externalOutPersonAmountSummary(logs) {
+      const people = {};
+      logs.forEach(l => {
+        const person = (l.externalPerson || l.person || '未填领料人').trim() || '未填领料人';
+        const unit = l.unit || 'bag';
+        const key = person + '__' + unit;
+        if (!people[key]) people[key] = {person, unit, amount:0, count:0, feeds:new Set()};
+        people[key].amount += Number(l.amount ?? l.bags ?? 0);
+        people[key].count += 1;
+        if (l.feedName) people[key].feeds.add(l.feedName);
+      });
+      const merged = {};
+      Object.values(people).forEach(g => {
+        if (!merged[g.person]) merged[g.person] = {person:g.person, parts:[], count:0, feeds:new Set()};
+        const label = g.unit === 'jin' ? '斤' : '包';
+        merged[g.person].parts.push(`${fmt(g.amount)}${label}`);
+        merged[g.person].count += g.count;
+        g.feeds.forEach(f => merged[g.person].feeds.add(f));
+      });
+      return Object.values(merged)
+        .sort((a,b)=>String(a.person).localeCompare(String(b.person),'zh-CN'))
+        .map(p => ({
+          person:p.person,
+          amount:p.parts.join(' + '),
+          count:p.count,
+          feeds:[...p.feeds].join('、') || '饲料'
+        }));
+    }
+
+    function externalOutPersonSummaryHtml(logs, title='按领料人汇总', subText='') {
+      if (!logs.length) return '';
+      const people = externalOutPersonAmountSummary(logs);
+      return `
+        <div class="external-person-summary">
+          <div class="external-person-title">${esc(title)}${subText ? `<span style="margin-left:8px;color:var(--muted2);font-size:11px;font-weight:850;">${esc(subText)}</span>` : ''}</div>
+          <div class="external-person-grid">
+            ${people.map(p => `
+              <div class="external-person-card">
+                <div class="external-person-name">${esc(p.person)}</div>
+                <div class="external-person-amount">${esc(p.amount)}</div>
+                <div class="external-person-sub">${p.count}条 · ${esc(p.feeds)}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderExternalMonthPersonSummary(logs, month, type) {
+      const box = $('externalMonthPersonSummary');
+      if (!box) return;
+      if (type !== 'other') {
+        box.innerHTML = '';
+        return;
+      }
+
+      const monthLogs = logs.filter(l => stockLogDate(l).slice(0,7) === month);
+      const people = externalOutPersonAmountSummary(monthLogs);
+      const title = `${month.replace('-', '年')}月别人领料汇总`;
+      const sub = monthLogs.length
+        ? `合计 ${externalOutAmountSummary(monthLogs)} · ${people.length}人 · ${monthLogs.length}条`
+        : '本月暂无别人领料';
+
+      box.innerHTML = monthLogs.length
+        ? externalOutPersonSummaryHtml(monthLogs, title, sub)
+        : `<div class="external-person-summary">
+            <div class="external-person-title">${esc(title)}<span style="margin-left:8px;color:var(--muted2);font-size:11px;font-weight:850;">暂无记录</span></div>
+          </div>`;
+    }
+
+    function renderExternalOutOverview() {
+      const box = $('externalOutOverview');
+      if (!box) return;
+
+      const logs = stockLogs
+        .filter(l => !l.cancelled && l.type === 'externalOut')
+        .sort((a,b)=>Number(b.takenAt || b.createdAt || 0)-Number(a.takenAt || a.createdAt || 0));
+
+      const today = todayStr();
+      const month = today.slice(0,7);
+      const todayLogs = logs.filter(l => stockLogDate(l) === today);
+      const monthLogs = logs.filter(l => stockLogDate(l).slice(0,7) === month);
+      const latest = logs[0];
+
+      const latestPerson = latest ? (latest.externalPerson || latest.person || '未填') : '—';
+      const latestTime = latest ? `${stockLogDate(latest)} ${nowTime(latest.takenAt || latest.createdAt)}` : '暂无记录';
+
+      const recentHtml = logs.slice(0,3).map(l => `
+        <div class="external-recent-row">
+          <div class="external-recent-meta">${esc(l.externalPerson || l.person || '未填领料人')} · ${esc(l.feedName || '')} · ${esc(l.warehouseName || whById(l.warehouseId).name)}</div>
+          <div class="external-recent-amount">${stockLogAmountText(l)}</div>
+        </div>
+      `).join('');
+
+      box.innerHTML = `
+        <div class="external-overview-grid">
+          <div class="external-overview-item">
+            <div class="external-overview-label">今日领料</div>
+            <div class="external-overview-value">${todayLogs.length}条</div>
+            <div class="external-overview-sub">${todayLogs.length ? '今天有人领料' : '今天暂无记录'}</div>
+          </div>
+          <div class="external-overview-item">
+            <div class="external-overview-label">今日数量</div>
+            <div class="external-overview-value">${esc(externalOutAmountSummary(todayLogs))}</div>
+            <div class="external-overview-sub">只扣库存</div>
+          </div>
+          <div class="external-overview-item">
+            <div class="external-overview-label">本月领料</div>
+            <div class="external-overview-value">${monthLogs.length}条</div>
+            <div class="external-overview-sub">${esc(externalOutAmountSummary(monthLogs))}</div>
+          </div>
+          <div class="external-overview-item">
+            <div class="external-overview-label">最近领取</div>
+            <div class="external-overview-value">${esc(latestPerson)}</div>
+            <div class="external-overview-sub">${esc(latestTime)}</div>
+          </div>
+        </div>
+        <div class="external-recent-list">
+          ${recentHtml || '<div class="external-recent-row"><div class="external-recent-meta">暂无别人领料记录</div><div class="external-recent-amount">—</div></div>'}
+        </div>
+      `;
     }
 
     function renderStockCalendar() {
@@ -4943,6 +5276,7 @@
         </button>`);
       }
       if ($('stockCalendarGrid')) $('stockCalendarGrid').innerHTML = cells.join('');
+      renderExternalMonthPersonSummary(logs, month, type);
 
       const preferred = stockFlowState.selectedDate && byDate[stockFlowState.selectedDate] ? stockFlowState.selectedDate : Object.keys(byDate).sort().reverse()[0] || '';
       if (preferred) showStockDay(preferred);
@@ -4963,17 +5297,31 @@
       stockFlowState.selectedDate = date;
       const type = stockFlowState.type || 'normal';
       const logs = stockFlowLogsForType(type).filter(l => stockLogDate(l) === date);
-      $('stockDayTitle').textContent = `${date} · ${logs.length}条${type === 'other' ? '别人领料' : '正常出入库'}`;
 
-      const html = logs.map(l => {
-        if (l.type === 'externalOut') {
-          return `<div class="record-card out-record">
+      if (type === 'other') {
+        const people = externalOutPersonAmountSummary(logs);
+        $('stockDayTitle').textContent = logs.length
+          ? `${date} · 合计 ${externalOutAmountSummary(logs)} · ${people.length}人 · ${logs.length}条别人领料`
+          : `${date} · 暂无别人领料`;
+
+        const detailHtml = logs.map(l => `
+          <div class="record-card out-record">
             <div class="record-title">别人领料 · ${esc(feedDisplayName(l.feedName, l.feedSpec))} -${stockLogAmountText(l)}</div>
             <div class="record-meta">${esc(l.date || '')} ${nowTime(l.takenAt || l.createdAt)} · ${esc(l.warehouseName || whById(l.warehouseId).name)} · 领料人：${esc(l.externalPerson || l.person || '')}</div>
             <button class="danger-link" onclick="undoStockLog('${esc(l.id)}')">撤销这条</button>
-          </div>`;
-        }
+          </div>
+        `).join('');
 
+        $('flowOther').innerHTML = logs.length
+          ? externalOutPersonSummaryHtml(logs, '当天按领料人汇总', `合计 ${externalOutAmountSummary(logs)} · ${externalOutPersonAmountSummary(logs).length}人`) + '<div class="external-detail-title">明细记录</div>' + detailHtml
+          : '<div class="record-card"><div class="record-title">这天没有别人领料</div><div class="record-meta">请选择月历里有标记的日期。</div></div>';
+        $('flowNormal').innerHTML = '';
+        return;
+      }
+
+      $('stockDayTitle').textContent = `${date} · ${logs.length}条正常出入库`;
+
+      const html = logs.map(l => {
         const sign = l.type === 'in' || l.type === 'stockIn' ? '+' : '-';
         const label = l.type === 'in' || l.type === 'stockIn' ? '送货入库' : '喂鱼扣库';
         return `<div class="record-card">
@@ -4983,13 +5331,8 @@
         </div>`;
       }).join('') || '<div class="record-card"><div class="record-title">这天没有记录</div><div class="record-meta">请选择月历里有标记的日期。</div></div>';
 
-      if (type === 'normal') {
-        $('flowNormal').innerHTML = html;
-        $('flowOther').innerHTML = '';
-      } else {
-        $('flowOther').innerHTML = html;
-        $('flowNormal').innerHTML = '';
-      }
+      $('flowNormal').innerHTML = html;
+      $('flowOther').innerHTML = '';
     };
 
     window.showFlow = function(type) {
@@ -5046,7 +5389,7 @@
     }
 
     const CACHE_KEY = 'fishpond_cache';
-    const CACHE_VERSION = 1;
+    const CACHE_VERSION = 2;
 
     function saveCache() {
       try {
