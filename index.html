@@ -968,6 +968,40 @@
       overflow-wrap:anywhere;
     }
 
+    .external-person-feed-list {
+      display:grid;
+      gap:5px;
+      margin-top:7px;
+    }
+
+    .external-person-feed-row {
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:8px;
+      align-items:center;
+      padding:6px 7px;
+      border-radius:10px;
+      background:rgba(237,247,244,.72);
+      border:1px solid rgba(15,118,110,.10);
+    }
+
+    .external-person-feed-name {
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      color:var(--ink);
+      font-size:11px;
+      font-weight:900;
+    }
+
+    .external-person-feed-amount {
+      color:#8a6426;
+      font-size:12px;
+      font-weight:950;
+      white-space:nowrap;
+    }
+
     .external-person-sub {
       margin-top:4px;
       color:var(--muted2);
@@ -5125,29 +5159,42 @@
       const people = {};
       logs.forEach(l => {
         const person = (l.externalPerson || l.person || '未填领料人').trim() || '未填领料人';
+        const feed = feedDisplayName(l.feedName || '饲料', l.feedSpec);
         const unit = l.unit || 'bag';
-        const key = person + '__' + unit;
-        if (!people[key]) people[key] = {person, unit, amount:0, count:0, feeds:new Set()};
-        people[key].amount += Number(l.amount ?? l.bags ?? 0);
-        people[key].count += 1;
-        if (l.feedName) people[key].feeds.add(l.feedName);
+        const amount = Number(l.amount ?? l.bags ?? 0);
+        if (!people[person]) people[person] = {person, count:0, totals:{}, feeds:{}};
+        people[person].count += 1;
+        people[person].totals[unit] = (people[person].totals[unit] || 0) + amount;
+
+        const feedKey = feed + '__' + unit;
+        if (!people[person].feeds[feedKey]) people[person].feeds[feedKey] = {feed, unit, amount:0, count:0};
+        people[person].feeds[feedKey].amount += amount;
+        people[person].feeds[feedKey].count += 1;
       });
-      const merged = {};
-      Object.values(people).forEach(g => {
-        if (!merged[g.person]) merged[g.person] = {person:g.person, parts:[], count:0, feeds:new Set()};
-        const label = g.unit === 'jin' ? '斤' : '包';
-        merged[g.person].parts.push(`${fmt(g.amount)}${label}`);
-        merged[g.person].count += g.count;
-        g.feeds.forEach(f => merged[g.person].feeds.add(f));
-      });
-      return Object.values(merged)
+      return Object.values(people)
         .sort((a,b)=>String(a.person).localeCompare(String(b.person),'zh-CN'))
-        .map(p => ({
-          person:p.person,
-          amount:p.parts.join(' + '),
-          count:p.count,
-          feeds:[...p.feeds].join('、') || '饲料'
-        }));
+        .map(p => {
+          const totals = Object.entries(p.totals).map(([unit, amount]) => {
+            const label = unit === 'jin' ? '斤' : '包';
+            return `${fmt(amount)}${label}`;
+          });
+          const feedLines = Object.values(p.feeds)
+            .sort((a,b)=>String(a.feed).localeCompare(String(b.feed),'zh-CN'))
+            .map(f => {
+              const label = f.unit === 'jin' ? '斤' : '包';
+              return {
+                feed:f.feed,
+                amount:`${fmt(f.amount)}${label}`,
+                count:f.count
+              };
+            });
+          return {
+            person:p.person,
+            amount:totals.join(' + '),
+            count:p.count,
+            feedLines
+          };
+        });
     }
 
     function externalOutPersonSummaryHtml(logs, title='按领料人汇总', subText='') {
@@ -5161,7 +5208,15 @@
               <div class="external-person-card">
                 <div class="external-person-name">${esc(p.person)}</div>
                 <div class="external-person-amount">${esc(p.amount)}</div>
-                <div class="external-person-sub">${p.count}条 · ${esc(p.feeds)}</div>
+                <div class="external-person-feed-list">
+                  ${p.feedLines.map(f => `
+                    <div class="external-person-feed-row">
+                      <div class="external-person-feed-name">${esc(f.feed)}</div>
+                      <div class="external-person-feed-amount">${esc(f.amount)}</div>
+                    </div>
+                  `).join('')}
+                </div>
+                <div class="external-person-sub">${p.count}条领料记录</div>
               </div>
             `).join('')}
           </div>
@@ -5389,7 +5444,7 @@
     }
 
     const CACHE_KEY = 'fishpond_cache';
-    const CACHE_VERSION = 2;
+    const CACHE_VERSION = 3;
 
     function saveCache() {
       try {
