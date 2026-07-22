@@ -251,8 +251,6 @@ export function FishManagerProvider({ children }: { children: ReactNode }) {
       const stockJin = unit === "jin" ? amount : amount * bagJin(input.feedName, data.feedSettings);
       const available = stockFor(data.stockTotals, data.feedSettings, input.warehouseId, input.feedName, input.feedSpec);
       if (stockJin > available + 0.001) throw new Error("当前仓库库存不足");
-      const committed = await adjustStock(input.warehouseId, input.feedName, input.feedSpec, -stockJin);
-      if (!committed) throw new Error("当前仓库库存不足");
       const now = Date.now() + data.serverTimeOffset;
       const warehouse = warehouseById(data.warehouses, input.warehouseId);
       const record = {
@@ -271,21 +269,60 @@ export function FishManagerProvider({ children }: { children: ReactNode }) {
         note: input.note || "",
         createdAt: now,
       };
-      if (preview) {
+      const db = preview ? null : firebaseDatabase();
+      const recordRef = db ? push(ref(db, "feedRecords")) : null;
+      const logRef = db ? push(ref(db, "stockLogs")) : null;
+      const recordId = recordRef?.key || `preview_feed_${now}`;
+      let stockAdjusted = false;
+
+      if (!preview) {
         setData((current) => ({
           ...current,
-          feedRecords: [{ id: `preview_feed_${now}`, ...record }, ...current.feedRecords],
-          stockLogs: [
-            { id: `preview_log_${now}`, type: "out", sourceType: "feed", ...record },
-            ...current.stockLogs,
-          ],
+          feedRecords: [{ id: recordId, ...record }, ...current.feedRecords.filter((item) => item.id !== recordId)],
         }));
-      } else {
-        const db = firebaseDatabase();
-        const recordRef = await push(ref(db, "feedRecords"), record);
-        await push(ref(db, "stockLogs"), { type: "out", sourceType: "feed", feedRecordId: recordRef.key, ...record });
+        notify(`${input.pond.name}正在保存…`);
       }
-      notify(`${input.pond.name}已记录 ${amount}${unit === "jin" ? "斤" : "包"}`);
+
+      try {
+        const committed = await adjustStock(input.warehouseId, input.feedName, input.feedSpec, -stockJin);
+        if (!committed) throw new Error("当前仓库库存不足");
+        stockAdjusted = true;
+
+        if (preview) {
+          setData((current) => ({
+            ...current,
+            feedRecords: [{ id: recordId, ...record }, ...current.feedRecords],
+            stockLogs: [
+              { id: `preview_log_${now}`, type: "out", sourceType: "feed", ...record },
+              ...current.stockLogs,
+            ],
+          }));
+        } else if (db && recordRef?.key && logRef?.key) {
+          await update(ref(db), {
+            [`feedRecords/${recordRef.key}`]: record,
+            [`stockLogs/${logRef.key}`]: {
+              type: "out",
+              sourceType: "feed",
+              feedRecordId: recordRef.key,
+              ...record,
+            },
+          });
+        }
+        notify(`${input.pond.name}已记录 ${amount}${unit === "jin" ? "斤" : "包"}`);
+      } catch (reason) {
+        if (!preview) {
+          setData((current) => ({
+            ...current,
+            feedRecords: current.feedRecords.filter((item) => item.id !== recordId),
+          }));
+          if (stockAdjusted) {
+            await adjustStock(input.warehouseId, input.feedName, input.feedSpec, stockJin).catch(() => false);
+          }
+        }
+        const detail = reason instanceof Error ? reason.message : "网络异常";
+        notify(`${input.pond.name}保存失败：${detail}`);
+        throw reason;
+      }
     },
     [adjustStock, assertWritable, data, notify, preview],
   );

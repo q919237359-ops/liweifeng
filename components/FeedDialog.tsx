@@ -56,18 +56,13 @@ export function FeedDialog({ pond, onClose }: { pond: Pond; onClose(): void }) {
   const neededJin = unit === "jin" ? numericAmount : numericAmount * bagJin(feedName, manager.feedSettings);
   const canSave = Boolean(feedName && numericAmount > 0 && neededJin <= availableJin + 0.001 && !saving && !manager.readOnly);
 
-  async function submit() {
+  function submit() {
     if (!canSave) return;
     setSaving(true);
     setError("");
-    try {
-      await manager.recordFeed({ pond, warehouseId, feedName, feedSpec, amount: numericAmount });
-      onClose();
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "保存失败，请稍后重试");
-    } finally {
-      setSaving(false);
-    }
+    const request = manager.recordFeed({ pond, warehouseId, feedName, feedSpec, amount: numericAmount });
+    onClose();
+    void request.catch(() => undefined);
   }
 
   function step(delta: number) {
